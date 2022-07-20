@@ -15,7 +15,6 @@ import (
 type ImageHandler struct {
 	Lang        string
 	CardPackage string
-	URL         string
 
 	// 文件保存路径相关信息
 	Dir      string
@@ -28,7 +27,6 @@ func NewImageHandler() *ImageHandler {
 		Lang:        "",
 		CardPackage: "",
 		FileName:    "",
-		URL:         "",
 	}
 }
 
@@ -72,7 +70,7 @@ var (
 )
 
 // 下载图片
-func (i *ImageHandler) downloadImage() {
+func (i *ImageHandler) downloadImage(url string) {
 	// 判断目录中是否有这张图片
 	if _, err := os.Stat(i.FilePath); err == nil {
 		logrus.Errorf("%v 图片已存在", i.FileName)
@@ -81,7 +79,7 @@ func (i *ImageHandler) downloadImage() {
 	}
 
 	// 下载图片
-	resp, err := http.Get(i.URL)
+	resp, err := http.Get(url)
 	if err != nil {
 		logrus.Fatalln(err)
 		return
@@ -142,7 +140,11 @@ func main() {
 		dir := imageHandler.GetLang(*lang).GetCardPackage(cardPackage.Name).GetDir().Dir
 		// 如果目录不存在则创建
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
-			os.Mkdir(dir, os.ModePerm)
+			// 递归创建目录
+			err = os.MkdirAll(dir, os.ModePerm)
+			if err != nil {
+				logrus.Fatalf("创建【%v】 目录失败: %v", dir, err)
+			}
 		}
 
 		// 获取下载图片的 URL
@@ -160,7 +162,7 @@ func main() {
 			imageHandler.
 				GetFileName(url).
 				GetFilePath().
-				downloadImage()
+				downloadImage(url)
 		}
 
 	}
