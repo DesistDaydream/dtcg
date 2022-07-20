@@ -1,6 +1,6 @@
 # 概述
 
-获取卡片列表
+获取卡片列表，其中包括卡牌的详情
 https://dtcgweb-api.digimoncard.cn/gamecard/gamecardmanager/weblist?
 page=1&
 limit=40&

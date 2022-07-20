@@ -105,10 +105,12 @@ func (i *ImageHandler) downloadImage(url string) {
 	successCount++
 }
 
-func GetImagesURL(cardPackage string) ([]string, error) {
+// 从卡片详情中获取下载图片所需的 URL
+func GetImagesURL(c *services.FilterCondition) ([]string, error) {
 	var urls []string
+
 	// 根据过滤条件获取卡片详情
-	cardDesc, err := services.GetCardDesc(cardPackage)
+	cardDesc, err := services.GetCardsDesc(c)
 	if err != nil {
 		return nil, err
 	}
@@ -133,11 +135,13 @@ func main() {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	// 获取 cardGroup 列表
+	// 获取 cardGroup 列表。即获取所有卡包的名称
 	cardPackages, err := services.GetCardPackage()
 	if err != nil {
 		logrus.Errorf("GetGameCard error: %v", err)
 	}
+
+	// 循环遍历卡包列表，获取卡包中的卡片
 	for _, cardPackage := range cardPackages.List {
 		imageHandler := NewImageHandler()
 
@@ -152,8 +156,28 @@ func main() {
 			}
 		}
 
+		// 设定过滤条件以获取指定卡片的详情
+		c := &services.FilterCondition{
+			Page:             "",
+			Limit:            "400",
+			Name:             "",
+			State:            "0",
+			CardGroup:        cardPackage.Name,
+			RareDegree:       "",
+			BelongsType:      "",
+			CardLevel:        "",
+			Form:             "",
+			Attribute:        "",
+			Type:             "",
+			Color:            "",
+			EnvolutionEffect: "",
+			SafeEffect:       "",
+			ParallCard:       "",
+			KeyEffect:        "",
+		}
+
 		// 获取下载图片的 URL
-		urls, err := GetImagesURL(cardPackage.Name)
+		urls, err := GetImagesURL(c)
 		if err != nil {
 			panic(err)
 		}

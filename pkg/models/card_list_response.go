@@ -5,6 +5,13 @@ type CardDesc struct {
 	Code int    `json:"code"`
 	Page Page   `json:"page"`
 }
+type Page struct {
+	TotalCount int        `json:"totalCount"`
+	PageSize   int        `json:"pageSize"`
+	TotalPage  int        `json:"totalPage"`
+	CurrPage   int        `json:"currPage"`
+	List       []PageList `json:"list"`
+}
 type PageList struct {
 	ID                   int    `json:"id"`
 	CardGroup            string `json:"cardGroup"`
@@ -31,11 +38,4 @@ type PageList struct {
 	KeyEffect            string `json:"keyEffect"`
 	CreateTime           string `json:"createTime"`
 	UpdateTime           string `json:"updateTime"`
-}
-type Page struct {
-	TotalCount int        `json:"totalCount"`
-	PageSize   int        `json:"pageSize"`
-	TotalPage  int        `json:"totalPage"`
-	CurrPage   int        `json:"currPage"`
-	List       []PageList `json:"list"`
 }
