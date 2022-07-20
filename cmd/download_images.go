@@ -122,11 +122,16 @@ func GetImagesURL(cardPackage string) ([]string, error) {
 }
 
 func main() {
-	logging := logging.LoggingFlags{}
-	logging.AddFlags()
+	logFlags := logging.LoggingFlags{}
+	logFlags.AddFlags()
 	// 指定要下载的图片的语言
 	lang := pflag.String("lang", "cn", "language of images")
 	pflag.Parse()
+
+	// 初始化日志
+	if err := logging.LogInit(logFlags.LogLevel, logFlags.LogOutput, logFlags.LogFormat); err != nil {
+		logrus.Fatal("初始化日志失败", err)
+	}
 
 	// 获取 cardGroup 列表
 	cardPackages, err := services.GetCardPackage()
