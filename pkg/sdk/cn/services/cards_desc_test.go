@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/DesistDaydream/dtcg/pkg/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
+	"github.com/sirupsen/logrus"
 )
 
 func TestGetCardsDesc(t *testing.T) {
@@ -49,9 +50,16 @@ func TestGetCardsDesc(t *testing.T) {
 				t.Errorf("GetCardsDesc() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+			fmt.Println(got)
 
 			for _, c := range got.Page.List {
-				fmt.Println(c.Name)
+				logrus.WithFields(logrus.Fields{
+					"name":       c.Name,
+					"state":      c.State,
+					"cardGroup":  c.CardGroup,
+					"model":      c.Model,
+					"rareDegree": c.RareDegree,
+				}).Infoln("卡片详情")
 			}
 
 		})
