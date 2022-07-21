@@ -160,8 +160,8 @@ func main() {
 	}
 
 	logrus.WithFields(logrus.Fields{
-		"total":   handler.Total,
-		"success": handler.SuccessCount,
-		"fail":    handler.FailCount,
+		"总数": handler.Total,
+		"成功": handler.SuccessCount,
+		"失败": handler.FailCount,
 	}).Infof("统计下载结果")
 }
