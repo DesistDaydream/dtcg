@@ -29,7 +29,7 @@ type FilterCondition struct {
 }
 
 // 根据过滤条件获取卡片详情
-func GetCardsDesc(c *FilterCondition) (*models.CardDesc, error) {
+func GetCardDescs(c *FilterCondition) (*models.CardDesc, error) {
 	req, err := http.NewRequest("GET", "https://dtcgweb-api.digimoncard.cn/gamecard/gamecardmanager/weblist", nil)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -56,7 +56,6 @@ func GetCardsDesc(c *FilterCondition) (*models.CardDesc, error) {
 	q.Add("keyEffect", c.KeyEffect)
 	req.URL.RawQuery = q.Encode()
 
-	logrus.Debugln(req.URL.String())
 	// 发起请求
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

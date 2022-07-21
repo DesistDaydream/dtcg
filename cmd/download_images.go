@@ -1,126 +1,73 @@
 package main
 
 import (
-	"io"
-	"net/http"
+	"fmt"
 	"os"
 	"strings"
 
+	"github.com/DesistDaydream/dtcg/cmd/handler"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
+	"github.com/DesistDaydream/dtcg/pkg/models"
 	"github.com/DesistDaydream/dtcg/pkg/services"
+	"github.com/DesistDaydream/dtcg/pkg/subset"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
-
-type ImageHandler struct {
-	Lang        string
-	CardPackage string
-
-	// 文件保存路径相关信息
-	Dir      string
-	FileName string
-	FilePath string
-}
-
-func NewImageHandler() *ImageHandler {
-	return &ImageHandler{
-		Lang:        "",
-		CardPackage: "",
-		FileName:    "",
-	}
-}
-
-// 获取图片保存路径
-// 1.获取图片语言
-func (i *ImageHandler) GetLang(lang string) *ImageHandler {
-	i.Lang = lang
-	return i
-}
-
-// 2.获取卡包名称
-func (i *ImageHandler) GetCardPackage(cardPackageName string) *ImageHandler {
-	i.CardPackage = cardPackageName
-	return i
-}
-
-// 获取需要保存图片的目录
-func (i *ImageHandler) GetDir() *ImageHandler {
-	i.Dir = "./images/" + i.Lang + "/" + i.CardPackage
-	return i
-}
-
-// 3.获取图片名称
-func (i *ImageHandler) GetFileName(url string) *ImageHandler {
-	// 提取 url 中的文件名
-	i.FileName = url[strings.LastIndex(url, "/")+1:]
-	return i
-}
-
-// 4.获取图片保存路径
-func (i *ImageHandler) GetFilePath() *ImageHandler {
-	i.FilePath = i.Dir + "/" + i.FileName
-	return i
-}
-
-// 统计下载失败和下载成功的次数
-var (
-	total        int
-	successCount int
-	failCount    int
-)
-
-// 下载图片
-func (i *ImageHandler) downloadImage(url string) {
-	// 判断目录中是否有这张图片
-	if _, err := os.Stat(i.FilePath); err == nil {
-		logrus.Errorf("%v 图片已存在", i.FileName)
-		failCount++
-		return
-	}
-
-	// 下载图片
-	resp, err := http.Get(url)
-	if err != nil {
-		logrus.Fatalln(err)
-		return
-	}
-	defer resp.Body.Close()
-
-	// 创建文件
-	file, err := os.Create(i.FilePath)
-	if err != nil {
-		logrus.Fatalln(err)
-		return
-	}
-	defer file.Close()
-
-	// 写入文件
-	_, err = io.Copy(file, resp.Body)
-	if err != nil {
-		logrus.Fatalln(err)
-		return
-	}
-
-	logrus.Infof("下载完成")
-	successCount++
-}
 
 // 从卡片详情中获取下载图片所需的 URL
 func GetImagesURL(c *services.FilterCondition) ([]string, error) {
 	var urls []string
 
 	// 根据过滤条件获取卡片详情
-	cardDesc, err := services.GetCardsDesc(c)
+	cardDescs, err := services.GetCardDescs(c)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, mon := range cardDesc.Page.List {
-		logrus.Debugln(mon.ImageCover)
-		urls = append(urls, mon.ImageCover)
+	for _, cardDesc := range cardDescs.Page.List {
+		// logrus.Debugln(mon.ImageCover)
+		urls = append(urls, cardDesc.ImageCover)
 	}
 
 	return urls, nil
+}
+
+// 获取需要下载图片的卡包
+func GetNeedDownloadCardPackages(cardPackages *models.CardPackage) []string {
+	var allCardPackageNames []string
+	for _, cardPackage := range cardPackages.List {
+		logrus.WithFields(logrus.Fields{
+			"名称": cardPackage.Name,
+			"状态": cardPackage.State,
+		}).Infof("卡包信息")
+
+		allCardPackageNames = append(allCardPackageNames, cardPackage.Name)
+	}
+	fmt.Printf("请选择需要下载图片的卡包，多个卡包用逗号分隔(使用 all 下载所有): ")
+
+	// 读取用户输入
+	var cardPackagesName string
+	fmt.Scanln(&cardPackagesName)
+
+	// 判断用户输入的卡包名称是否存在
+	for {
+		if cardPackagesName == "all" {
+			break
+		}
+		if !subset.IsSubset(strings.Split(cardPackagesName, ","), allCardPackageNames) {
+			fmt.Printf("卡包名称不存在，请重新输入: ")
+			fmt.Scanln(&cardPackagesName)
+		} else {
+			break
+		}
+	}
+
+	switch cardPackagesName {
+	case "all":
+		return allCardPackageNames
+	default:
+		return strings.Split(cardPackagesName, ",")
+	}
 }
 
 func main() {
@@ -141,12 +88,27 @@ func main() {
 		logrus.Errorf("GetGameCard error: %v", err)
 	}
 
+	// 获取需要下载图片的卡包
+	needDownloadCardPackages := GetNeedDownloadCardPackages(cardPackages)
+
+	// 确认是否要下载
+	for _, p := range needDownloadCardPackages {
+		logrus.WithField("卡包名称", p).Infof("待下载卡包名称")
+	}
+	fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
+	var confirm string
+	fmt.Scanln(&confirm)
+	if confirm != "y" {
+		logrus.Infof("取消下载")
+		return
+	}
+
 	// 循环遍历卡包列表，获取卡包中的卡片
-	for _, cardPackage := range cardPackages.List {
-		imageHandler := NewImageHandler()
+	for _, cardPackage := range needDownloadCardPackages {
+		imageHandler := handler.NewImageHandler()
 
 		// 获取图片保存目录
-		dir := imageHandler.GetLang(*lang).GetCardPackage(cardPackage.Name).GetDir().Dir
+		dir := imageHandler.GetLang(*lang).GetCardPackage(cardPackage).GetDir().Dir
 		// 如果目录不存在则创建
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
 			// 递归创建目录
@@ -162,7 +124,7 @@ func main() {
 			Limit:            "400",
 			Name:             "",
 			State:            "0",
-			CardGroup:        cardPackage.Name,
+			CardGroup:        cardPackage,
 			RareDegree:       "",
 			BelongsType:      "",
 			CardLevel:        "",
@@ -181,9 +143,10 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage, len(urls))
 
 		// 统计需要下载的图片总量
-		total = total + len(urls)
+		handler.Total = handler.Total + len(urls)
 
 		// 下载图片
 		for _, url := range urls {
@@ -191,14 +154,14 @@ func main() {
 			imageHandler.
 				GetFileName(url).
 				GetFilePath().
-				downloadImage(url)
+				DownloadImage(url)
 		}
 
 	}
 
 	logrus.WithFields(logrus.Fields{
-		"total":   total,
-		"success": successCount,
-		"fail":    failCount,
+		"total":   handler.Total,
+		"success": handler.SuccessCount,
+		"fail":    handler.FailCount,
 	}).Infof("统计下载结果")
 }
