@@ -10,7 +10,7 @@ import (
 
 func TestGetCardsDesc(t *testing.T) {
 	type args struct {
-		c *FilterCondition
+		r *models.FilterConditionReq
 	}
 	tests := []struct {
 		name    string
@@ -22,7 +22,7 @@ func TestGetCardsDesc(t *testing.T) {
 		{
 			name: "test1",
 			args: args{
-				c: &FilterCondition{
+				r: &models.FilterConditionReq{
 					Page:             "1",
 					Limit:            "40",
 					Name:             "",
@@ -45,7 +45,7 @@ func TestGetCardsDesc(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetCardDescs(tt.args.c)
+			got, err := GetCardDescs(tt.args.r)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetCardsDesc() error = %v, wantErr %v", err, tt.wantErr)
 				return

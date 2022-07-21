@@ -9,27 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type FilterCondition struct {
-	Page             string `json:"page"`
-	Limit            string `json:"limit"`
-	Name             string `json:"name"`
-	State            string `json:"state"`
-	CardGroup        string `json:"cardGroup"`
-	RareDegree       string `json:"rareDegree"`
-	BelongsType      string `json:"belongsType"`
-	CardLevel        string `json:"cardLevel"`
-	Form             string `json:"form"`
-	Attribute        string `json:"attribute"`
-	Type             string `json:"type"`
-	Color            string `json:"color"`
-	EnvolutionEffect string `json:"envolutionEffect"`
-	SafeEffect       string `json:"safeEffect"`
-	ParallCard       string `json:"parallCard"`
-	KeyEffect        string `json:"keyEffect"`
-}
-
 // 根据过滤条件获取卡片详情
-func GetCardDescs(c *FilterCondition) (*models.CardDesc, error) {
+func GetCardDescs(r *models.FilterConditionReq) (*models.CardDesc, error) {
 	req, err := http.NewRequest("GET", "https://dtcgweb-api.digimoncard.cn/gamecard/gamecardmanager/weblist", nil)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -38,22 +19,22 @@ func GetCardDescs(c *FilterCondition) (*models.CardDesc, error) {
 
 	// 添加参数
 	q := req.URL.Query()
-	q.Add("page", c.Page)
-	q.Add("limit", c.Limit)
-	q.Add("name", c.Name)
-	q.Add("state", c.State)
-	q.Add("cardGroup", c.CardGroup)
-	q.Add("rareDegree", c.RareDegree)
-	q.Add("belongsType", c.BelongsType)
-	q.Add("cardLevel", c.CardLevel)
-	q.Add("form", c.Form)
-	q.Add("attribute", c.Attribute)
-	q.Add("type", c.Type)
-	q.Add("color", c.Color)
-	q.Add("envolutionEffect", c.EnvolutionEffect)
-	q.Add("safeEffect", c.SafeEffect)
-	q.Add("parallCard", c.ParallCard)
-	q.Add("keyEffect", c.KeyEffect)
+	q.Add("page", r.Page)
+	q.Add("limit", r.Limit)
+	q.Add("name", r.Name)
+	q.Add("state", r.State)
+	q.Add("cardGroup", r.CardGroup)
+	q.Add("rareDegree", r.RareDegree)
+	q.Add("belongsType", r.BelongsType)
+	q.Add("cardLevel", r.CardLevel)
+	q.Add("form", r.Form)
+	q.Add("attribute", r.Attribute)
+	q.Add("type", r.Type)
+	q.Add("color", r.Color)
+	q.Add("envolutionEffect", r.EnvolutionEffect)
+	q.Add("safeEffect", r.SafeEffect)
+	q.Add("parallCard", r.ParallCard)
+	q.Add("keyEffect", r.KeyEffect)
 	req.URL.RawQuery = q.Encode()
 
 	// 发起请求

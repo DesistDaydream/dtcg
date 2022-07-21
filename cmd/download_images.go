@@ -15,7 +15,7 @@ import (
 )
 
 // 从卡片详情中获取下载图片所需的 URL
-func GetImagesURL(c *services.FilterCondition) ([]string, error) {
+func GetImagesURL(c *models.FilterConditionReq) ([]string, error) {
 	var urls []string
 
 	// 根据过滤条件获取卡片详情
@@ -119,7 +119,7 @@ func main() {
 		}
 
 		// 设定过滤条件以获取指定卡片的详情
-		c := &services.FilterCondition{
+		c := &models.FilterConditionReq{
 			Page:             "",
 			Limit:            "400",
 			Name:             "",
