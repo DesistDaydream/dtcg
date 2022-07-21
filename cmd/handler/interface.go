@@ -8,21 +8,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ImageHandler interface {
-	GetCardPackage(string)
-}
-
-// 获取需要保存图片的目录
-func GetDir(lang string, cardPackageName string) string {
+// 生成需要保存图片的目录
+func GenerateDir(lang string, cardPackageName string) string {
 	dir := "./images/" + lang + "/" + cardPackageName
 	return dir
 }
 
 // 创建图片保存路径
-func CreateDir(cardPackage, lang, cardPackageName string, i ImageHandler) error {
-	// 获取图片保存目录
-	i.GetCardPackage(cardPackage)
-	dir := GetDir(lang, cardPackageName)
+func CreateDir(dir string) error {
 	// 如果目录不存在则创建
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
 		// 递归创建目录
@@ -43,10 +36,10 @@ var (
 )
 
 // 下载图片
-func DownloadImage(url string, filePath string, fileName string) error {
+func DownloadImage(url string, filePath string) error {
 	// 判断目录中是否有这张图片
 	if _, err := os.Stat(filePath); err == nil {
-		logrus.Errorf("%v 图片已存在", fileName)
+		logrus.Errorf("%v 图片已存在", filePath)
 		FailCount++
 		return err
 	}
@@ -72,7 +65,7 @@ func DownloadImage(url string, filePath string, fileName string) error {
 		return err
 	}
 
-	logrus.Debugln("下载完成")
+	logrus.Debugf("下载到【%v】完成", filePath)
 	SuccessCount++
 
 	return nil

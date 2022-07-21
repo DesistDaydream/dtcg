@@ -21,26 +21,48 @@ func main() {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	imageHandler := handler.NewCNImageHandler()
-	imageHandler.GetLang(*lang)
+	switch *lang {
+	case "cn":
+		imageHandler := handler.NewCNImageHandler()
+		imageHandler.GetLang(*lang)
+		// 获取卡包列表
+		needDownloadCardPackages := imageHandler.GetCardPackageList()
+		// 确认是否要下载
+		for _, p := range needDownloadCardPackages {
+			logrus.WithField("卡包名称", p).Infof("待下载卡包名称")
+		}
+		fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
+		var confirm string
+		fmt.Scanln(&confirm)
+		if confirm != "y" {
+			logrus.Infof("取消下载")
+			return
+		}
 
-	// 获取卡包列表
-	needDownloadCardPackages := imageHandler.GetCardPackageList()
+		// 下载
+		imageHandler.DownloadCardImage(needDownloadCardPackages)
+	case "en":
+		imageHandler := handler.NewENImageHandler()
+		imageHandler.GetLang(*lang)
+		// 获取卡包列表
+		needDownloadCardPackages := imageHandler.GetCardPackageList()
+		// 确认是否要下载
+		for _, p := range needDownloadCardPackages {
+			logrus.WithField("卡包名称", p).Infof("待下载卡包名称")
+		}
+		fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
+		var confirm string
+		fmt.Scanln(&confirm)
+		if confirm != "y" {
+			logrus.Infof("取消下载")
+			return
+		}
 
-	// 确认是否要下载
-	for _, p := range needDownloadCardPackages {
-		logrus.WithField("卡包名称", p).Infof("待下载卡包名称")
+		// 下载
+		imageHandler.DownloadCardImage(needDownloadCardPackages)
+	default:
+		logrus.Fatalln("不支持的语言")
 	}
-	fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
-	var confirm string
-	fmt.Scanln(&confirm)
-	if confirm != "y" {
-		logrus.Infof("取消下载")
-		return
-	}
-
-	// 下载
-	imageHandler.DownloadCardImage(needDownloadCardPackages)
 
 	logrus.WithFields(logrus.Fields{
 		"总数": handler.Total,

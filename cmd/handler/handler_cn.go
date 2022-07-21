@@ -13,18 +13,12 @@ import (
 type CNImageHandler struct {
 	Lang            string
 	CardPackageName string
-
-	// 文件保存路径相关信息
-	Dir      string
-	FileName string
-	FilePath string
 }
 
 func NewCNImageHandler() *CNImageHandler {
 	return &CNImageHandler{
 		Lang:            "",
 		CardPackageName: "",
-		FileName:        "",
 	}
 }
 
@@ -37,108 +31,13 @@ func (i *CNImageHandler) GetCardPackageList() []string {
 	}
 
 	// 获取需要下载图片的卡包
-	needDownloadCardPackages := GetNeedDownloadCardPackages(cardPackages)
+	needDownloadCardPackages := i.GetNeedDownloadCardPackages(cardPackages)
 
 	return needDownloadCardPackages
 }
 
-// 从卡片详情中获取下载图片所需的 URL
-func (i *CNImageHandler) GetImagesURL(c *models.FilterConditionReq) ([]string, error) {
-	var urls []string
-
-	// 根据过滤条件获取卡片详情
-	cardDescs, err := services.GetCardDescs(c)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, cardDesc := range cardDescs.Page.List {
-		// logrus.Debugln(mon.ImageCover)
-		urls = append(urls, cardDesc.ImageCover)
-	}
-
-	return urls, nil
-}
-
-// 下载卡图
-func (i *CNImageHandler) DownloadCardImage(needDownloadCardPackages []string) {
-	// 循环遍历卡包列表，获取卡包中的卡片
-	for _, cardPackage := range needDownloadCardPackages {
-		// 创建目录
-		err := CreateDir(cardPackage, i.Lang, i.CardPackageName, i)
-		if err != nil {
-			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackage, err)
-		}
-
-		// 设定过滤条件以获取指定卡片的详情
-		c := &models.FilterConditionReq{
-			Page:             "",
-			Limit:            "400",
-			Name:             "",
-			State:            "0",
-			CardGroup:        cardPackage,
-			RareDegree:       "",
-			BelongsType:      "",
-			CardLevel:        "",
-			Form:             "",
-			Attribute:        "",
-			Type:             "",
-			Color:            "",
-			EnvolutionEffect: "",
-			SafeEffect:       "",
-			ParallCard:       "",
-			KeyEffect:        "",
-		}
-
-		// 获取下载图片的 URL
-		urls, err := i.GetImagesURL(c)
-		if err != nil {
-			panic(err)
-		}
-		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage, len(urls))
-
-		// 统计需要下载的图片总量
-		Total = Total + len(urls)
-
-		// 下载图片
-		for _, url := range urls {
-			// 前面已经获取到了图片保存的目录，使用 imageHandler.Dir 即可生成图标保存路径
-			fileName := i.GetFileName(url)
-			err := DownloadImage(url, i.GetFilePath(fileName), fileName)
-			if err != nil {
-				logrus.Fatalf("下载图片失败: %v", err)
-			}
-		}
-
-	}
-}
-
-// 获取图片保存路径
-// 1.获取图片语言
-func (i *CNImageHandler) GetLang(lang string) {
-	i.Lang = lang
-}
-
-// 2.获取卡包名称
-func (i *CNImageHandler) GetCardPackage(cardPackageName string) {
-	i.CardPackageName = cardPackageName
-}
-
-// 3.获取图片名称
-func (i *CNImageHandler) GetFileName(url string) string {
-	// 提取 url 中的文件名
-	fileName := url[strings.LastIndex(url, "/")+1:]
-	return fileName
-}
-
-// 4.获取图片保存路径
-func (i *CNImageHandler) GetFilePath(fileName string) string {
-	dir := GetDir(i.Lang, i.CardPackageName) + "/" + fileName
-	return dir
-}
-
 // 获取需要下载图片的卡包
-func GetNeedDownloadCardPackages(cardPackages *models.CardPackage) []string {
+func (i *CNImageHandler) GetNeedDownloadCardPackages(cardPackages *models.CardPackage) []string {
 	var allCardPackageNames []string
 	for _, cardPackage := range cardPackages.List {
 		logrus.WithFields(logrus.Fields{
@@ -173,4 +72,101 @@ func GetNeedDownloadCardPackages(cardPackages *models.CardPackage) []string {
 	default:
 		return strings.Split(cardPackagesName, ",")
 	}
+}
+
+// 下载卡图
+func (i *CNImageHandler) DownloadCardImage(needDownloadCardPackages []string) {
+	// 设定过滤条件以获取指定卡片的详情
+	c := &models.FilterConditionReq{
+		Page:             "",
+		Limit:            "400",
+		Name:             "",
+		State:            "0",
+		CardGroup:        "",
+		RareDegree:       "",
+		BelongsType:      "",
+		CardLevel:        "",
+		Form:             "",
+		Attribute:        "",
+		Type:             "",
+		Color:            "",
+		EnvolutionEffect: "",
+		SafeEffect:       "",
+		ParallCard:       "",
+		KeyEffect:        "",
+	}
+
+	// 循环遍历卡包列表，获取卡包中的卡片
+	for _, cardPackage := range needDownloadCardPackages {
+		// 生成目录
+		dir := GenerateDir(i.Lang, cardPackage)
+		// 创建目录
+		err := CreateDir(dir)
+		if err != nil {
+			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackage, err)
+		}
+
+		// 设置卡包名称，以过滤条件获取卡片详情
+		c.CardGroup = cardPackage
+
+		// 获取下载图片的 URL
+		urls, err := i.GetImagesURL(c)
+		if err != nil {
+			panic(err)
+		}
+		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage, len(urls))
+
+		// 统计需要下载的图片总量
+		Total = Total + len(urls)
+
+		// 下载图片
+		for _, url := range urls {
+			// 从 URL 中提取文件名
+			fileName := i.GenFileName(url)
+			// 生成保存图片的绝对路径
+			filePath := i.GenFilePath(cardPackage, fileName)
+			err := DownloadImage(url, filePath)
+			if err != nil {
+				logrus.Fatalf("下载图片失败: %v", err)
+			}
+		}
+
+	}
+}
+
+// 从卡片详情中获取下载图片所需的 URL
+func (i *CNImageHandler) GetImagesURL(c *models.FilterConditionReq) ([]string, error) {
+	var urls []string
+
+	// 根据过滤条件获取卡片详情
+	cardDescs, err := services.GetCardDescs(c)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cardDesc := range cardDescs.Page.List {
+		// logrus.Debugln(mon.ImageCover)
+		urls = append(urls, cardDesc.ImageCover)
+	}
+
+	return urls, nil
+}
+
+// 获取图片保存路径
+// 1.获取图片语言
+func (i *CNImageHandler) GetLang(lang string) {
+	i.Lang = lang
+}
+
+// 2.从 URL 中提取文件名
+func (i *CNImageHandler) GenFileName(url string) string {
+	// 提取 url 中的文件名
+	fileName := url[strings.LastIndex(url, "/")+1:]
+	return fileName
+}
+
+// 3.生成图片保存路径
+func (i *CNImageHandler) GenFilePath(cardPackageName, fileName string) string {
+	dir := GenerateDir(i.Lang, cardPackageName) + "/" + fileName
+	return dir
 }
