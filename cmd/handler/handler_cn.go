@@ -97,24 +97,24 @@ func (i *CNImageHandler) DownloadCardImage(needDownloadCardPackages []string) {
 	}
 
 	// 循环遍历卡包列表，获取卡包中的卡片
-	for _, cardPackage := range needDownloadCardPackages {
+	for _, cardPackageName := range needDownloadCardPackages {
 		// 生成目录
-		dir := GenerateDir(i.Lang, cardPackage)
+		dir := GenerateDir(i.Lang, cardPackageName)
 		// 创建目录
 		err := CreateDir(dir)
 		if err != nil {
-			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackage, err)
+			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackageName, err)
 		}
 
 		// 设置卡包名称，以过滤条件获取卡片详情
-		c.CardGroup = cardPackage
+		c.CardGroup = cardPackageName
 
 		// 获取下载图片的 URL
 		urls, err := i.GetImagesURL(c)
 		if err != nil {
 			panic(err)
 		}
-		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage, len(urls))
+		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackageName, len(urls))
 
 		// 统计需要下载的图片总量
 		Total = Total + len(urls)
@@ -124,7 +124,7 @@ func (i *CNImageHandler) DownloadCardImage(needDownloadCardPackages []string) {
 			// 从 URL 中提取文件名
 			fileName := i.GenFileName(url)
 			// 生成保存图片的绝对路径
-			filePath := i.GenFilePath(cardPackage, fileName)
+			filePath := i.GenFilePath(cardPackageName, fileName)
 			err := DownloadImage(url, filePath)
 			if err != nil {
 				logrus.Fatalf("下载图片失败: %v", err)

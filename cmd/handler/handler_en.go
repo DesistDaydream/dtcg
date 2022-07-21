@@ -22,8 +22,13 @@ func NewENImageHandler() *ENImageHandler {
 	}
 }
 
+type CardInfo struct {
+	Name string
+	ID   string
+}
+
 // 获取卡包列表
-func (i *ENImageHandler) GetCardPackageList() []string {
+func (i *ENImageHandler) GetCardPackageList() []*CardInfo {
 	// 获取所有卡包的名称
 	cardPackages, err := services.GetCardFilterInfo(&models.CardFilterInfoReq{
 		GameTitleID:  "2",
@@ -41,8 +46,9 @@ func (i *ENImageHandler) GetCardPackageList() []string {
 }
 
 // 获取需要下载图片的卡包
-func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardSetList) []string {
+func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardSetList) []*CardInfo {
 	var allCardPackageNames []string
+	var allCardInfo []*CardInfo
 	for _, cardPackage := range cardPackages {
 		logrus.WithFields(logrus.Fields{
 			"名称": cardPackage.Name,
@@ -53,6 +59,10 @@ func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardS
 		// ID 转为 string
 		cardPackageID := fmt.Sprintf("%v", cardPackage.ID)
 
+		allCardInfo = append(allCardInfo, &CardInfo{
+			Name: cardPackage.Number,
+			ID:   cardPackageID,
+		})
 		allCardPackageNames = append(allCardPackageNames, cardPackageID)
 	}
 	fmt.Printf("请选择需要下载图片的卡包，多个卡包用逗号分隔(使用 all 下载所有，输入ID): ")
@@ -74,16 +84,26 @@ func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardS
 		}
 	}
 
+	var CardsInfo []*CardInfo
+
 	switch cardPackagesName {
 	case "all":
-		return allCardPackageNames
+		return allCardInfo
 	default:
-		return strings.Split(cardPackagesName, ",")
+		names := strings.Split(cardPackagesName, ",")
+		for _, name := range names {
+			for _, cardInfo := range allCardInfo {
+				if cardInfo.ID == name {
+					CardsInfo = append(CardsInfo, cardInfo)
+				}
+			}
+		}
+		return CardsInfo
 	}
 }
 
 // 下载卡图
-func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []string) {
+func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []*CardInfo) {
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.CardListReq{
 		CardSet:     "",
@@ -94,45 +114,16 @@ func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []string) {
 
 	// 循环遍历卡包列表，获取卡包中的卡片
 	for _, cardPackage := range needDownloadCardPackages {
-		// TODO: 自动维护这些对应关系
-		var cardPackageName string
-		switch cardPackage {
-		case "23":
-			cardPackageName = "BT05"
-		case "31":
-			cardPackageName = "BT04"
-		case "35":
-			cardPackageName = "BT01"
-		case "36":
-			cardPackageName = "BT01"
-		case "39":
-			cardPackageName = "P"
-		case "38":
-			cardPackageName = "ST-6"
-		case "33":
-			cardPackageName = "ST-5"
-		case "30":
-			cardPackageName = "ST-4"
-		case "32":
-			cardPackageName = "ST-3"
-		case "25":
-			cardPackageName = "ST-2"
-		case "28":
-			cardPackageName = "ST-1"
-		default:
-			logrus.Fatalln("卡包名称不存在")
-		}
-
 		// 生成目录
-		dir := GenerateDir(i.Lang, cardPackageName)
+		dir := GenerateDir(i.Lang, cardPackage.Name)
 		// 创建目录
 		err := CreateDir(dir)
 		if err != nil {
-			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackageName, err)
+			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackage.Name, err)
 		}
 
 		// 设置卡包名称，以过滤条件获取卡片详情
-		c.CardSet = cardPackage
+		c.CardSet = cardPackage.ID
 
 		// 获取下载图片的 URL
 		urls, err := i.GetImagesURL(c)
@@ -149,7 +140,7 @@ func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []string) {
 			// 从 URL 中提取文件名
 			fileName := i.GenFileName(url)
 			// 生成保存图片的绝对路径
-			filePath := i.GenFilePath(cardPackageName, fileName)
+			filePath := i.GenFilePath(cardPackage.Name, fileName)
 			err := DownloadImage(url, filePath)
 			if err != nil {
 				logrus.Fatalf("下载图片失败: %v", err)

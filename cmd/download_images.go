@@ -48,7 +48,7 @@ func main() {
 		needDownloadCardPackages := imageHandler.GetCardPackageList()
 		// 确认是否要下载
 		for _, p := range needDownloadCardPackages {
-			logrus.WithField("卡包名称", p).Infof("待下载卡包名称")
+			logrus.WithField("卡包名称", p.Name).Infof("待下载卡包名称")
 		}
 		fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
 		var confirm string
