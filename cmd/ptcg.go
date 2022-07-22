@@ -36,9 +36,9 @@ func main() {
 
 	imageHandler.GetLang(*lang)
 	// 获取卡包列表
-	needDownloadCardPackages := imageHandler.GetCardPackageList()
+	cardInfo := imageHandler.GetCardPackageList()
 	// 确认是否要下载
-	for _, p := range needDownloadCardPackages {
+	for _, p := range cardInfo {
 		logrus.WithField("卡包名称", p).Infof("待下载卡包名称")
 	}
 	fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
@@ -50,7 +50,7 @@ func main() {
 	}
 
 	// 下载
-	imageHandler.DownloadCardImage(needDownloadCardPackages)
+	imageHandler.DownloadCardImage(cardInfo)
 
 	logrus.WithFields(logrus.Fields{
 		"总数": handler.Total,
