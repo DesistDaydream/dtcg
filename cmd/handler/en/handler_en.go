@@ -1,9 +1,10 @@
-package handler
+package en
 
 import (
 	"fmt"
 	"strings"
 
+	"github.com/DesistDaydream/dtcg/cmd/handler"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/en/services"
 	"github.com/DesistDaydream/dtcg/pkg/subset"
@@ -23,6 +24,7 @@ func NewENImageHandler() *ENImageHandler {
 }
 
 type CardInfo struct {
+	Lang string
 	Name string
 	ID   string
 }
@@ -115,9 +117,9 @@ func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []*CardInfo)
 	// 循环遍历卡包列表，获取卡包中的卡片
 	for _, cardPackage := range needDownloadCardPackages {
 		// 生成目录
-		dir := GenerateDir(i.Lang, cardPackage.Name)
+		dir := handler.GenerateDir(i.Lang, cardPackage.Name)
 		// 创建目录
-		err := CreateDir(dir)
+		err := handler.CreateDir(dir)
 		if err != nil {
 			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackage.Name, err)
 		}
@@ -130,10 +132,10 @@ func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []*CardInfo)
 		if err != nil {
 			panic(err)
 		}
-		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage, len(urls))
+		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage.Name, len(urls))
 
 		// 统计需要下载的图片总量
-		Total = Total + len(urls)
+		handler.Total = handler.Total + len(urls)
 
 		// 下载图片
 		for _, url := range urls {
@@ -141,7 +143,7 @@ func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []*CardInfo)
 			fileName := i.GenFileName(url)
 			// 生成保存图片的绝对路径
 			filePath := i.GenFilePath(cardPackage.Name, fileName)
-			err := DownloadImage(url, filePath)
+			err := handler.DownloadImage(url, filePath)
 			if err != nil {
 				logrus.Fatalf("下载图片失败: %v", err)
 			}
@@ -183,6 +185,6 @@ func (i *ENImageHandler) GenFileName(url string) string {
 
 // 3.生成图片保存路径
 func (i *ENImageHandler) GenFilePath(cardPackageName, fileName string) string {
-	dir := GenerateDir(i.Lang, cardPackageName) + "/" + fileName
+	dir := handler.GenerateDir(i.Lang, cardPackageName) + "/" + fileName
 	return dir
 }

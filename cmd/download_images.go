@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/DesistDaydream/dtcg/cmd/handler"
+	"github.com/DesistDaydream/dtcg/cmd/handler/cn"
+	"github.com/DesistDaydream/dtcg/cmd/handler/en"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
@@ -23,7 +25,7 @@ func main() {
 
 	switch *lang {
 	case "cn":
-		imageHandler := handler.NewCNImageHandler()
+		imageHandler := cn.NewCNImageHandler()
 		imageHandler.GetLang(*lang)
 		// 获取卡包列表
 		needDownloadCardPackages := imageHandler.GetCardPackageList()
@@ -42,7 +44,7 @@ func main() {
 		// 下载
 		imageHandler.DownloadCardImage(needDownloadCardPackages)
 	case "en":
-		imageHandler := handler.NewENImageHandler()
+		imageHandler := en.NewENImageHandler()
 		imageHandler.GetLang(*lang)
 		// 获取卡包列表
 		needDownloadCardPackages := imageHandler.GetCardPackageList()
