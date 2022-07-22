@@ -1,20 +1,22 @@
 package handler
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
 
 type ImageHandler interface {
 	GetLang(string)
-	GetCardPackageList() []*CardInfo
-	DownloadCardImage([]*CardInfo)
+	GetCardPackageList() []*CardPackageInfo
+	DownloadCardImage([]*CardPackageInfo)
 }
 
-type CardInfo struct {
+type CardPackageInfo struct {
 	Lang  string
 	Name  string
 	ID    string
@@ -39,6 +41,32 @@ func CreateDir(dir string) error {
 	}
 
 	return nil
+}
+
+// 根据用户输入获取需要下载图片的卡包
+func GetNeedDownloadCardPackages(allCardPackageInfo []*CardPackageInfo) []*CardPackageInfo {
+	fmt.Printf("请选择需要下载图片的卡包，多个卡包用逗号分隔(使用 all 下载所有): ")
+
+	// 读取用户输入
+	var userInputCardPackage string
+	var someCardPackageInfo []*CardPackageInfo
+
+	fmt.Scanln(&userInputCardPackage)
+	userInputCardPackageSlice := strings.Split(userInputCardPackage, ",")
+	for _, name := range userInputCardPackageSlice {
+		for _, cardInfo := range allCardPackageInfo {
+			if cardInfo.Name == name {
+				someCardPackageInfo = append(someCardPackageInfo, cardInfo)
+			}
+		}
+	}
+
+	switch userInputCardPackage {
+	case "all":
+		return allCardPackageInfo
+	default:
+		return someCardPackageInfo
+	}
 }
 
 // 统计下载失败和下载成功的次数

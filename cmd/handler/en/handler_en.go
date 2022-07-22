@@ -7,24 +7,21 @@ import (
 	"github.com/DesistDaydream/dtcg/cmd/handler"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/en/services"
-	"github.com/DesistDaydream/dtcg/pkg/subset"
 	"github.com/sirupsen/logrus"
 )
 
 type ImageHandler struct {
-	Lang            string
-	CardPackageName string
+	Lang string
 }
 
 func NewImageHandler() handler.ImageHandler {
 	return &ImageHandler{
-		Lang:            "",
-		CardPackageName: "",
+		Lang: "",
 	}
 }
 
 // 获取卡包列表
-func (i *ImageHandler) GetCardPackageList() []*handler.CardInfo {
+func (i *ImageHandler) GetCardPackageList() []*handler.CardPackageInfo {
 	// 获取所有卡包的名称
 	cardPackages, err := services.GetCardFilterInfo(&models.CardFilterInfoReq{
 		GameTitleID:  "2",
@@ -35,72 +32,32 @@ func (i *ImageHandler) GetCardPackageList() []*handler.CardInfo {
 		logrus.Errorf("GetGameCard error: %v", err)
 	}
 
+	var allCardPackageInfo []*handler.CardPackageInfo
+
+	for _, cardSet := range cardPackages.Success.CardSetList {
+		logrus.WithFields(logrus.Fields{
+			"名称": cardSet.Name,
+			"ID": cardSet.ID,
+			"编号": cardSet.Number,
+		}).Infof("卡包信息")
+
+		// ID 转为 string
+		cardPackageID := fmt.Sprintf("%v", cardSet.ID)
+
+		allCardPackageInfo = append(allCardPackageInfo, &handler.CardPackageInfo{
+			Name: cardSet.Number,
+			ID:   cardPackageID,
+		})
+	}
+
 	// 获取需要下载图片的卡包
-	needDownloadCardPackages := i.GetNeedDownloadCardPackages(cardPackages.Success.CardSetList)
+	needDownloadCardPackages := handler.GetNeedDownloadCardPackages(allCardPackageInfo)
 
 	return needDownloadCardPackages
 }
 
-// 获取需要下载图片的卡包
-func (i *ImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardSetList) []*handler.CardInfo {
-	var allCardInfo []*handler.CardInfo
-	var allCardPackageNames []string
-
-	for _, cardPackage := range cardPackages {
-		logrus.WithFields(logrus.Fields{
-			"名称": cardPackage.Name,
-			"ID": cardPackage.ID,
-			"编号": cardPackage.Number,
-		}).Infof("卡包信息")
-
-		// ID 转为 string
-		cardPackageID := fmt.Sprintf("%v", cardPackage.ID)
-
-		allCardInfo = append(allCardInfo, &handler.CardInfo{
-			Name: cardPackage.Number,
-			ID:   cardPackageID,
-		})
-		allCardPackageNames = append(allCardPackageNames, cardPackageID)
-	}
-	fmt.Printf("请选择需要下载图片的卡包，多个卡包用逗号分隔(使用 all 下载所有，输入ID): ")
-
-	// 读取用户输入
-	var cardPackagesName string
-	fmt.Scanln(&cardPackagesName)
-
-	// 判断用户输入的卡包名称是否存在
-	for {
-		if cardPackagesName == "all" {
-			break
-		}
-		if !subset.IsSubset(strings.Split(cardPackagesName, ","), allCardPackageNames) {
-			fmt.Printf("卡包名称不存在，请重新输入: ")
-			fmt.Scanln(&cardPackagesName)
-		} else {
-			break
-		}
-	}
-
-	var CardsInfo []*handler.CardInfo
-
-	switch cardPackagesName {
-	case "all":
-		return allCardInfo
-	default:
-		names := strings.Split(cardPackagesName, ",")
-		for _, name := range names {
-			for _, cardInfo := range allCardInfo {
-				if cardInfo.ID == name {
-					CardsInfo = append(CardsInfo, cardInfo)
-				}
-			}
-		}
-		return CardsInfo
-	}
-}
-
 // 下载卡图
-func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardInfo) {
+func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardPackageInfo) {
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.CardListReq{
 		CardSet:     "",

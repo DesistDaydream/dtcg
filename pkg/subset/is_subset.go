@@ -1,9 +1,16 @@
 package subset
 
+import (
+	"fmt"
+
+	"github.com/DesistDaydream/dtcg/cmd/handler"
+)
+
 // 判断一个数组是否是另一个数组的子集
-func IsSubset(subset, superset []string) bool {
+func IsSubset(subset, superset []*handler.CardPackageInfo) bool {
+	fmt.Println("开始比较", subset, superset)
 	// 超集的 Map。
-	supersetMap := make(map[string]int)
+	supersetMap := make(map[*handler.CardPackageInfo]int)
 	// 遍历超集，统计每个元素的个数
 	for _, supersetElement := range superset {
 		supersetMap[supersetElement] += 1
