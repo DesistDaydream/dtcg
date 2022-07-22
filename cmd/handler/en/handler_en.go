@@ -11,26 +11,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ENImageHandler struct {
+type ImageHandler struct {
 	Lang            string
 	CardPackageName string
 }
 
-func NewENImageHandler() *ENImageHandler {
-	return &ENImageHandler{
+func NewImageHandler() handler.ImageHandler {
+	return &ImageHandler{
 		Lang:            "",
 		CardPackageName: "",
 	}
 }
 
-type CardInfo struct {
-	Lang string
-	Name string
-	ID   string
-}
-
 // 获取卡包列表
-func (i *ENImageHandler) GetCardPackageList() []*CardInfo {
+func (i *ImageHandler) GetCardPackageList() []*handler.CardInfo {
 	// 获取所有卡包的名称
 	cardPackages, err := services.GetCardFilterInfo(&models.CardFilterInfoReq{
 		GameTitleID:  "2",
@@ -48,9 +42,10 @@ func (i *ENImageHandler) GetCardPackageList() []*CardInfo {
 }
 
 // 获取需要下载图片的卡包
-func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardSetList) []*CardInfo {
+func (i *ImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardSetList) []*handler.CardInfo {
+	var allCardInfo []*handler.CardInfo
 	var allCardPackageNames []string
-	var allCardInfo []*CardInfo
+
 	for _, cardPackage := range cardPackages {
 		logrus.WithFields(logrus.Fields{
 			"名称": cardPackage.Name,
@@ -61,7 +56,7 @@ func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardS
 		// ID 转为 string
 		cardPackageID := fmt.Sprintf("%v", cardPackage.ID)
 
-		allCardInfo = append(allCardInfo, &CardInfo{
+		allCardInfo = append(allCardInfo, &handler.CardInfo{
 			Name: cardPackage.Number,
 			ID:   cardPackageID,
 		})
@@ -86,7 +81,7 @@ func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardS
 		}
 	}
 
-	var CardsInfo []*CardInfo
+	var CardsInfo []*handler.CardInfo
 
 	switch cardPackagesName {
 	case "all":
@@ -105,7 +100,7 @@ func (i *ENImageHandler) GetNeedDownloadCardPackages(cardPackages []models.CardS
 }
 
 // 下载卡图
-func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []*CardInfo) {
+func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardInfo) {
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.CardListReq{
 		CardSet:     "",
@@ -153,7 +148,7 @@ func (i *ENImageHandler) DownloadCardImage(needDownloadCardPackages []*CardInfo)
 }
 
 // 从卡片详情中获取下载图片所需的 URL
-func (i *ENImageHandler) GetImagesURL(r *models.CardListReq) ([]string, error) {
+func (i *ImageHandler) GetImagesURL(r *models.CardListReq) ([]string, error) {
 	var urls []string
 
 	// 根据过滤条件获取卡片详情
@@ -172,19 +167,19 @@ func (i *ENImageHandler) GetImagesURL(r *models.CardListReq) ([]string, error) {
 
 // 获取图片保存路径
 // 1.获取图片语言
-func (i *ENImageHandler) GetLang(lang string) {
+func (i *ImageHandler) GetLang(lang string) {
 	i.Lang = lang
 }
 
 // 2.从 URL 中提取文件名
-func (i *ENImageHandler) GenFileName(url string) string {
+func (i *ImageHandler) GenFileName(url string) string {
 	// 提取 url 中的文件名
 	fileName := url[strings.LastIndex(url, "/")+1:]
 	return fileName
 }
 
 // 3.生成图片保存路径
-func (i *ENImageHandler) GenFilePath(cardPackageName, fileName string) string {
+func (i *ImageHandler) GenFilePath(cardPackageName, fileName string) string {
 	dir := handler.GenerateDir(i.Lang, cardPackageName) + "/" + fileName
 	return dir
 }

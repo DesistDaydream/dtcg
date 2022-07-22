@@ -8,6 +8,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type ImageHandler interface {
+	GetLang(string)
+	GetCardPackageList() []*CardInfo
+	DownloadCardImage([]*CardInfo)
+}
+
+type CardInfo struct {
+	Lang  string
+	Name  string
+	ID    string
+	State string
+}
+
 // 生成需要保存图片的目录
 func GenerateDir(lang string, cardPackageName string) string {
 	dir := "./images/" + lang + "/" + cardPackageName
