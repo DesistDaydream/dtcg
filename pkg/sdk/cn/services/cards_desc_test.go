@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
@@ -24,10 +23,10 @@ func TestGetCardsDesc(t *testing.T) {
 			args: args{
 				r: &models.FilterConditionReq{
 					Page:             "1",
-					Limit:            "40",
+					Limit:            "400",
 					Name:             "",
-					State:            "0",
-					CardGroup:        "BTC-01",
+					State:            "1",
+					CardGroup:        "",
 					RareDegree:       "",
 					BelongsType:      "",
 					CardLevel:        "",
@@ -50,7 +49,7 @@ func TestGetCardsDesc(t *testing.T) {
 				t.Errorf("GetCardsDesc() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			fmt.Println(got)
+			// fmt.Println(got)
 
 			for _, c := range got.Page.List {
 				logrus.WithFields(logrus.Fields{
