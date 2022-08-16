@@ -108,7 +108,6 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 				logrus.Fatalf("下载图片失败: %v", err)
 			}
 		}
-
 	}
 }
 
