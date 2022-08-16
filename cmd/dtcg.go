@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 
 	"github.com/DesistDaydream/dtcg/cmd/handler"
 	"github.com/DesistDaydream/dtcg/cmd/handler/cn"
@@ -16,12 +17,17 @@ func main() {
 	logFlags.AddFlags()
 	// 指定要下载的图片的语言
 	lang := pflag.StringP("lang", "l", "cn", "图片的语言")
-	dirPrefix := pflag.StringP("dir-prefix", "d", "/mnt/d/Projects/images", "保存目录的前缀")
+	dirPrefix := pflag.StringP("dir-prefix", "d", "/mnt/e/Projects/dtcg/images", "保存目录的前缀")
 	pflag.Parse()
 
 	// 初始化日志
 	if err := logging.LogInit(logFlags.LogLevel, logFlags.LogOutput, logFlags.LogFormat); err != nil {
 		logrus.Fatal("初始化日志失败", err)
+	}
+
+	// 判断当前系统是 Win 还是 Linux
+	if runtime.GOOS == "windows" {
+		*dirPrefix = "E:\\Projects\\dtcg\\images"
 	}
 
 	var imageHandler handler.ImageHandler
