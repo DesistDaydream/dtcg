@@ -149,8 +149,8 @@ func (i *ImageHandler) GenFileName(urlStr string) string {
 		logrus.Errorf("%v 解码文件名失败: %v", fileName, err)
 	}
 
-	// 将文件名中的非中文字符替换为空
-	expr := "[!^\u4e00-\u9fa5]"
+	// 将文件名中的中文字符替换为空
+	expr := "[\u4e00-\u9fa5 | \u00a0]"
 	reg := regexp.MustCompile(expr)
 	newFileName := reg.ReplaceAllString(fileName, "")
 

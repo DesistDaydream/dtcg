@@ -84,8 +84,8 @@ func TestImageHandlerGenFileName(t *testing.T) {
 		// TODO: Add test cases.
 		{
 			name:   "test",
-			fields: fields{Lang: ""},
-			args:   args{url: "https://digimoncard-1258002530.file.myqcloud.com/DTCG/BTC2_BT5-086P4_D%E6%BA%90.png"},
+			fields: fields{Lang: "cn"},
+			args:   args{url: "https://digimoncard-1258002530.file.myqcloud.com/DTCG/BTC2_BT3-034_D%C2%A0%E6%BA%90.png"},
 			want:   "",
 		},
 	}
