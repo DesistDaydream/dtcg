@@ -82,8 +82,8 @@ var (
 func DownloadImage(url string, filePath string) error {
 	// 判断目录中是否有这张图片
 	if _, err := os.Stat(filePath); err == nil {
-		// logrus.Errorf("%v 图片已存在", filePath)
-		// FailCount++
+		logrus.Errorf("%v 图片已存在", filePath)
+		FailCount++
 		return err
 	}
 
