@@ -1,6 +1,8 @@
 package cn
 
 import (
+	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/handler"
@@ -132,10 +134,22 @@ func (i *ImageHandler) GetLang(lang string) {
 }
 
 // 2.从 URL 中提取文件名
-func (i *ImageHandler) GenFileName(url string) string {
+func (i *ImageHandler) GenFileName(urlStr string) string {
 	// 提取 url 中的文件名
-	fileName := url[strings.LastIndex(url, "/")+1:]
-	return fileName
+	fileName := urlStr[strings.LastIndex(urlStr, "/")+1:]
+
+	// 将文件名中的汉字解码
+	fileName, err := url.QueryUnescape(fileName)
+	if err != nil {
+		logrus.Errorf("%v 解码文件名失败: %v", fileName, err)
+	}
+
+	// 将文件名中的非中文字符替换为空
+	match := "[!^\u4e00-\u9fa5]"
+	reg := regexp.MustCompile(match)
+	newFileName := reg.ReplaceAllString(fileName, "")
+
+	return newFileName
 }
 
 // 3.生成图片保存路径
