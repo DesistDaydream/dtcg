@@ -7,8 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/sirupsen/logrus"
 )
 
 type ImageHandler interface {
@@ -82,9 +80,7 @@ var (
 func DownloadImage(url string, filePath string) error {
 	// 判断目录中是否有这张图片
 	if _, err := os.Stat(filePath); err == nil {
-		logrus.Errorf("%v 图片已存在", filePath)
-		FailCount++
-		return err
+		return fmt.Errorf("%v 图片已存在", filePath)
 	}
 
 	// 下载图片
@@ -107,9 +103,6 @@ func DownloadImage(url string, filePath string) error {
 	if err != nil {
 		return err
 	}
-
-	logrus.Debugf("下载到【%v】完成", filePath)
-	SuccessCount++
 
 	return nil
 }

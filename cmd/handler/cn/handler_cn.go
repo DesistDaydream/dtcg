@@ -105,7 +105,11 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 			filePath := filepath.Join(dir, fileName)
 			err := handler.DownloadImage(url, filePath)
 			if err != nil {
-				logrus.Fatalf("下载图片失败: %v", err)
+				handler.FailCount++
+				logrus.Errorf("下载图片失败: %v", err)
+			} else {
+				logrus.Debugf("下载到【%v】完成", filePath)
+				handler.SuccessCount++
 			}
 		}
 	}
