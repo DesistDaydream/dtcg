@@ -15,7 +15,8 @@ func main() {
 	logFlags := logging.LoggingFlags{}
 	logFlags.AddFlags()
 	// 指定要下载的图片的语言
-	lang := pflag.String("lang", "cn", "language of images")
+	lang := pflag.StringP("lang", "l", "cn", "图片的语言")
+	dirPrefix := pflag.StringP("dir-prefix", "d", "/mnt/d/Projects/images", "保存目录的前缀")
 	pflag.Parse()
 
 	// 初始化日志
@@ -27,9 +28,9 @@ func main() {
 
 	switch *lang {
 	case "cn":
-		imageHandler = cn.NewImageHandler()
+		imageHandler = cn.NewImageHandler(*dirPrefix)
 	case "en":
-		imageHandler = en.NewImageHandler()
+		imageHandler = en.NewImageHandler(*dirPrefix)
 	default:
 		logrus.Fatalln("不支持的语言")
 	}

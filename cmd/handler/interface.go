@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -24,8 +25,9 @@ type CardPackageInfo struct {
 }
 
 // 生成需要保存图片的目录
-func GenerateDir(lang string, cardPackageName string) string {
-	dir := "./images/" + lang + "/" + cardPackageName
+func GenerateDir(dirPrefix string, lang string, cardPackageName string) string {
+	// 生成目录
+	dir := filepath.Join(dirPrefix, lang, cardPackageName)
 	return dir
 }
 

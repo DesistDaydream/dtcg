@@ -2,6 +2,7 @@ package cn
 
 import (
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -12,12 +13,14 @@ import (
 )
 
 type ImageHandler struct {
-	Lang string
+	Lang      string
+	DirPrefix string
 }
 
-func NewImageHandler() handler.ImageHandler {
+func NewImageHandler(dirPrefix string) handler.ImageHandler {
 	return &ImageHandler{
-		Lang: "",
+		Lang:      "",
+		DirPrefix: dirPrefix,
 	}
 }
 
@@ -74,7 +77,7 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 	// 循环遍历卡包列表，获取卡包中的卡片
 	for _, cardPackageName := range needDownloadCardPackages {
 		// 生成目录
-		dir := handler.GenerateDir(i.Lang, cardPackageName.Name)
+		dir := handler.GenerateDir(i.DirPrefix, i.Lang, cardPackageName.Name)
 		// 创建目录
 		err := handler.CreateDir(dir)
 		if err != nil {
@@ -87,7 +90,7 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 		// 获取下载图片的 URL
 		urls, err := i.GetImagesURL(c)
 		if err != nil {
-			panic(err)
+			logrus.Fatalf("获取下载图片的 URL 失败：%v", err)
 		}
 		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackageName.Name, len(urls))
 
@@ -99,7 +102,7 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 			// 从 URL 中提取文件名
 			fileName := i.GenFileName(url)
 			// 生成保存图片的绝对路径
-			filePath := i.GenFilePath(cardPackageName.Name, fileName)
+			filePath := filepath.Join(dir, fileName)
 			err := handler.DownloadImage(url, filePath)
 			if err != nil {
 				logrus.Fatalf("下载图片失败: %v", err)
@@ -127,13 +130,12 @@ func (i *ImageHandler) GetImagesURL(c *models.FilterConditionReq) ([]string, err
 	return urls, nil
 }
 
-// 获取图片保存路径
-// 1.获取图片语言
+// 获取图片语言
 func (i *ImageHandler) GetLang(lang string) {
 	i.Lang = lang
 }
 
-// 2.从 URL 中提取文件名
+// 从 URL 中提取文件名
 func (i *ImageHandler) GenFileName(urlStr string) string {
 	// 提取 url 中的文件名
 	fileName := urlStr[strings.LastIndex(urlStr, "/")+1:]
@@ -150,10 +152,4 @@ func (i *ImageHandler) GenFileName(urlStr string) string {
 	newFileName := reg.ReplaceAllString(fileName, "")
 
 	return newFileName
-}
-
-// 3.生成图片保存路径
-func (i *ImageHandler) GenFilePath(cardPackageName, fileName string) string {
-	dir := handler.GenerateDir(i.Lang, cardPackageName) + "/" + fileName
-	return dir
 }
