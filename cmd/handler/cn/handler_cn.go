@@ -145,8 +145,8 @@ func (i *ImageHandler) GenFileName(urlStr string) string {
 	}
 
 	// 将文件名中的非中文字符替换为空
-	match := "[!^\u4e00-\u9fa5]"
-	reg := regexp.MustCompile(match)
+	expr := "[!^\u4e00-\u9fa5]"
+	reg := regexp.MustCompile(expr)
 	newFileName := reg.ReplaceAllString(fileName, "")
 
 	return newFileName
