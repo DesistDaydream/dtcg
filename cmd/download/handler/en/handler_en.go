@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/DesistDaydream/dtcg/cmd/handler"
+	"github.com/DesistDaydream/dtcg/cmd/download/handler"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/en/services"
 	"github.com/sirupsen/logrus"

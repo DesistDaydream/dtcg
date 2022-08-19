@@ -23,7 +23,7 @@ func TestGetCardsDesc(t *testing.T) {
 			args: args{
 				r: &models.FilterConditionReq{
 					Page:             "1",
-					Limit:            "400",
+					Limit:            "10",
 					Name:             "",
 					State:            "1",
 					CardGroup:        "",

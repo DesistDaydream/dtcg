@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"runtime"
 
-	"github.com/DesistDaydream/dtcg/cmd/handler"
-	"github.com/DesistDaydream/dtcg/cmd/handler/cn"
-	"github.com/DesistDaydream/dtcg/cmd/handler/en"
+	"github.com/DesistDaydream/dtcg/cmd/download/handler"
+	"github.com/DesistDaydream/dtcg/cmd/download/handler/cn"
+	"github.com/DesistDaydream/dtcg/cmd/download/handler/en"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"

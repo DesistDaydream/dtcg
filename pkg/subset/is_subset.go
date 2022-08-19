@@ -3,7 +3,7 @@ package subset
 import (
 	"fmt"
 
-	"github.com/DesistDaydream/dtcg/cmd/handler"
+	"github.com/DesistDaydream/dtcg/cmd/download/handler"
 )
 
 // 判断一个数组是否是另一个数组的子集
