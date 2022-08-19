@@ -1,45 +1,71 @@
 package fileparse
 
 import (
-	"fmt"
-
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 )
 
 func WriteExcelData(file string, cardDescs *models.CardDesc, cardGroup string) {
-	f := excelize.NewFile()
+	f, err := excelize.OpenFile(file)
+	if err != nil {
+		logrus.Errorln(err)
+	}
+
+	// 检查 sheet 是否存在
+	// if !f.SheetExist(cardGroup) {
 	// Create a new sheet.
 	index := f.NewSheet(cardGroup)
+	// }
 
-	// Set value of a cell.
-	f.SetCellValue(cardGroup, "A1", "名称")
-	f.SetCellValue(cardGroup, "B1", "编号")
-	f.SetCellValue(cardGroup, "C1", "卡包")
-	f.SetCellValue(cardGroup, "D1", "稀有度")
-	f.SetCellValue(cardGroup, "E1", "颜色")
-	f.SetCellValue(cardGroup, "F1", "DP")
-	f.SetCellValue(cardGroup, "G1", "异画")
-	// Set active sheet of the workbook.
-	f.SetActiveSheet(index)
+	streamWriter, err := f.NewStreamWriter(cardGroup)
+	if err != nil {
+		panic(err)
+	}
 
-	for index, cardDesc := range cardDescs.Page.List {
-		f.SetCellValue(cardGroup, "A"+fmt.Sprint(index+2), cardDesc.Name)
-		f.SetCellValue(cardGroup, "B"+fmt.Sprint(index+2), cardDesc.Model)
-		f.SetCellValue(cardGroup, "C"+fmt.Sprint(index+2), cardDesc.CardGroup)
-		f.SetCellValue(cardGroup, "D"+fmt.Sprint(index+2), cardDesc.RareDegree)
-		f.SetCellValue(cardGroup, "E"+fmt.Sprint(index+2), cardDesc.Color)
-		f.SetCellValue(cardGroup, "F"+fmt.Sprint(index+2), cardDesc.Dp)
+	err = streamWriter.SetRow("A1", []interface{}{"名称", "编号", "卡包", "稀有度", "颜色", "DP", "异画"})
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	for i, cardDesc := range cardDescs.Page.List {
+		var parallCard string
+		cell, _ := excelize.CoordinatesToCellName(1, i+2)
 		if cardDesc.ParallCard == "1" {
-			f.SetCellValue(cardGroup, "G"+fmt.Sprint(index+2), "否")
+			parallCard = "否"
 		} else {
-			f.SetCellValue(cardGroup, "G"+fmt.Sprint(index+2), "是")
+			parallCard = "是"
+		}
+		// Write some data to the stream writer.
+		err := streamWriter.SetRow(cell, []interface{}{
+			cardDesc.Name,
+			cardDesc.Model,
+			cardDesc.CardGroup,
+			cardDesc.RareDegree,
+			cardDesc.Color,
+			cardDesc.Dp,
+			parallCard,
+		})
+		if err != nil {
+			panic(err)
 		}
 	}
 
-	// Save xlsx file by the given path.
-	if err := f.SaveAs(file); err != nil {
+	if err := streamWriter.Flush(); err != nil {
 		logrus.Error(err)
 	}
+
+	// Set active sheet of the workbook.
+	f.SetActiveSheet(index)
+
+	// Save xlsx file by the given path.
+	// if err := f.SaveAs(file); err != nil {
+	// 	logrus.Error(err)
+	// }
+
+	err = f.Save()
+	if err != nil {
+		logrus.Errorln(err)
+	}
+
 }

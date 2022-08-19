@@ -17,8 +17,8 @@ func checkFile(rrFile string) {
 
 func main() {
 	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx"
-	// checkFile(file)
-	cardGroup := "BTC-02"
+	checkFile(file)
+	cardGroup := "BTC-01"
 
 	c := &models.FilterConditionReq{
 		Page:             "",
