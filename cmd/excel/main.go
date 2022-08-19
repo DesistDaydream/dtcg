@@ -15,10 +15,38 @@ func checkFile(rrFile string) {
 	}
 }
 
+func statistics(cardGroup string, cardDescs *models.CardDesc) {
+	var (
+		原画  int
+		sec int
+		sr  int
+	)
+
+	for _, cardDesc := range cardDescs.Page.List {
+		if cardDesc.ParallCard == "1" {
+			原画++
+			if cardDesc.RareDegree == "隐藏稀有（SEC）" {
+				sec++
+			}
+			if cardDesc.RareDegree == "超稀有（SR）" {
+				sr++
+			}
+		}
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"数量":  len(cardDescs.Page.List),
+		"原画":  原画,
+		"异画":  len(cardDescs.Page.List) - 原画,
+		"SEC": sec,
+		"SR":  sr,
+	}).Infof("【%v】卡包统计", cardGroup)
+}
+
 func main() {
 	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx"
 	checkFile(file)
-	cardGroup := "BTC-01"
+	cardGroup := "BTC-02"
 
 	c := &models.FilterConditionReq{
 		Page:             "",
@@ -45,6 +73,8 @@ func main() {
 		panic(err)
 	}
 
-	fileparse.WriteExcelData(file, cardDescs, cardGroup)
+	// 统计卡包信息
+	statistics(cardGroup, cardDescs)
 
+	fileparse.WriteExcelData(file, cardDescs, cardGroup)
 }
