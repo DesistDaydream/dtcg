@@ -15,17 +15,17 @@ func WriteExcelData(file string, cardDescs *models.CardDesc, cardGroup string) {
 	// 检查 sheet 是否存在
 	// if !f.SheetExist(cardGroup) {
 	// Create a new sheet.
-	index := f.NewSheet(cardGroup)
+	f.NewSheet(cardGroup)
 	// }
 
 	streamWriter, err := f.NewStreamWriter(cardGroup)
 	if err != nil {
-		panic(err)
+		logrus.Errorln(err)
 	}
 
 	err = streamWriter.SetRow("A1", []interface{}{"名称", "编号", "卡包", "稀有度", "颜色", "DP", "异画"})
 	if err != nil {
-		logrus.Error(err)
+		logrus.Errorln(err)
 	}
 
 	for i, cardDesc := range cardDescs.Page.List {
@@ -47,25 +47,16 @@ func WriteExcelData(file string, cardDescs *models.CardDesc, cardGroup string) {
 			parallCard,
 		})
 		if err != nil {
-			panic(err)
+			logrus.Errorln(err)
 		}
 	}
 
 	if err := streamWriter.Flush(); err != nil {
-		logrus.Error(err)
+		logrus.Errorln(err)
 	}
-
-	// Set active sheet of the workbook.
-	f.SetActiveSheet(index)
-
-	// Save xlsx file by the given path.
-	// if err := f.SaveAs(file); err != nil {
-	// 	logrus.Error(err)
-	// }
 
 	err = f.Save()
 	if err != nil {
 		logrus.Errorln(err)
 	}
-
 }

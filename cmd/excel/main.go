@@ -7,6 +7,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/pflag"
 )
 
 func checkFile(rrFile string) {
@@ -44,16 +45,18 @@ func statistics(cardGroup string, cardDescs *models.CardDesc) {
 }
 
 func main() {
-	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx"
-	checkFile(file)
-	cardGroup := "BTC-02"
+	file := pflag.StringP("file", "f", "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx", "指定文件")
+	cardGroup := pflag.StringP("cardGroup", "c", "BTC-02", "卡包")
+	pflag.Parse()
+
+	checkFile(*file)
 
 	c := &models.FilterConditionReq{
 		Page:             "",
 		Limit:            "400",
 		Name:             "",
 		State:            "0",
-		CardGroup:        cardGroup,
+		CardGroup:        *cardGroup,
 		RareDegree:       "",
 		BelongsType:      "",
 		CardLevel:        "",
@@ -74,7 +77,7 @@ func main() {
 	}
 
 	// 统计卡包信息
-	statistics(cardGroup, cardDescs)
+	statistics(*cardGroup, cardDescs)
 
-	fileparse.WriteExcelData(file, cardDescs, cardGroup)
+	fileparse.WriteExcelData(*file, cardDescs, *cardGroup)
 }
