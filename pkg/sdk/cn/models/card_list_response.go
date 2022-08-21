@@ -32,7 +32,7 @@ type PageList struct {
 	Effect               string `json:"effect"`
 	SafeEffect           string `json:"safeEffect"`
 	EnvolutionEffect     string `json:"envolutionEffect"`
-	ImageCover           string `json:"imageCover"`
+	ImageCover           string `json:"imageCover"` // 图片。这是一个卡图的 URL
 	State                string `json:"state"`      // 状态。0：显示，1：不显示
 	ParallCard           string `json:"parallCard"` // 是否是平卡。1 是平卡，0 是异画
 	KeyEffect            string `json:"keyEffect"`
