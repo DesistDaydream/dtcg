@@ -45,7 +45,7 @@ func statistics(cardGroup string, cardDescs *models.CardDesc) {
 }
 
 func main() {
-	file := pflag.StringP("file", "f", "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx", "指定文件")
+	file := pflag.StringP("file", "f", "test.xlsx", "指定文件")
 	cardGroup := pflag.StringP("cardGroup", "c", "BTC-02", "卡包")
 	pflag.Parse()
 
@@ -53,7 +53,7 @@ func main() {
 
 	c := &models.FilterConditionReq{
 		Page:             "",
-		Limit:            "400",
+		Limit:            "3",
 		Name:             "",
 		State:            "0",
 		CardGroup:        *cardGroup,

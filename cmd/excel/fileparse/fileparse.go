@@ -1,6 +1,12 @@
 package fileparse
 
 import (
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
+	"net/http"
+
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
@@ -23,7 +29,7 @@ func WriteExcelData(file string, cardDescs *models.CardDesc, cardGroup string) {
 		logrus.Errorln(err)
 	}
 
-	err = streamWriter.SetRow("A1", []interface{}{"名称", "编号", "卡包", "稀有度", "颜色", "DP", "异画"})
+	err = streamWriter.SetRow("A1", []interface{}{"名称", "编号", "卡包", "稀有度", "颜色", "DP", "异画", "图片"})
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -49,6 +55,22 @@ func WriteExcelData(file string, cardDescs *models.CardDesc, cardGroup string) {
 		if err != nil {
 			logrus.Errorln(err)
 		}
+
+		resp, err := http.Get(cardDesc.ImageCover)
+		if err != nil {
+			logrus.Errorln(err)
+		}
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err != nil {
+			logrus.Errorln(err)
+		}
+		format := `{
+			"x_scale": 0.1,
+			"y_scale": 0.1,
+			"autofit": true,
+			"positioning": "oneCell"
+		}`
+		f.AddPictureFromBytes(cardGroup, cell, format, "Excel Logo", ".png", bodyBytes)
 	}
 
 	if err := streamWriter.Flush(); err != nil {
