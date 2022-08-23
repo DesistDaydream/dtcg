@@ -26,7 +26,7 @@ func PostDeck(reqBodyByte []byte, createAt string) (int, error) {
 	req.Header.Add("content-type", "application/json")
 
 	q := req.URL.Query()
-	q.Add("limit", "500")
+	q.Add("limit", "50")
 	q.Add("page", "1")
 	req.URL.RawQuery = q.Encode()
 
