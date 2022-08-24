@@ -1,6 +1,6 @@
 package models
 
-type Deck struct {
+type DeckSearchResp struct {
 	Data    Data   `json:"data"`
 	Message string `json:"message"`
 	Success bool   `json:"success"`
