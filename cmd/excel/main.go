@@ -45,8 +45,10 @@ func statistics(cardGroup string, cardDescs *models.CardDesc) {
 }
 
 func main() {
+	// file := pflag.StringP("file", "f", "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx", "指定文件")
 	file := pflag.StringP("file", "f", "test.xlsx", "指定文件")
 	cardGroup := pflag.StringP("cardGroup", "c", "BTC-02", "卡包")
+	downloadImg := pflag.BoolP("downloadImg", "d", false, "是否下载图片")
 	pflag.Parse()
 
 	checkFile(*file)
@@ -79,5 +81,5 @@ func main() {
 	// 统计卡包信息
 	statistics(*cardGroup, cardDescs)
 
-	fileparse.WriteExcelData(*file, cardDescs, *cardGroup)
+	fileparse.WriteExcelData(*file, cardDescs, *cardGroup, *downloadImg)
 }
