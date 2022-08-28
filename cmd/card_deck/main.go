@@ -13,11 +13,11 @@ func main() {
 	// 红5,蓝6,黄7,绿8,紫9,黑10,混色11
 	cardColors := []string{"5", "6", "7", "8", "9", "10", "11"}
 	// 卡组分享3，国内比赛13
-	cardType := "13"
+	cardType := "3"
 	// 无限制：空，简中：chs，日文：ja
 	gameEnv := "chs"
 	// 需要统计晚于该日志的卡组
-	createAt := "2022-08-20 00:00:00"
+	createAt := "2022-08-25 00:00:00"
 
 	var cardColor string
 
