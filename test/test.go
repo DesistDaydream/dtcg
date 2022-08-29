@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func main() {
-	i := 3
-	fmt.Println(fmt.Sprint('A' - 1 + i))
+	if strings.Contains("test", "es") {
+		fmt.Println("es")
+	}
 }
