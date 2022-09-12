@@ -1,6 +1,7 @@
 package services
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
@@ -31,12 +32,18 @@ func TestGetCardsDesc(t *testing.T) {
 			KeyEffect:        "",
 		}
 
-		resp, err := GetCardDescs(filterConditionReq)
+		resp, err := GetCardsDesc(filterConditionReq)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
+		var newCardDesc *models.NewCardDesc
+
 		for _, c := range resp.Page.CardsDesc {
+			slice := []string{}
+			json.Unmarshal([]byte(c.KeyEffect), &slice)
+
+			newCardDesc.KeyEffect = slice
 
 			logrus.WithFields(logrus.Fields{
 				"ID":    c.ID,
@@ -45,7 +52,7 @@ func TestGetCardsDesc(t *testing.T) {
 				"所属卡组":  c.CardGroup,
 				"卡片编号":  c.Model,
 				"稀有度":   c.RareDegree,
-				"关键字效果": c.KeyEffect,
+				"关键字效果": slice,
 			}).Infoln("卡片详情")
 		}
 

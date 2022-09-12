@@ -13,7 +13,7 @@ type Page struct {
 	CardsDesc  []CardDesc `json:"list"`
 }
 type CardDesc struct {
-	ID                   int    `json:"id"`                   //
+	ID                   int    `json:"id"`                   // ID
 	CardGroup            string `json:"cardGroup"`            // 卡包
 	Model                string `json:"model"`                // 编号
 	RareDegree           string `json:"rareDegree"`           // 稀有度
@@ -28,20 +28,20 @@ type CardDesc struct {
 	EntryConsumeValue    string `json:"entryConsumeValue"`    // 登场费用
 	EnvolutionConsumeOne string `json:"envolutionConsumeOne"` // 进化费用1
 	EnvolutionConsumeTwo string `json:"envolutionConsumeTwo"` // 进化费用2
-	GetWay               string `json:"getWay"`
-	Effect               string `json:"effect"`     // 效果
-	SafeEffect           string `json:"safeEffect"` // 安防效果
-	EnvolutionEffect     string `json:"envolutionEffect"`
-	ImageCover           string `json:"imageCover"` // 图片。这是一个卡图的 URL
-	State                string `json:"state"`      // 状态。0：显示，1：不显示
-	ParallCard           string `json:"parallCard"` // 是否是异画。0 是，1 不是
-	KeyEffect            string `json:"keyEffect"`
-	CreateTime           string `json:"createTime"`
-	UpdateTime           string `json:"updateTime"`
+	GetWay               string `json:"getWay"`               //
+	Effect               string `json:"effect"`               // 效果
+	SafeEffect           string `json:"safeEffect"`           // 安防效果
+	EnvolutionEffect     string `json:"envolutionEffect"`     // 进化源效果
+	ImageCover           string `json:"imageCover"`           // 图片。这是一个卡图的 URL
+	State                string `json:"state"`                // 状态。0：显示，1：不显示
+	ParallCard           string `json:"parallCard"`           // 是否是平卡。1 是平卡，0 是异画
+	KeyEffect            string `json:"keyEffect"`            // 效果关键字
+	CreateTime           string `json:"createTime"`           // 创建时间
+	UpdateTime           string `json:"updateTime"`           // 更新时间
 }
 
 type NewCardDesc struct {
-	ID                   int      `json:"id"`                   //
+	ID                   int      `json:"id"`                   // ID
 	CardGroup            string   `json:"cardGroup"`            // 卡包
 	Model                string   `json:"model"`                // 编号
 	RareDegree           string   `json:"rareDegree"`           // 稀有度
@@ -56,14 +56,14 @@ type NewCardDesc struct {
 	EntryConsumeValue    string   `json:"entryConsumeValue"`    // 登场费用
 	EnvolutionConsumeOne string   `json:"envolutionConsumeOne"` // 进化费用1
 	EnvolutionConsumeTwo string   `json:"envolutionConsumeTwo"` // 进化费用2
-	GetWay               string   `json:"getWay"`
-	Effect               string   `json:"effect"`     // 效果
-	SafeEffect           string   `json:"safeEffect"` // 安防效果
-	EnvolutionEffect     string   `json:"envolutionEffect"`
-	ImageCover           string   `json:"imageCover"` // 图片。这是一个卡图的 URL
-	State                string   `json:"state"`      // 状态。0：显示，1：不显示
-	ParallCard           string   `json:"parallCard"` // 是否是平卡。1 是平卡，0 是异画
-	KeyEffect            []string `json:"keyEffect"`
-	CreateTime           string   `json:"createTime"`
-	UpdateTime           string   `json:"updateTime"`
+	GetWay               string   `json:"getWay"`               //
+	Effect               string   `json:"effect"`               // 效果
+	SafeEffect           string   `json:"safeEffect"`           // 安防效果
+	EnvolutionEffect     string   `json:"envolutionEffect"`     // 进化源效果
+	ImageCover           string   `json:"imageCover"`           // 图片。这是一个卡图的 URL
+	State                string   `json:"state"`                // 状态。0：显示，1：不显示
+	ParallCard           string   `json:"parallCard"`           // 是否是平卡。1 是平卡，0 是异画
+	KeyEffect            []string `json:"keyEffect"`            // 效果关键字
+	CreateTime           string   `json:"createTime"`           // 创建时间
+	UpdateTime           string   `json:"updateTime"`           // 更新时间
 }

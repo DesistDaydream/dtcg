@@ -120,7 +120,7 @@ func (i *ImageHandler) GetImagesURL(c *models.FilterConditionReq) ([]string, err
 	var urls []string
 
 	// 根据过滤条件获取卡片详情
-	cardDescs, err := services.GetCardDescs(c)
+	cardDescs, err := services.GetCardsDesc(c)
 	if err != nil {
 		return nil, err
 	}

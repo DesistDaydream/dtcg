@@ -44,7 +44,7 @@ func main() {
 			KeyEffect:        "",
 		}
 		// 根据过滤条件获取卡片详情
-		cardDescs, err := services.GetCardDescs(c)
+		cardDescs, err := services.GetCardsDesc(c)
 		if err != nil {
 			panic(err)
 		}
