@@ -35,11 +35,14 @@ type CardDesc struct {
 	ImageCover           string `json:"imageCover"`           // 图片。这是一个卡图的 URL
 	State                string `json:"state"`                // 状态。0：显示，1：不显示
 	ParallCard           string `json:"parallCard"`           // 是否是平卡。1 是平卡，0 是异画
-	KeyEffect            string `json:"keyEffect"`            // 效果关键字
+	KeyEffect            string `json:"keyEffect" copier:"-"` // 效果关键字
 	CreateTime           string `json:"createTime"`           // 创建时间
 	UpdateTime           string `json:"updateTime"`           // 更新时间
 }
 
+// 与 CardDesc 唯一不同的地方在于 KeyEffect 字段。
+// 响应体中 KeyEffect 字段实际上是一个数组，只不过每个元素都合在一起，以 "[\"AAA\",\"BBB\"]" 这种字符串的形式展现了。
+// 所以这个 NewCardDesc 就是将 KeyEffect 字段变为数组类型
 type NewCardDesc struct {
 	ID                   int      `json:"id"`                   // ID
 	CardGroup            string   `json:"cardGroup"`            // 卡包
@@ -63,7 +66,7 @@ type NewCardDesc struct {
 	ImageCover           string   `json:"imageCover"`           // 图片。这是一个卡图的 URL
 	State                string   `json:"state"`                // 状态。0：显示，1：不显示
 	ParallCard           string   `json:"parallCard"`           // 是否是平卡。1 是平卡，0 是异画
-	KeyEffect            []string `json:"keyEffect"`            // 效果关键字
+	KeyEffect            []string `json:"keyEffect" copier:"-"` // 效果关键字
 	CreateTime           string   `json:"createTime"`           // 创建时间
 	UpdateTime           string   `json:"updateTime"`           // 更新时间
 }

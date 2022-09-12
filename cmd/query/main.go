@@ -59,9 +59,11 @@ func main() {
 			// 判断 cardDesc.Effect 中包含字符串 6000
 			if strings.Contains(cardDesc.Effect, flags.EffectKey) || strings.Contains(cardDesc.SafeEffect, flags.EffectKey) || strings.Contains(cardDesc.EnvolutionEffect, flags.EffectKey) {
 				logrus.WithFields(logrus.Fields{
-					"卡包": cardGroup,
-					"名称": cardDesc.Name,
-					"效果": cardDesc.Effect,
+					"卡包":    cardGroup,
+					"名称":    cardDesc.Name,
+					"效果":    cardDesc.Effect,
+					"安防效果":  cardDesc.SafeEffect,
+					"进化源效果": cardDesc.EnvolutionEffect,
 				}).Infoln(flags.EffectKey)
 			}
 		}

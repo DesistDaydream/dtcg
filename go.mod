@@ -3,6 +3,7 @@ module github.com/DesistDaydream/dtcg
 go 1.18
 
 require (
+	github.com/jinzhu/copier v0.3.5
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/pflag v1.0.5
 	github.com/xuri/excelize/v2 v2.6.0
