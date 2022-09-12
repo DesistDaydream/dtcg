@@ -125,7 +125,7 @@ func (i *ImageHandler) GetImagesURL(c *models.FilterConditionReq) ([]string, err
 		return nil, err
 	}
 
-	for _, cardDesc := range cardDescs.Page.List {
+	for _, cardDesc := range cardDescs.Page.CardsDesc {
 		// logrus.Debugln(mon.ImageCover)
 		urls = append(urls, cardDesc.ImageCover)
 	}

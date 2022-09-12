@@ -8,59 +8,50 @@ import (
 )
 
 func TestGetCardsDesc(t *testing.T) {
-	type args struct {
-		r *models.FilterConditionReq
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    *models.CardDesc
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-		{
-			name: "test1",
-			args: args{
-				r: &models.FilterConditionReq{
-					Page:             "1",
-					Limit:            "10",
-					Name:             "",
-					State:            "1",
-					CardGroup:        "",
-					RareDegree:       "",
-					BelongsType:      "",
-					CardLevel:        "",
-					Form:             "",
-					Attribute:        "",
-					Type:             "",
-					Color:            "",
-					EnvolutionEffect: "",
-					SafeEffect:       "",
-					ParallCard:       "",
-					KeyEffect:        "",
-				},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetCardDescs(tt.args.r)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetCardsDesc() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			// fmt.Println(got)
+	// cardGroups := []string{"STC-01", "STC-02", "STC-03", "STC-04", "STC-05", "STC-06", "BTC-01", "BTC-02"}
+	cardGroups := []string{"BTC-02"}
 
-			for _, c := range got.Page.List {
-				logrus.WithFields(logrus.Fields{
-					"name":       c.Name,
-					"state":      c.State,
-					"cardGroup":  c.CardGroup,
-					"model":      c.Model,
-					"rareDegree": c.RareDegree,
-				}).Infoln("卡片详情")
-			}
+	for _, cardGroup := range cardGroups {
+		filterConditionReq := &models.FilterConditionReq{
+			Page:             "1",
+			Limit:            "3",
+			Name:             "",
+			State:            "0",
+			CardGroup:        cardGroup,
+			RareDegree:       "",
+			BelongsType:      "",
+			CardLevel:        "",
+			Form:             "",
+			Attribute:        "",
+			Type:             "",
+			Color:            "",
+			EnvolutionEffect: "",
+			SafeEffect:       "",
+			ParallCard:       "",
+			KeyEffect:        "",
+		}
 
-		})
+		resp, err := GetCardDescs(filterConditionReq)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		for _, c := range resp.Page.CardsDesc {
+
+			logrus.WithFields(logrus.Fields{
+				"ID":    c.ID,
+				"卡名":    c.Name,
+				"是否显示":  c.State,
+				"所属卡组":  c.CardGroup,
+				"卡片编号":  c.Model,
+				"稀有度":   c.RareDegree,
+				"关键字效果": c.KeyEffect,
+			}).Infoln("卡片详情")
+		}
+
+		// jsonByte, _ := json.Marshal(resp.Page.CardsDesc)
+		// fileName := fmt.Sprintf("../../../../cards/%v.json", cardGroup)
+
+		// os.WriteFile(fileName, jsonByte, 0666)
 	}
 }

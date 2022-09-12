@@ -25,7 +25,7 @@ func downloadImg(url string) ([]byte, error) {
 	return bodyBytes, nil
 }
 
-func WriteExcelData(file string, cardDescs *models.CardDesc, cardGroupSheet string, isTruedownloadImg bool) {
+func WriteExcelData(file string, cardDescs *models.CardListResponse, cardGroupSheet string, isTruedownloadImg bool) {
 	opts := excelize.Options{}
 	f, err := excelize.OpenFile(file, opts)
 	if err != nil {
@@ -54,7 +54,7 @@ func WriteExcelData(file string, cardDescs *models.CardDesc, cardGroupSheet stri
 	}
 
 	// 从第二行开始写入数据
-	for i, cardDesc := range cardDescs.Page.List {
+	for i, cardDesc := range cardDescs.Page.CardsDesc {
 		// 设置行高。三个参数分别为：Sheet 名，行号，高度
 		err = f.SetRowHeight(cardGroupSheet, i+2, 45)
 		if err != nil {

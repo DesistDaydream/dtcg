@@ -16,14 +16,14 @@ func checkFile(rrFile string) {
 	}
 }
 
-func statistics(cardGroup string, cardDescs *models.CardDesc) {
+func statistics(cardGroup string, cardDescs *models.CardListResponse) {
 	var (
 		原画  int
 		sec int
 		sr  int
 	)
 
-	for _, cardDesc := range cardDescs.Page.List {
+	for _, cardDesc := range cardDescs.Page.CardsDesc {
 		if cardDesc.ParallCard == "1" {
 			原画++
 			if cardDesc.RareDegree == "隐藏稀有（SEC）" {
@@ -36,9 +36,9 @@ func statistics(cardGroup string, cardDescs *models.CardDesc) {
 	}
 
 	logrus.WithFields(logrus.Fields{
-		"数量":  len(cardDescs.Page.List),
+		"数量":  len(cardDescs.Page.CardsDesc),
 		"原画":  原画,
-		"异画":  len(cardDescs.Page.List) - 原画,
+		"异画":  len(cardDescs.Page.CardsDesc) - 原画,
 		"SEC": sec,
 		"SR":  sr,
 	}).Infof("【%v】卡包统计", cardGroup)

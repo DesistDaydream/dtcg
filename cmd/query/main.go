@@ -9,9 +9,17 @@ import (
 	"github.com/spf13/pflag"
 )
 
+type Flags struct {
+	EffectKey string
+}
+
+func AddFlsgs(f *Flags) {
+	pflag.StringVarP(&f.EffectKey, "effectKey", "k", "6000", "要查找带有该关键字效果的卡牌")
+}
+
 func main() {
-	var effectKey string
-	pflag.StringVarP(&effectKey, "effectKey", "k", "6000", "要查找带有该关键字效果的卡牌")
+	var flags Flags
+	AddFlsgs(&flags)
 	pflag.Parse()
 
 	cardGroups := []string{"STC-01", "STC-02", "STC-03", "STC-04", "STC-05", "STC-06", "BTC-01", "BTC-02"}
@@ -41,7 +49,7 @@ func main() {
 			panic(err)
 		}
 
-		for _, cardDesc := range cardDescs.Page.List {
+		for _, cardDesc := range cardDescs.Page.CardsDesc {
 			logrus.WithFields(logrus.Fields{
 				"名称":   cardDesc.Name,
 				"效果":   cardDesc.Effect,
@@ -49,12 +57,12 @@ func main() {
 				"进化效果": cardDesc.EnvolutionEffect,
 			}).Debugln("检查")
 			// 判断 cardDesc.Effect 中包含字符串 6000
-			if strings.Contains(cardDesc.Effect, effectKey) || strings.Contains(cardDesc.SafeEffect, effectKey) || strings.Contains(cardDesc.EnvolutionEffect, effectKey) {
+			if strings.Contains(cardDesc.Effect, flags.EffectKey) || strings.Contains(cardDesc.SafeEffect, flags.EffectKey) || strings.Contains(cardDesc.EnvolutionEffect, flags.EffectKey) {
 				logrus.WithFields(logrus.Fields{
 					"卡包": cardGroup,
 					"名称": cardDesc.Name,
 					"效果": cardDesc.Effect,
-				}).Infoln(effectKey)
+				}).Infoln(flags.EffectKey)
 			}
 		}
 	}

@@ -10,7 +10,7 @@ import (
 )
 
 // 根据过滤条件获取卡片详情
-func GetCardDescs(r *models.FilterConditionReq) (*models.CardDesc, error) {
+func GetCardDescs(r *models.FilterConditionReq) (*models.CardListResponse, error) {
 	req, err := http.NewRequest("GET", "https://dtcgweb-api.digimoncard.cn/gamecard/gamecardmanager/weblist", nil)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -53,7 +53,7 @@ func GetCardDescs(r *models.FilterConditionReq) (*models.CardDesc, error) {
 	}
 
 	// 解析 JSON 到 struct 中
-	var cardDesc *models.CardDesc
+	var cardDesc *models.CardListResponse
 	err = json.Unmarshal(body, &cardDesc)
 	if err != nil {
 		logrus.Fatalln(err)
