@@ -10,11 +10,13 @@ import (
 )
 
 type Flags struct {
+	CardLevel string
 	Color     string
 	EffectKey string
 }
 
 func AddFlsgs(f *Flags) {
+	pflag.StringVarP(&f.CardLevel, "level", "l", "", "Lv.2、Lv.3...Lv.7")
 	pflag.StringVarP(&f.Color, "color", "c", "", "颜色，可用的值有：红、绿、蓝、黄、紫、黑、混色")
 	pflag.StringVarP(&f.EffectKey, "effectKey", "k", "6000", "要查找带有该关键字效果的卡牌")
 }
@@ -35,7 +37,7 @@ func main() {
 			CardGroup:        cardGroup,
 			RareDegree:       "",
 			BelongsType:      "",
-			CardLevel:        "",
+			CardLevel:        flags.CardLevel,
 			Form:             "",
 			Attribute:        "",
 			Type:             "",
