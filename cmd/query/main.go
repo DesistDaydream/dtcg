@@ -10,10 +10,12 @@ import (
 )
 
 type Flags struct {
+	Color     string
 	EffectKey string
 }
 
 func AddFlsgs(f *Flags) {
+	pflag.StringVarP(&f.Color, "color", "c", "", "颜色，可用的值有：红、绿、蓝、黄、紫、黑、混色")
 	pflag.StringVarP(&f.EffectKey, "effectKey", "k", "6000", "要查找带有该关键字效果的卡牌")
 }
 
@@ -37,7 +39,7 @@ func main() {
 			Form:             "",
 			Attribute:        "",
 			Type:             "",
-			Color:            "",
+			Color:            flags.Color,
 			EnvolutionEffect: "",
 			SafeEffect:       "",
 			ParallCard:       "1",
@@ -61,6 +63,7 @@ func main() {
 				logrus.WithFields(logrus.Fields{
 					"卡包":    cardGroup,
 					"名称":    cardDesc.Name,
+					"颜色":    cardDesc.Color,
 					"效果":    cardDesc.Effect,
 					"安防效果":  cardDesc.SafeEffect,
 					"进化源效果": cardDesc.EnvolutionEffect,
