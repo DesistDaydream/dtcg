@@ -85,9 +85,9 @@ func TestDownloadCardsDesc(t *testing.T) {
 		}
 
 		// （二选一）直接解析响应体
-		// jsonByte, _ := json.Marshal(resp.Page.CardsDesc)
+		jsonByte, _ := json.Marshal(resp.Page.CardsDesc)
 		// （二选一）将响应体中的 KeyEffect 字段处理一下，改为数组
-		jsonByte, _ := NewCardsDesc(resp)
+		// jsonByte, _ := NewCardsDesc(resp)
 
 		// 将响应信息写入文件
 		fileName := fmt.Sprintf("../../../../cards/%v.json", cardGroup)
