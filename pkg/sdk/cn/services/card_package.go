@@ -10,7 +10,7 @@ import (
 
 // 获取卡牌系列列表
 func GetCardPackage() (*models.CardPackage, error) {
-	url := "https://dtcgweb-api.digimoncard.cn/game/gamecard/cachelist"
+	url := "https://dtcgweb-api.digimoncard.cn/game/gamecard/weblist"
 	resp, err := http.Get(url)
 	if err != nil {
 		logrus.Errorf("获取卡牌系列列表失败: %v", err)
