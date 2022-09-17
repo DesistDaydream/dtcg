@@ -25,9 +25,9 @@ func NewImageHandler(dirPrefix string) handler.ImageHandler {
 }
 
 // 获取卡包列表
-func (i *ImageHandler) GetCardPackageList() []*handler.CardPackageInfo {
+func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 	// 获取 cardGroup 列表。即获取所有卡包的名称
-	cardPackages, err := services.GetCardPackage()
+	cardPackages, err := services.GetCardGroups()
 	if err != nil {
 		logrus.Errorf("GetGameCard error: %v", err)
 	}

@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// 获取卡牌系列列表
-func GetCardPackage() (*models.CardPackage, error) {
+// 获取卡组列表
+func GetCardGroups() (*models.CardPackage, error) {
 	url := "https://dtcgweb-api.digimoncard.cn/game/gamecard/weblist"
 	resp, err := http.Get(url)
 	if err != nil {

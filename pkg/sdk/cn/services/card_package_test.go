@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetCardPackage(t *testing.T) {
-	cardPackageResp, err := GetCardPackage()
+	cardPackageResp, err := GetCardGroups()
 	if err != nil {
 		logrus.Fatalln(err)
 	}

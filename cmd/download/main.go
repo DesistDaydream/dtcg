@@ -43,7 +43,7 @@ func main() {
 
 	imageHandler.GetLang(*lang)
 	// 获取卡包列表
-	cardInfo := imageHandler.GetCardPackageList()
+	cardInfo := imageHandler.GetCardGroups()
 	// 确认是否要下载
 	for _, p := range cardInfo {
 		logrus.WithField("卡包名称", p.Name).Infof("待下载卡包名称")

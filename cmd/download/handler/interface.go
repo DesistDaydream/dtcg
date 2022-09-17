@@ -11,7 +11,7 @@ import (
 
 type ImageHandler interface {
 	GetLang(string)
-	GetCardPackageList() []*CardPackageInfo
+	GetCardGroups() []*CardPackageInfo
 	DownloadCardImage([]*CardPackageInfo)
 }
 
