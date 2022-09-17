@@ -70,13 +70,23 @@ func NewCardsDesc(resp *models.CardListResponse) ([]byte, error) {
 
 // 下载卡片详情的 JSON 格式，并保存到本地文件中
 func TestDownloadCardsDesc(t *testing.T) {
-	// cardGroups := []string{"STC-01", "STC-02", "STC-03", "STC-04", "STC-05", "STC-06", "BTC-01", "BTC-02"}
-	cardGroups := []string{"BTC-02"}
+	// cardGroups := []string{"BTC-02"}
+	file, err := os.ReadFile("../../../../cards/card_package.json")
+	if err != nil {
+		logrus.Fatalln(err)
+	}
 
-	for _, cardGroup := range cardGroups {
+	var cardPackages *models.CacheListResp
+
+	err = json.Unmarshal(file, &cardPackages)
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	for _, cardPackage := range cardPackages.List {
 		filterConditionReq := NewReq()
 		filterConditionReq.Limit = "300"
-		filterConditionReq.CardGroup = cardGroup
+		filterConditionReq.CardGroup = cardPackage.Name
 
 		// 获取卡片描述
 		resp, err := GetCardsDesc(filterConditionReq)
@@ -90,7 +100,7 @@ func TestDownloadCardsDesc(t *testing.T) {
 		// jsonByte, _ := NewCardsDesc(resp)
 
 		// 将响应信息写入文件
-		fileName := fmt.Sprintf("../../../../cards/%v.json", cardGroup)
+		fileName := fmt.Sprintf("../../../../cards/%v.json", cardPackage.Name)
 		os.WriteFile(fileName, jsonByte, 0666)
 	}
 }
