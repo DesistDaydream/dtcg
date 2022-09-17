@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"os"
+	"reflect"
 
 	"github.com/DesistDaydream/dtcg/cmd/excel/fileparse"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
@@ -50,8 +52,9 @@ type Flags struct {
 }
 
 func AddFlsgs(f *Flags) {
-	// pflag.StringVarP(&f.File, "file", "f", "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx", "指定文件")
-	pflag.StringVarP(&f.File, "file", "f", "test.xlsx", "指定文件")
+	// pflag.StringVarP(&f.File, "file", "f", "/mnt/e/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/实卡统计.xlsx", "指定文件")
+	pflag.StringVarP(&f.File, "file", "f", "/mnt/e/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/统计表.xlsx", "指定文件")
+	// pflag.StringVarP(&f.File, "file", "f", "test.xlsx", "指定文件")
 	pflag.BoolVarP(&f.DownloadImg, "downloadImg", "d", false, "是否下载图片")
 }
 
@@ -62,6 +65,7 @@ func main() {
 
 	checkFile(flags.File)
 
+	// 设定初始化过滤条件
 	c := &models.FilterConditionReq{
 		Page:             "",
 		Limit:            "3",
@@ -81,10 +85,30 @@ func main() {
 		KeyEffect:        "",
 	}
 
-	cardGroups := []string{"STC-01", "STC-02", "STC-03", "STC-04", "STC-05", "STC-06", "BTC-01", "BTC-02"}
+	file, err := os.ReadFile("cards/card_package.json")
+	if err != nil {
+		logrus.Fatalln(err)
+	}
 
-	for _, cardGroup := range cardGroups {
-		c.CardGroup = cardGroup
+	var cardGroups *models.CacheListResp
+
+	err = json.Unmarshal(file, &cardGroups)
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	// 当想要只获取一个或部分卡盒中的信息时，取消注释
+	// cardGroups = &models.CacheListResp{
+	// 	Msg:  "",
+	// 	Code: 0,
+	// 	List: []models.CacheList{
+	// 		{Name: "STC-01"},
+	// 	},
+	// }
+
+	for _, cardGroup := range cardGroups.List {
+		c.Limit = "300"
+		c.CardGroup = cardGroup.Name
 
 		// 根据过滤条件获取卡片详情
 		cardDescs, err := services.GetCardsDesc(c)
@@ -92,10 +116,21 @@ func main() {
 			panic(err)
 		}
 
-		// 统计卡包信息
-		statistics(cardGroup, cardDescs)
+		// 统计卡盒信息
+		statistics(cardGroup.Name, cardDescs)
 
-		fileparse.WriteExcelData(flags.File, cardDescs, cardGroup, flags.DownloadImg)
+		// 写入包含图片的一部分数据
+		// fileparse.WriteExcelData(flags.File, cardDescs, cardGroup.Name, flags.DownloadImg)
+
+		// 将 JSON 信息全部写入到 Excel 中
+		var colNames []string
+		desc := &models.CardDesc{}
+		s := reflect.TypeOf(desc).Elem()
+		for i := 0; i < s.NumField(); i++ {
+			colNames = append(colNames, s.Field(i).Name)
+		}
+
+		fileparse.JsonToExcel(flags.File, cardDescs, cardGroup.Name, colNames)
 	}
 
 }
