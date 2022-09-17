@@ -107,7 +107,8 @@ func main() {
 	// }
 
 	for _, cardGroup := range cardGroups.List {
-		c.Limit = "300"
+		// 若要获取卡盒所有卡，需要将限制扩大
+		// c.Limit = "300"
 		c.CardGroup = cardGroup.Name
 
 		// 根据过滤条件获取卡片详情
@@ -119,7 +120,7 @@ func main() {
 		// 统计卡盒信息
 		statistics(cardGroup.Name, cardDescs)
 
-		// 写入包含图片的一部分数据
+		// 将 JSON 信息中的一部分写入到 Excel 中，可以包含图片
 		// fileparse.WriteExcelData(flags.File, cardDescs, cardGroup.Name, flags.DownloadImg)
 
 		// 将 JSON 信息全部写入到 Excel 中
@@ -129,7 +130,6 @@ func main() {
 		for i := 0; i < s.NumField(); i++ {
 			colNames = append(colNames, s.Field(i).Name)
 		}
-
 		fileparse.JsonToExcel(flags.File, cardDescs, cardGroup.Name, colNames)
 	}
 
