@@ -18,34 +18,6 @@ func checkFile(rrFile string) {
 	}
 }
 
-func statistics(cardGroup string, cardDescs *models.CardListResponse) {
-	var (
-		原画  int
-		sec int
-		sr  int
-	)
-
-	for _, cardDesc := range cardDescs.Page.CardsDesc {
-		if cardDesc.ParallCard == "1" {
-			原画++
-			if cardDesc.RareDegree == "隐藏稀有（SEC）" {
-				sec++
-			}
-			if cardDesc.RareDegree == "超稀有（SR）" {
-				sr++
-			}
-		}
-	}
-
-	logrus.WithFields(logrus.Fields{
-		"数量":  len(cardDescs.Page.CardsDesc),
-		"原画":  原画,
-		"异画":  len(cardDescs.Page.CardsDesc) - 原画,
-		"SEC": sec,
-		"SR":  sr,
-	}).Infof("【%v】卡包统计", cardGroup)
-}
-
 type Flags struct {
 	File        string
 	DownloadImg bool
@@ -116,9 +88,6 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-
-		// 统计卡盒信息
-		statistics(cardGroup.Name, cardDescs)
 
 		// 将 JSON 信息中的一部分写入到 Excel 中，可以包含图片
 		// fileparse.WriteExcelData(flags.File, cardDescs, cardGroup.Name, flags.DownloadImg)
