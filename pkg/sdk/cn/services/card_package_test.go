@@ -1,38 +1,29 @@
 package services
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"testing"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
 	"github.com/sirupsen/logrus"
 )
 
 func TestGetCardPackage(t *testing.T) {
-	tests := []struct {
-		name    string
-		want    *models.CardPackage
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-		{
-			name: "test1",
-		},
+	cardPackageResp, err := GetCardPackage()
+	if err != nil {
+		logrus.Fatalln(err)
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetCardPackage()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("GetCardPackage() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
 
-			for _, p := range got.List {
-				logrus.WithFields(logrus.Fields{
-					"名称": p.Name,
-					"ID": p.ID,
-					"状态": p.State,
-				}).Info("卡包信息")
-			}
-		})
-	}
+	jsonByte, _ := json.Marshal(cardPackageResp)
+
+	fileName := filepath.Join("../../../../cards", "card_package.json")
+	os.WriteFile(fileName, jsonByte, 0666)
+	// for _, p := range cardPackageResp.List {
+	// 	logrus.WithFields(logrus.Fields{
+	// 		"名称": p.Name,
+	// 		"ID": p.ID,
+	// 		"状态": p.State,
+	// 	}).Info("卡包信息")
+	// }
 }

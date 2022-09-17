@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path"
 	"strings"
@@ -42,12 +43,17 @@ func main() {
 	AddFlsgs(&flags)
 	pflag.Parse()
 
-	cardGroups := []string{"STC-01", "STC-02", "STC-03", "STC-04", "STC-05", "STC-06", "BTC-01", "BTC-02"}
+	// cardGroups := []string{"STC-01", "STC-02", "STC-03", "STC-04", "STC-05", "STC-06", "BTC-01", "BTC-02"}
+	cardGroups := []string{"STC-01"}
 
 	for _, cardGroup := range cardGroups {
 		file := path.Join("./cards", cardGroup+".json")
 		//打开文件
 		fileByte, _ := os.ReadFile(file)
+
+		for k, v := range string(fileByte) {
+			fmt.Println(k, v)
+		}
 
 		var cardsDesc []models.CardDesc
 		err := json.Unmarshal(fileByte, &cardsDesc)
@@ -57,6 +63,9 @@ func main() {
 
 		for _, cardDesc := range cardsDesc {
 			EffectKey(cardDesc, flags, cardGroup)
+			if cardDesc.CardLevel == "Lv.3" && cardDesc.ParallCard == "1" {
+				fmt.Println(cardDesc.Dp)
+			}
 		}
 	}
 }
