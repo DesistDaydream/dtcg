@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 
@@ -46,35 +45,88 @@ func RareDegreeStatistics(cardGroups []string) {
 	}
 }
 
+// 统计每个级别的各种 DP 的数量
 func DPStatistics(cardGroups []string) {
-	var alldps []int
-	for _, cardGroup := range cardGroups {
-		cardsDesc, err := cards.GetCardDesc(cardGroup)
-		if err != nil {
-			logrus.Fatalln(err)
-		}
+	// 获取卡牌等级列表
+	cardLevels, err := cards.GetCardLevel()
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+	// 获取卡牌详情列表
+	allCardsDesc, err := cards.MergeCardsDesc(cardGroups)
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+	logrus.Debugf("当前共有 %v 张卡", len(allCardsDesc))
 
-		var dps []int
+	// 测试用，只给一个等级
+	// cardLevels = []string{"Lv.3"}
 
-		for _, cardDesc := range cardsDesc {
+	for _, cardLevel := range cardLevels {
+		// 遍历所有卡片描述，获取指定等级的所有 DP 保存在该数组中
+		var alldps []int
+		for _, cardDesc := range allCardsDesc {
 			if cardDesc.ParallCard == "1" {
-				if cardDesc.CardLevel == "Lv.3" {
+				if cardDesc.CardLevel == cardLevel {
 					dp, _ := strconv.Atoi(cardDesc.Dp)
-					dps = append(dps, dp)
+					alldps = append(alldps, dp)
 				}
 			}
 		}
 
-		alldps = append(alldps, dps...)
+		// 将 DP 排序
+		sort.Ints(alldps[:])
+
+		// logrus.Infof(alldps, len(alldps))
+
+		// 排序之后，需要使用类似 Linux 中 uniq 命令的行为，来进行统计。
+		// 存放元素不同的数组
+		var newalldps []int
+		// 不同元素的个数
+		var element int
+		// DP 计数
+		var count int
+
+		newalldps = append(newalldps, alldps[0])
+
+		// 长度 +1 是为了当新 dp 只有 1 个的时候，可以再多来一次循环并输出信息
+		for i := 0; i < len(alldps)+1; i++ {
+			if i < len(alldps) {
+				if newalldps[element] != alldps[i] {
+					logrus.Infof("【%v】 级别中有 %v 个 %v DP 的数码宝贝", cardLevel, count, alldps[i-1])
+					count = 1
+					// logrus.Infof("发现新一个 DP：%v", alldps[i])
+					newalldps = append(newalldps, alldps[i])
+					element++
+				} else {
+					count++
+				}
+			} else { // 若最后新 DP 只有 1 个，通过这里输出一下信息
+				logrus.Infof("【%v】 级别中有 %v 个 %v DP 的数码宝贝", cardLevel, count, alldps[i-1])
+			}
+
+		}
+
+		// for i, v := range alldps {
+		// 	if len(newalldps) == 0 {
+		// 		newalldps = append(newalldps, v)
+		// 		// logrus.Infof("发现第一个 DP：%v", v)
+		// 	}
+
+		// 	if newalldps[element] != v {
+		// 		logrus.Infof("【%v】 级别中有 %v 个 %v DP 的数码宝贝", cardLevel, count, alldps[i-1])
+		// 		count = 1
+		// 		// logrus.Infof("发现新一个 DP：%v", v)
+		// 		newalldps = append(newalldps, v)
+		// 		element++
+		// 	} else {
+		// 		count++
+		// 	}
+		// }
+
+		logrus.Infof("此级别的数码宝贝共有 【%v】 种 DP", len(newalldps))
 	}
 
-	sort.Ints(alldps[:])
-	// 统计 alldps 中的重复元素的个数
-
-	// fmt.Println(alldps)
-	for _, v := range alldps {
-		fmt.Println(v)
-	}
 }
 
 type Flags struct {

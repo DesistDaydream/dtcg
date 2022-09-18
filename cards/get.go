@@ -31,6 +31,25 @@ func GetCardGroups() ([]string, error) {
 	return cardGroupsName, nil
 }
 
+func GetCardLevel() ([]string, error) {
+	var cardLevelResp *models.CacheListResp
+	var cardLevels []string
+	cardLevelFile := filepath.Join("cards", "card_level.json")
+	cardLevelFileByte, err := os.ReadFile(cardLevelFile)
+	if err != nil {
+		return nil, err
+	}
+
+	json.Unmarshal(cardLevelFileByte, &cardLevelResp)
+	for _, cardLevel := range cardLevelResp.List {
+		if cardLevel.Name != "-" && cardLevel.Name != "Lv.2" {
+			cardLevels = append(cardLevels, cardLevel.Name)
+		}
+	}
+
+	return cardLevels, nil
+}
+
 func GetCardDesc(cardGroup string) ([]models.CardDesc, error) {
 	var cardDescs []models.CardDesc
 
@@ -44,4 +63,19 @@ func GetCardDesc(cardGroup string) ([]models.CardDesc, error) {
 	json.Unmarshal(cardsDescFileByte, &cardDescs)
 
 	return cardDescs, nil
+}
+
+// 将所有卡盒中的卡片描述合并为一个整体
+func MergeCardsDesc(cardGroups []string) ([]models.CardDesc, error) {
+	var allCardsDesc []models.CardDesc
+	for _, cardGroup := range cardGroups {
+		cardsDesc, err := GetCardDesc(cardGroup)
+		if err != nil {
+			return nil, err
+		}
+
+		allCardsDesc = append(allCardsDesc, cardsDesc...)
+	}
+
+	return allCardsDesc, nil
 }
