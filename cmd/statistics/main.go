@@ -89,23 +89,19 @@ func DPStatistics(cardGroups []string) {
 
 		newalldps = append(newalldps, alldps[0])
 
-		// 长度 +1 是为了当新 dp 只有 1 个的时候，可以再多来一次循环并输出信息
-		for i := 0; i < len(alldps)+1; i++ {
-			if i < len(alldps) {
-				if newalldps[element] != alldps[i] {
-					logrus.Infof("【%v】 级别中有 %v 个 %v DP 的数码宝贝", cardLevel, count, alldps[i-1])
-					count = 1
-					// logrus.Infof("发现新一个 DP：%v", alldps[i])
-					newalldps = append(newalldps, alldps[i])
-					element++
-				} else {
-					count++
-				}
-			} else { // 若最后新 DP 只有 1 个，通过这里输出一下信息
+		for i := 0; i < len(alldps); i++ {
+			if newalldps[element] != alldps[i] {
 				logrus.Infof("【%v】 级别中有 %v 个 %v DP 的数码宝贝", cardLevel, count, alldps[i-1])
+				count = 1
+				// logrus.Infof("发现新一个 DP：%v", alldps[i])
+				newalldps = append(newalldps, alldps[i])
+				element++
+			} else {
+				count++
 			}
-
 		}
+		// 输出最后一波发现到的数据
+		logrus.Infof("【%v】 级别中有 %v 个 %v DP 的数码宝贝", cardLevel, count, alldps[len(alldps)-1])
 
 		// for i, v := range alldps {
 		// 	if len(newalldps) == 0 {
