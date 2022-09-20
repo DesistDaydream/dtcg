@@ -88,8 +88,8 @@ func SellerFileParse(file string, orders []int64, token string, sheet string) {
 
 	var ops []models.SellerOrderProduct
 
-	for _, buyerOrder := range orders {
-		orderProducts, err := services.GetSellerOrderProducts(int(buyerOrder), token)
+	for _, sellerOrder := range orders {
+		orderProducts, err := services.GetSellerOrderProducts(int(sellerOrder), token)
 		if err != nil {
 			logrus.Errorln(err)
 		}
