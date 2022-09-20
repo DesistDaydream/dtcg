@@ -1,4 +1,4 @@
-package scraper
+package collector
 
 import (
 	"sync"
@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Namespace string
+	// Namespace string
 	//Subsystem(s).
 	Subsystem = "exporter"
 )
@@ -61,13 +61,13 @@ func NewMetrics() Metrics {
 // Exporter 实现了 prometheus.Collector，其中包含了很多 Metric。
 // 只要 Exporter 实现了 prometheus.Collector，就可以调用 MustRegister() 将其注册到 prometheus 库中
 type Exporter struct {
-	client   CommonClient
+	client   *JihuansheClient
 	scrapers []CommonScraper
 	metrics  Metrics
 }
 
 // NewExporter 实例化 Exporter
-func NewExporter(cc CommonClient, css []CommonScraper) *Exporter {
+func NewExporter(cc *JihuansheClient, css []CommonScraper) *Exporter {
 	return &Exporter{
 		client:   cc,
 		scrapers: css,

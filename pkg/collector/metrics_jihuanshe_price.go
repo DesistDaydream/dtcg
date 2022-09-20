@@ -6,17 +6,14 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/DesistDaydream/dtcg/pkg/scraper"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
-
-	"github.com/xuri/excelize/v2"
 )
 
 var (
 	// check interface
-	_ scraper.CommonScraper = ScrapePrice{}
+	_ CommonScraper = ScrapePrice{}
 
 	// 最低价格
 	minPrice = prometheus.NewDesc(
@@ -34,7 +31,6 @@ var (
 
 // ScrapePrice 是将要实现 Scraper 接口的一个 Metric 结构体
 type ScrapePrice struct {
-	// JhsCardsDesc []models.JihuansheCardDesc
 }
 
 // Name 指定自己定义的 抓取器 的名字，与 Metric 的名字不是一个概念，但是一般保持一致
@@ -49,69 +45,16 @@ func (s ScrapePrice) Help() string {
 	return "Jihuanshe price Info"
 }
 
-func FileToJson(file string) ([]models.JihuansheCardDesc, error) {
-	var JhsCardsDesc []models.JihuansheCardDesc
-
-	// cardGroups, err := cards.GetCardGroups()
-	// if err != nil {
-	// 	logrus.Fatalln(err)
-	// }
-
-	cardGroups := []string{"STC-01"}
-
-	opts := excelize.Options{}
-	f, err := excelize.OpenFile(file, opts)
-	if err != nil {
-		logrus.Errorln(err)
-	}
-
-	for _, cardGroup := range cardGroups {
-		// 逐行读取Excel文件
-		rows, err := f.GetRows(cardGroup)
-		if err != nil {
-			logrus.WithFields(logrus.Fields{
-				"file":  file,
-				"sheet": cardGroup,
-			}).Errorf("读取中sheet页异常: %v", err)
-		}
-
-		for k, row := range rows {
-			// 跳过第一行
-			if k == 0 {
-				continue
-			}
-			logrus.WithFields(logrus.Fields{
-				"k":   k,
-				"row": row,
-			}).Debugf("检查每一条需要处理的解析记录")
-
-			// 将每一行中的的每列数据赋值到结构体重
-			var erd models.JihuansheCardDesc
-			erd.CardGroup = row[1]
-			erd.Model = row[2]
-			erd.Name = row[9]
-			erd.CardVersionID = row[25]
-
-			JhsCardsDesc = append(JhsCardsDesc, erd)
-		}
-	}
-
-	return JhsCardsDesc, nil
-}
-
 // Scrape 从客户端采集数据，并将其作为 Metric 通过 channel(通道) 发送。主要就是采集 E37 集群信息的具体行为。
 // 该方法用于为 ScrapeAvgPrice 结构体实现 Scraper 接口
-func (s ScrapePrice) Scrape(client scraper.CommonClient, ch chan<- prometheus.Metric) (err error) {
-	file := "/mnt/e/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
-	JhsCardsDesc, _ := FileToJson(file)
-
+func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric) (err error) {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
 	// 用来控制并发数量
 	concurrenceyControl := make(chan bool, client.GetConcurrency())
 
-	for _, jhsCardDesc := range JhsCardsDesc {
+	for _, jhsCardDesc := range client.JihuansheCardsDesc {
 		concurrenceyControl <- true
 		wg.Add(1)
 		url := fmt.Sprintf("/api/market/products/bySellerCardVersionId?seller_user_id=550420&card_version_id=%v&game_key=dgm", jhsCardDesc.CardVersionID)

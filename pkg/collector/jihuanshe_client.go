@@ -8,12 +8,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
 	"github.com/bitly/go-simplejson"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
+	"github.com/xuri/excelize/v2"
 )
 
 // 这三个常量用于给每个 Metrics 名字添加前缀
@@ -69,21 +70,74 @@ func GetToken(opts *JihuansheOpts) (token string, err error) {
 	return
 }
 
+// 从 Excel 中获取卡片详情写入到结构体中以便后续使用，其中包括适用于集换社的 card_version_id
+func FileToJson(file string) ([]models.JihuansheCardDesc, error) {
+	var jihuansheCardsDesc []models.JihuansheCardDesc
+	// cardGroups, err := cards.GetCardGroups()
+	// if err != nil {
+	// 	logrus.Fatalln(err)
+	// }
+
+	cardGroups := []string{"STC-01"}
+
+	opts := excelize.Options{}
+	f, err := excelize.OpenFile(file, opts)
+	if err != nil {
+		return nil, fmt.Errorf("%v", err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			logrus.Errorln(err)
+			return
+		}
+	}()
+
+	for _, cardGroup := range cardGroups {
+		// 逐行读取Excel文件
+		rows, err := f.GetRows(cardGroup)
+		if err != nil {
+			return nil, fmt.Errorf("读取sheet页%v异常：%v", cardGroup, err)
+		}
+
+		for k, row := range rows {
+			// 跳过第一行
+			if k == 0 {
+				continue
+			}
+			logrus.WithFields(logrus.Fields{
+				"k":   k,
+				"row": row,
+			}).Debugf("检查每一条需要处理的解析记录")
+
+			// 将每一行中的的每列数据赋值到结构体重
+			var erd models.JihuansheCardDesc
+			erd.CardGroup = row[1]
+			erd.Model = row[2]
+			erd.Name = row[9]
+			erd.CardVersionID = row[25]
+
+			jihuansheCardsDesc = append(jihuansheCardsDesc, erd)
+		}
+	}
+
+	return jihuansheCardsDesc, nil
+}
+
 // ######## 从此处开始到文件结尾，都是关于配置连接 E37 的代码 ########
 
-// DtcgClient 连接 E37 所需信息
-type DtcgClient struct {
+// JihuansheClient 连接 E37 所需信息
+type JihuansheClient struct {
 	Client *http.Client
 	Token  string
 	Opts   *JihuansheOpts
+
+	JihuansheCardsDesc []models.JihuansheCardDesc
 }
 
 // NewE37Client 实例化 E37 客户端
-func NewE37Client(opts *JihuansheOpts) *DtcgClient {
+func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	uri := opts.URL
-	if !strings.Contains(uri, "://") {
-		uri = "http://" + uri
-	}
+
 	u, err := url.Parse(uri)
 	if err != nil {
 		panic(fmt.Sprintf("invalid E37 URL: %s", err))
@@ -112,23 +166,31 @@ func NewE37Client(opts *JihuansheOpts) *DtcgClient {
 	}
 	// ######## 配置 http.Client 的信息结束 ########
 
+	//
+	file := "/mnt/e/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
+	JhsCardsDesc, err := FileToJson(file)
+	if err != nil {
+		logrus.Fatalf("从 %v 文件中解析卡牌信息异常：%v", file, err)
+	}
+
 	// 第一次启动程序时获取 Token，若无法获取 Token 则程序无法启动
 	// token, err := GetToken(opts)
 	// if err != nil {
 	// 	panic(err)
 	// }
-	return &DtcgClient{
+	return &JihuansheClient{
 		Opts: opts,
 		// Token: token,
 		Client: &http.Client{
 			Timeout:   opts.Timeout,
 			Transport: transport,
 		},
+		JihuansheCardsDesc: JhsCardsDesc,
 	}
 }
 
 // Request 建立与 E37 的连接，并返回 Response Body
-func (c *DtcgClient) Request(method string, endpoint string, reqBody io.Reader) (body []byte, err error) {
+func (c *JihuansheClient) Request(method string, endpoint string, reqBody io.Reader) (body []byte, err error) {
 	// 根据认证信息及 endpoint 参数，创建与 E37 的连接，并返回 Body 给每个 Metric 采集器
 	url := c.Opts.URL + endpoint
 	logrus.WithFields(logrus.Fields{
@@ -174,12 +236,12 @@ type token struct {
 
 // Ping 在 Scraper 接口的实现方法 scrape() 中调用。
 // 让 Exporter 每次获取数据时，都检验一下目标设备通信是否正常
-func (c *DtcgClient) Ping() (b bool, err error) {
+func (c *JihuansheClient) Ping() (b bool, err error) {
 	return true, nil
 }
 
 // 从 Opts 中获取并发数
-func (c *DtcgClient) GetConcurrency() int {
+func (c *JihuansheClient) GetConcurrency() int {
 	return c.Opts.Concurrency
 }
 
@@ -197,10 +259,10 @@ type JihuansheOpts struct {
 
 // AddFlag use after set Opts
 func (o *JihuansheOpts) AddFlag() {
-	pflag.StringVar(&o.URL, "e37-server", "https://api.jihuanshe.com", "HTTP API address of a E37 server or agent. (prefix with https:// to connect over HTTPS)")
+	pflag.StringVar(&o.URL, "e37-server", "https://api.jihuanshe.com", "集换社的 HTTP API 地址。")
 	pflag.StringVar(&o.Username, "e37-user", "admin", "e37 username")
 	pflag.StringVar(&o.password, "e37-pass", "admin", "e37 password")
-	pflag.IntVar(&o.Concurrency, "concurrent", 5, "Number of concurrent requests during collection.")
-	pflag.DurationVar(&o.Timeout, "time-out", time.Millisecond*1600, "Timeout on HTTP requests to the Gads API.")
-	pflag.BoolVar(&o.Insecure, "insecure", true, "Disable TLS host verification.")
+	pflag.IntVar(&o.Concurrency, "concurrent", 5, "并发数。")
+	pflag.DurationVar(&o.Timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
+	pflag.BoolVar(&o.Insecure, "insecure", true, "是否禁用 TLS 验证。")
 }
