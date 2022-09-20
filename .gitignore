@@ -2,3 +2,4 @@
 images/*
 images.bak/*
 *.xlsx
+.vscode/sftp.json

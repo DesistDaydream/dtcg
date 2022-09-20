@@ -1,7 +1,6 @@
 package collector
 
 import (
-	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -10,8 +9,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/DesistDaydream/dtcg/cards"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
-	"github.com/bitly/go-simplejson"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/xuri/excelize/v2"
@@ -21,8 +20,6 @@ import (
 const (
 	name      = "dtcg_exporter"
 	Namespace = "dtcg"
-	//Subsystem(s).
-	// exporter = "exporter"
 )
 
 // Name 用于给前端页面显示 const 常量中定义的内容
@@ -32,53 +29,25 @@ func Name() string {
 
 // GetToken 获取 E37 认证所需 Token
 func GetToken(opts *JihuansheOpts) (token string, err error) {
-	// 设置 json 格式的 request body
-	jsonReqBody := []byte("{\"username\":\"" + opts.Username + "\",\"password\":\"" + opts.password + "\"}")
-	// 设置 URL
-	url := fmt.Sprintf("%v/api/auth", opts.URL)
-	// 设置 Request 信息
-	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(jsonReqBody))
-	req.Header.Set("Content-Type", "application/json")
-	// 忽略 TLS 的证书验证
-	ts := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	// 发送 Request 并获取 Response
-	resp, err := (&http.Client{Transport: ts}).Do(req)
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-
-	// 处理 Response Body,并获取 Token
-	respBody, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-	jsonRespBody, err := simplejson.NewJson(respBody)
-	if err != nil {
-		return
-	}
-	token, err = jsonRespBody.Get("token").String()
-	if err != nil {
-		return "", fmt.Errorf("GetToken Error：%v", err)
-	}
-	logrus.WithFields(logrus.Fields{
-		"Token": token,
-	}).Debugf("Get Token Successed!")
-	return
+	return opts.password, nil
 }
 
 // 从 Excel 中获取卡片详情写入到结构体中以便后续使用，其中包括适用于集换社的 card_version_id
-func FileToJson(file string) ([]models.JihuansheCardDesc, error) {
-	var jihuansheCardsDesc []models.JihuansheCardDesc
-	// cardGroups, err := cards.GetCardGroups()
-	// if err != nil {
-	// 	logrus.Fatalln(err)
-	// }
+func FileToJson(file string, test bool) ([]models.JihuansheCardDesc, error) {
+	var (
+		jihuansheCardsDesc []models.JihuansheCardDesc
+		cardGroups         []string
+		err                error
+	)
 
-	cardGroups := []string{"STC-01"}
+	if test {
+		cardGroups = []string{"STC-01"}
+	} else {
+		cardGroups, err = cards.GetCardGroups()
+		if err != nil {
+			return nil, fmt.Errorf("获取卡盒列表失败：%v", err)
+		}
+	}
 
 	opts := excelize.Options{}
 	f, err := excelize.OpenFile(file, opts)
@@ -164,10 +133,9 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	// ######## 配置 http.Client 的信息结束 ########
 
 	//
-	file := "/mnt/e/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
-	JhsCardsDesc, err := FileToJson(file)
+	JhsCardsDesc, err := FileToJson(opts.File, opts.Test)
 	if err != nil {
-		logrus.Fatalf("从 %v 文件中解析卡牌信息异常：%v", file, err)
+		logrus.Fatalf("从 %v 文件中解析卡牌信息异常：%v", opts.File, err)
 	}
 
 	// 第一次启动程序时获取 Token，若无法获取 Token 则程序无法启动
@@ -226,11 +194,6 @@ func (c *JihuansheClient) Request(method string, endpoint string, reqBody io.Rea
 	return body, nil
 }
 
-// 验证 Token 时所用的请求体
-type token struct {
-	Token string `json:"token"`
-}
-
 // Ping 在 Scraper 接口的实现方法 scrape() 中调用。
 // 让 Exporter 每次获取数据时，都检验一下目标设备通信是否正常
 func (c *JihuansheClient) Ping() (b bool, err error) {
@@ -252,14 +215,20 @@ type JihuansheOpts struct {
 	// 这俩是关于 http.Client 的选项
 	Timeout  time.Duration
 	Insecure bool
+
+	// 卡片详情的 Excel 文件
+	File string
+	// 是否进行测试，若不进行测试，则获取所有卡盒的信息
+	Test bool
 }
 
 // AddFlag use after set Opts
 func (o *JihuansheOpts) AddFlag() {
 	pflag.StringVar(&o.URL, "e37-server", "https://api.jihuanshe.com", "集换社的 HTTP API 地址。")
-	pflag.StringVar(&o.Username, "e37-user", "admin", "e37 username")
-	pflag.StringVar(&o.password, "e37-pass", "admin", "e37 password")
+	pflag.StringVar(&o.password, "password", "", "token")
 	pflag.IntVar(&o.Concurrency, "concurrent", 5, "并发数。")
 	pflag.DurationVar(&o.Timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
 	pflag.BoolVar(&o.Insecure, "insecure", true, "是否禁用 TLS 验证。")
+	pflag.StringVar(&o.File, "file", "/mnt/e/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx", "是否进行测试。")
+	pflag.BoolVar(&o.Test, "test", false, "是否进行测试。")
 }
