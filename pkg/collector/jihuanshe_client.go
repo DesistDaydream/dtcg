@@ -99,22 +99,19 @@ func FileToJson(file string) ([]models.JihuansheCardDesc, error) {
 			return nil, fmt.Errorf("读取sheet页%v异常：%v", cardGroup, err)
 		}
 
-		for k, row := range rows {
-			// 跳过第一行
-			if k == 0 {
-				continue
-			}
+		// 跳过第一行的标题，从第二行开始，所以 i := 1
+		for i := 1; i < len(rows); i++ {
 			logrus.WithFields(logrus.Fields{
-				"k":   k,
-				"row": row,
+				"行号":  i,
+				"行数据": rows[i],
 			}).Debugf("检查每一条需要处理的解析记录")
 
 			// 将每一行中的的每列数据赋值到结构体重
 			var erd models.JihuansheCardDesc
-			erd.CardGroup = row[1]
-			erd.Model = row[2]
-			erd.Name = row[9]
-			erd.CardVersionID = row[25]
+			erd.CardGroup = rows[i][1]
+			erd.Model = rows[i][2]
+			erd.Name = rows[i][9]
+			erd.CardVersionID = rows[i][25]
 
 			jihuansheCardsDesc = append(jihuansheCardsDesc, erd)
 		}
