@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 
+	"github.com/DesistDaydream/dtcg/cmd/jihuanshe_order/fileparse"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services"
 )
@@ -57,6 +58,35 @@ func GetBuyerOrderList(page string, token string) ([]int64, error) {
 	return buyerOrderList, nil
 }
 
+func GetSellerOrderList(page string, token string) ([]int64, error) {
+	sellerOrders, err := services.GetSellerOrders(page, token)
+	if err != nil {
+		return nil, err
+	}
+
+	var sellerOrderList []int64
+
+	for _, sellerOrder := range sellerOrders.Data {
+		sellerOrderList = append(sellerOrderList, int64(sellerOrder.OrderID))
+	}
+
+	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。并将查询到的记录合并
+	if sellerOrders.LastPage > 1 {
+		for i := 2; i <= sellerOrders.LastPage; i++ {
+			sellerOrders, err := services.GetSellerOrders(strconv.Itoa(i), token)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, sellerOrder := range sellerOrders.Data {
+				sellerOrderList = append(sellerOrderList, int64(sellerOrder.OrderID))
+			}
+		}
+	}
+
+	return sellerOrderList, nil
+}
+
 func main() {
 	var flags Flags
 	AddFlsgs(&flags)
@@ -70,10 +100,19 @@ func main() {
 
 	checkFile(flags.File)
 
-	buyerOrderList, err := GetBuyerOrderList("1", flags.Token)
+	// buyerOrderList, err := GetBuyerOrderList("1", flags.Token)
+	// if err != nil {
+	// 	logrus.Error(err)
+	// }
+
+	sellerOrderList, err := GetSellerOrderList("1", flags.Token)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	logrus.Debugln(buyerOrderList, len(buyerOrderList))
+	// logrus.Debugln("买的订单号", buyerOrderList, len(buyerOrderList))
+	logrus.Debugln("卖出订单号", sellerOrderList, len(sellerOrderList))
+
+	// fileparse.FileParse(flags.File, buyerOrderList, flags.Token, "买入")
+	fileparse.SellerFileParse(flags.File, sellerOrderList, flags.Token, "卖出")
 }

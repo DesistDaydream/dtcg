@@ -39,7 +39,8 @@ func GetBuyerOrders(page string, token string) (*models.BuyerOrders, error) {
 	}
 
 	var buyerOrders models.BuyerOrders
-	if err := json.Unmarshal(body, &buyerOrders); err != nil {
+	err = json.Unmarshal(body, &buyerOrders)
+	if err != nil {
 		return nil, fmt.Errorf("解析异常：%v", err)
 	}
 

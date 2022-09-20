@@ -9,7 +9,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/models"
 )
 
-func GetOrderProducts(orderID int, token string) (*models.OrderProducts, error) {
+func GetBuyerOrderProducts(orderID int, token string) (*models.BuyerOrderProducts, error) {
 	orderIDStr := strconv.Itoa(orderID)
 	url := "https://api.jihuanshe.com/api/market/orders/" + orderIDStr
 	method := "GET"
@@ -37,7 +37,7 @@ func GetOrderProducts(orderID int, token string) (*models.OrderProducts, error) 
 		return nil, err
 	}
 
-	var orderProducts models.OrderProducts
+	var orderProducts models.BuyerOrderProducts
 	err = json.Unmarshal(body, &orderProducts)
 	if err != nil {
 		return nil, err

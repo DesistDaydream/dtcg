@@ -9,7 +9,7 @@ import (
 
 func TestGetOrderProducts(t *testing.T) {
 	token := ""
-	orderProducts, err := GetOrderProducts(2469672, token)
+	orderProducts, err := GetBuyerOrderProducts(2469672, token)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
