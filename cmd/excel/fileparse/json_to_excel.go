@@ -9,6 +9,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+// 从官网获取到的 JSON 格式的卡片详情写入到 Excel 中
 func JsonToExcel(file string, cardDescs *models.CardListResponse, cardGroupSheet string, colNames []string) {
 	opts := excelize.Options{}
 	f, err := excelize.OpenFile(file, opts)
@@ -37,12 +38,6 @@ func JsonToExcel(file string, cardDescs *models.CardListResponse, cardGroupSheet
 
 	// 从第二行开始写入数据
 	for i, cardDesc := range cardDescs.Page.CardsDesc {
-		// 设置行高。三个参数分别为：Sheet 名，行号，高度
-		err = f.SetRowHeight(cardGroupSheet, i+2, 45)
-		if err != nil {
-			panic(err)
-		}
-
 		// 通过反射获取结构体中的每一个值
 		var values []string
 		v := reflect.ValueOf(cardDesc)
