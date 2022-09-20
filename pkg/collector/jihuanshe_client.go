@@ -75,11 +75,20 @@ func FileToJson(file string, test bool) ([]models.JihuansheCardDesc, error) {
 				"行数据": rows[i],
 			}).Debugf("检查每一条需要处理的解析记录")
 
+			var parallCard string
+
+			if rows[i][21] == "1" {
+				parallCard = "原画"
+			} else {
+				parallCard = "异画"
+			}
+
 			// 将每一行中的的每列数据赋值到结构体重
 			var erd models.JihuansheCardDesc
 			erd.CardGroup = rows[i][1]
 			erd.Model = rows[i][2]
 			erd.Name = rows[i][9]
+			erd.ParallCard = parallCard
 			erd.CardVersionID = rows[i][25]
 
 			jihuansheCardsDesc = append(jihuansheCardsDesc, erd)

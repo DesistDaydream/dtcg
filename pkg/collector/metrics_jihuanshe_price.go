@@ -19,13 +19,13 @@ var (
 	minPrice = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "jihuanshe", "min_price"),
 		"最低价格",
-		[]string{"card_group", "model", "name", "card_version_id"}, nil,
+		[]string{"card_group", "model", "name", "parall_card", "card_version_id"}, nil,
 	)
 	// 平均价格
 	avgPrice = prometheus.NewDesc(
 		prometheus.BuildFQName(Namespace, "jihuanshe", "avg_price"),
 		"平均价格",
-		[]string{"card_group", "model", "name", "card_version_id"}, nil,
+		[]string{"card_group", "model", "name", "parall_card", "card_version_id"}, nil,
 	)
 )
 
@@ -81,6 +81,7 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 				jhsCardDesc.CardGroup,
 				jhsCardDesc.Model,
 				jhsCardDesc.Name,
+				jhsCardDesc.ParallCard,
 				jhsCardDesc.CardVersionID,
 			)
 
@@ -89,6 +90,7 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 				jhsCardDesc.CardGroup,
 				jhsCardDesc.Model,
 				jhsCardDesc.Name,
+				jhsCardDesc.ParallCard,
 				jhsCardDesc.CardVersionID,
 			)
 

@@ -21,4 +21,5 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ENV TZ=Asia/Shanghai
 COPY --from=builder /root/prometheus-instrumenting/jihuanshe-exporter /usr/local/bin/jihuanshe-exporter
+COPY ./cards /root/prometheus-instrumenting/cards
 ENTRYPOINT  [ "/usr/local/bin/jihuanshe-exporter" ]
