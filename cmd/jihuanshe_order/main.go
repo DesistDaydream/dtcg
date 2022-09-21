@@ -103,19 +103,19 @@ func main() {
 
 	checkFile(flags.File)
 
-	// buyerOrderList, err := GetBuyerOrderList("1", flags.Token)
-	// if err != nil {
-	// 	logrus.Error(err)
-	// }
+	buyerOrderList, err := GetBuyerOrderList("1", flags.Token)
+	if err != nil {
+		logrus.Error(err)
+	}
 
 	sellerOrderList, err := GetSellerOrderList("1", flags.Token)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	// logrus.Debugln("买的订单号", buyerOrderList, len(buyerOrderList))
+	logrus.Debugln("买入订单号", buyerOrderList, len(buyerOrderList))
 	logrus.Debugln("卖出订单号", sellerOrderList, len(sellerOrderList))
 
-	// fileparse.FileParse(flags.File, buyerOrderList, flags.Token, "买入")
+	fileparse.BuyerFileParse(flags.File, buyerOrderList, flags.Token, "买入")
 	fileparse.SellerFileParse(flags.File, sellerOrderList, flags.Token, "卖出")
 }
