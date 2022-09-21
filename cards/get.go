@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 )
 
 func GetCardGroups() ([]string, error) {

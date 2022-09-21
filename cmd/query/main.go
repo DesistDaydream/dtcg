@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/cards"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )

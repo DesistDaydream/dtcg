@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
