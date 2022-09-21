@@ -116,6 +116,6 @@ func main() {
 	logrus.Debugln("买入订单号", buyerOrderList, len(buyerOrderList))
 	logrus.Debugln("卖出订单号", sellerOrderList, len(sellerOrderList))
 
-	fileparse.BuyerFileParse(flags.File, buyerOrderList, flags.Token, "买入")
-	fileparse.SellerFileParse(flags.File, sellerOrderList, flags.Token, "卖出")
+	fileparse.FileParse(flags.File, buyerOrderList, flags.Token, "买入")
+	fileparse.FileParse(flags.File, sellerOrderList, flags.Token, "卖出")
 }
