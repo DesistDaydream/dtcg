@@ -64,9 +64,9 @@ type BuyerOrderProducts struct {
 	District                string         `json:"district"`
 	Address                 string         `json:"address"`
 	Postcode                string         `json:"postcode"`
-	ExpressType             interface{}    `json:"express_type"`
-	ExpressName             interface{}    `json:"express_name"`
-	ExpressNumber           interface{}    `json:"express_number"`
+	ExpressType             int            `json:"express_type"`
+	ExpressName             string         `json:"express_name"`
+	ExpressNumber           string         `json:"express_number"`
 	ExpressOrderCode        interface{}    `json:"express_order_code"`
 	SellerUserID            int            `json:"seller_user_id"`
 	SellerUsername          string         `json:"seller_username"`
