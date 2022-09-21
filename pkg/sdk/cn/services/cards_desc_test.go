@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
 
 	"github.com/jinzhu/copier"

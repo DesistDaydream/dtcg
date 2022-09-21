@@ -3,7 +3,7 @@ package cn
 import (
 	"testing"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
 )
 

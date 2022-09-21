@@ -6,8 +6,8 @@ import (
 	"reflect"
 
 	"github.com/DesistDaydream/dtcg/cmd/excel/fileparse"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
