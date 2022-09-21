@@ -47,7 +47,7 @@ type BuyerOrderProducts struct {
 	Status                  string         `json:"status"`
 	ReturnGoodsStatus       int            `json:"return_goods_status"`
 	Remark                  string         `json:"remark"`
-	ReceiveLeftSecond       interface{}    `json:"receive_left_second"`
+	ReceiveLeftSecond       int            `json:"receive_left_second"`
 	CanDeferReceiveDeadline bool           `json:"can_defer_receive_deadline"`
 	CreatedAt               string         `json:"created_at"`
 	PayDeadlineLeft         interface{}    `json:"pay_deadline_left"`
