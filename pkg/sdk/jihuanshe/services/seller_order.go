@@ -25,8 +25,8 @@ func GetSellerOrders(page string, token string) (*models.SellerOrders, error) {
 	q.Add("page", page)
 	q.Add("token", token)
 	q.Add("status", "complete,waiting_to_confirm,waiting_to_pay,waiting_to_send,waiting_to_receive,waiting_to_refund,waiting_to_return_goods")
-
 	req.URL.RawQuery = q.Encode()
+
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
