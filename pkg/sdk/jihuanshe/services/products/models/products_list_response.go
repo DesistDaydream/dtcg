@@ -1,17 +1,18 @@
 package models
 
-type ProductsResponse struct {
-	Total       int         `json:"total"`
-	PerPage     int         `json:"per_page"`
-	CurrentPage int         `json:"current_page"`
-	LastPage    int         `json:"last_page"`
-	NextPageURL string      `json:"next_page_url"`
-	PrevPageURL interface{} `json:"prev_page_url"`
-	From        int         `json:"from"`
-	To          int         `json:"to"`
-	Data        []Product   `json:"data"`
+type ProductsListResponse struct {
+	Total       int           `json:"total"`
+	PerPage     int           `json:"per_page"`
+	CurrentPage int           `json:"current_page"`
+	LastPage    int           `json:"last_page"`
+	NextPageURL string        `json:"next_page_url"`
+	PrevPageURL interface{}   `json:"prev_page_url"`
+	From        int           `json:"from"`
+	To          int           `json:"to"`
+	Data        []ProductList `json:"data"`
 }
-type Product struct {
+
+type ProductList struct {
 	ProductID         int         `json:"product_id"`
 	Price             string      `json:"price"`
 	Quantity          int         `json:"quantity"`
