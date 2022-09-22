@@ -2,6 +2,7 @@ package products
 
 import (
 	"encoding/json"
+	"fmt"
 	"reflect"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
@@ -124,7 +125,7 @@ func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, err
 
 func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdateRequestBody, productID string) (*models.ProductsUpdateResponse, error) {
 	var productsUpdateResponse models.ProductsUpdateResponse
-	uri := "/api/market/sellers/products" + productID
+	uri := "/api/market/sellers/products/" + productID
 
 	reqOpts := &core.RequestOption{
 		Method: "PUT",
@@ -141,7 +142,7 @@ func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdate
 
 	err = json.Unmarshal(body, &productsUpdateResponse)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("解析异常: %v", err)
 	}
 
 	return &productsUpdateResponse, nil
