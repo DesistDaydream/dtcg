@@ -86,10 +86,19 @@ type NeedAddCard struct {
 }
 
 func TestProductsClientAdd(t *testing.T) {
+	mapData := make(map[string]string)
+	filea, err := os.ReadFile("/mnt/d/Projects/DesistDaydream/dtcg/cards/card_version_id_and_card_modle.json")
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+	err = json.Unmarshal(filea, &mapData)
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
 	getToken()
 	client := NewProductsClient(core.NewClient(token))
-	// file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
-	file := ""
+	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
 	f, err := excelize.OpenFile(file)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -111,14 +120,14 @@ func TestProductsClientAdd(t *testing.T) {
 	}
 
 	for i := 1; i < len(rows); i++ {
-		logrus.WithFields(logrus.Fields{
-			"row": rows[i],
-		}).Debugf("检查每一条需要处理的解析记录")
+		logrus.Infof("%v 的集换社 ID 为 %v", rows[i][0], mapData[rows[i][0]])
+
+		// 开始上架
 		resp, err := client.Add(CardModelToCardVersionID[rows[i][0]], rows[i][1], rows[i][2])
 		if err != nil {
-			logrus.Fatal(err)
+			logrus.Errorf("%v 上架失败：%v", rows[i][0], err)
+		} else {
+			logrus.Infof("%v 上架成功：%v", rows[i][0], resp)
 		}
-
-		fmt.Println(resp)
 	}
 }
