@@ -71,7 +71,39 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 	return &productsGetresp, nil
 }
 
-func (p *ProductsClient) Add() {}
+func (p *ProductsClient) Add(cardVersionID string, price string, quantity string) (*models.ProductsAddResponse, error) {
+	var productsAddResponse models.ProductsAddResponse
+	uri := "/api/market/sellers/products"
+
+	reqOpts := &core.RequestOption{
+		Method: "POST",
+		ReqQuery: StructToMapStr(&models.ProductsGetRequestQuery{
+			Token: p.client.Token,
+		}),
+		ReqBody: StructToMapStr(&models.ProductsAddRequestBody{
+			CardVersionID:        cardVersionID,
+			Price:                price,
+			Quantity:             quantity,
+			Condition:            "1",
+			Remark:               "",
+			GameKey:              "dgm",
+			UserCardVersionImage: "",
+		}),
+	}
+
+	body, err := p.client.Request(uri, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &productsAddResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &productsAddResponse, nil
+
+}
 
 func (p *ProductsClient) Del() {}
 

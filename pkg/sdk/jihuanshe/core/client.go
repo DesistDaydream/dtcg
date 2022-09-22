@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -51,10 +51,11 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 	} else {
 		req, err = http.NewRequest(reqOpts.Method, url, nil)
 	}
-
 	if err != nil {
 		return nil, err
 	}
+
+	req.Header.Add("content-type", "application/json")
 
 	// 如果有 URL 的 Query 则逐一添加
 	if len(reqOpts.ReqQuery) > 0 {
@@ -70,9 +71,10 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}

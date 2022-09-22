@@ -15,7 +15,7 @@ var token string = ""
 var cardVersionID string = "2544"
 
 func getToken() {
-	file, err := os.ReadFile("token")
+	file, err := os.ReadFile("token.txt")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -72,4 +72,26 @@ func TestStructToMapStr(t *testing.T) {
 		fmt.Println(k, v)
 	}
 
+}
+
+type NeedAddCards struct {
+	NeedAddCards []NeedAddCard
+}
+
+type NeedAddCard struct {
+	CardVersionID string
+	Price         string
+	Quantity      string
+}
+
+func TestProductsClientAdd(t *testing.T) {
+	getToken()
+	client := NewProductsClient(core.NewClient(token))
+
+	resp, err := client.Add("1871", "199", "4")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	fmt.Println(resp)
 }
