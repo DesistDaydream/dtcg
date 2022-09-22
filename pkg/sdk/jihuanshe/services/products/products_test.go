@@ -1,6 +1,7 @@
 package products
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -52,6 +53,8 @@ func TestStructToMapStr(t *testing.T) {
 
 	got := StructToMapStr(&obj)
 
+	gotByte, _ := json.Marshal(got)
+	fmt.Println(string(gotByte))
 	for k, v := range got {
 		fmt.Println(k, v)
 	}

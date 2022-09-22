@@ -129,12 +129,13 @@ func StructToMapStr(obj interface{}) map[string]string {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Field(i)
 		tField := typeOfType.Field(i)
-		tFieldTag := string(tField.Tag)
+		tFieldTag := string(tField.Tag.Get("query"))
 		if len(tFieldTag) > 0 {
 			data[tFieldTag] = field.String()
 		} else {
 			data[tField.Name] = field.String()
 		}
 	}
+
 	return data
 }

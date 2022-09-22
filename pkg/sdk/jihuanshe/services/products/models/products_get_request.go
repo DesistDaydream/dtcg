@@ -1,9 +1,9 @@
 package models
 
 type ProductsListRequestQuery struct {
-	GameKey    string `game_key`
-	GameSubKey string `game_sub_key`
-	OnSale     string `on_sale`
-	Page       string `page`
-	Token      string `token`
+	GameKey    string `query:"game_key"`
+	GameSubKey string `query:"game_sub_key"`
+	OnSale     string `query:"on_sale"`
+	Page       string `query:"page"`
+	Token      string `query:"token"`
 }
