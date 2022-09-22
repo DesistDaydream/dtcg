@@ -9,6 +9,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
+	"github.com/xuri/excelize/v2"
 )
 
 var token string = ""
@@ -87,11 +88,37 @@ type NeedAddCard struct {
 func TestProductsClientAdd(t *testing.T) {
 	getToken()
 	client := NewProductsClient(core.NewClient(token))
-
-	resp, err := client.Add("1871", "199", "4")
+	// file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
+	file := ""
+	f, err := excelize.OpenFile(file)
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.Fatalln(err)
+	}
+	defer func() {
+		// Close the spreadsheet.
+		if err := f.Close(); err != nil {
+			logrus.Errorln(err)
+			return
+		}
+	}()
+	sheet := "待上架"
+	rows, err := f.GetRows(sheet)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"file":  file,
+			"sheet": sheet,
+		}).Fatalf("读取中sheet页异常: %v", err)
 	}
 
-	fmt.Println(resp)
+	for i := 1; i < len(rows); i++ {
+		logrus.WithFields(logrus.Fields{
+			"row": rows[i],
+		}).Debugf("检查每一条需要处理的解析记录")
+		resp, err := client.Add(CardModelToCardVersionID[rows[i][0]], rows[i][1], rows[i][2])
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		fmt.Println(resp)
+	}
 }
