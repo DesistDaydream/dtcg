@@ -122,7 +122,30 @@ func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, err
 	return &productsDelResponse, nil
 }
 
-func (p *ProductsClient) Update() {}
+func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdateRequestBody, productID string) (*models.ProductsUpdateResponse, error) {
+	var productsUpdateResponse models.ProductsUpdateResponse
+	uri := "/api/market/sellers/products" + productID
+
+	reqOpts := &core.RequestOption{
+		Method: "PUT",
+		ReqQuery: StructToMapStr(&models.ProductsUpdateRequestQuery{
+			Token: p.client.Token,
+		}),
+		ReqBody: StructToMapStr(productsUpdateRequestBody),
+	}
+
+	body, err := p.client.Request(uri, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &productsUpdateResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &productsUpdateResponse, nil
+}
 
 func StructToMapStr(obj interface{}) map[string]string {
 	data := make(map[string]string)

@@ -51,11 +51,6 @@ func main() {
 
 	client := products.NewProductsClient(core.NewClient(flags.Token))
 
-	products, err := client.List("1")
-	if err != nil || len(products.Data) <= 0 {
-		logrus.Fatalf("获取商品列表失败，列表为空或发生错误：%v", err)
-	}
-
 	opts := excelize.Options{}
 	f, err := excelize.OpenFile(flags.File, opts)
 	if err != nil {
@@ -77,34 +72,41 @@ func main() {
 
 	}
 
-	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。
-	if products.LastPage > 1 {
-		for i, row := 1, 2; i <= products.LastPage; i++ {
-			products, err = client.List(strconv.Itoa(i))
-			if err != nil {
-				logrus.Fatalln(err)
-			}
-
-			for i, product := range products.Data {
-				var values []string
-				v := reflect.ValueOf(product)
-				for k := 0; k < v.NumField(); k++ {
-					v := fmt.Sprintf("%v", v.Field(k).Interface())
-					values = append(values, v)
-				}
-
-				for j, v := range values {
-					// 将要写入的数据的行受上一次写入影响
-					// 每个订单的产品写入完成后，下一个订单开始写入的行不能从头开始，所以要加上本次订单产品的数量
-					// 所以需要最后的 row = row + len(ops.OrderProducts) 这条逻辑
-					cell, _ := excelize.CoordinatesToCellName(j+1, i+row)
-
-					f.SetCellValue(sheet, cell, v)
-				}
-			}
-
-			row = row + len(products.Data)
+	// 分页查询
+	currentPage := 1 // 从获取到的数据的第一页开始
+	row := 2         // 从 Excel 表的第二行开始写入数据
+	for {
+		products, err := client.List(strconv.Itoa(currentPage))
+		if err != nil || len(products.Data) <= 0 {
+			logrus.Fatalf("获取商品列表失败，列表为空或发生错误：%v", err)
 		}
+
+		for i, product := range products.Data {
+			var values []string
+			v := reflect.ValueOf(product)
+			for k := 0; k < v.NumField(); k++ {
+				v := fmt.Sprintf("%v", v.Field(k).Interface())
+				values = append(values, v)
+			}
+
+			for j, v := range values {
+				// 将要写入的数据的行受上一次写入影响
+				// 每个订单的产品写入完成后，下一个订单开始写入的行不能从头开始，所以要加上本次订单产品的数量
+				// 所以需要最后的 row = row + len(ops.OrderProducts) 这条逻辑
+				cell, _ := excelize.CoordinatesToCellName(j+1, i+row)
+
+				f.SetCellValue(sheet, cell, v)
+			}
+		}
+
+		if products.CurrentPage == products.LastPage {
+			break
+		}
+
+		logrus.Infof("共 %v 页数据，已写完第 %v 页", products.LastPage, products.CurrentPage)
+
+		row = row + len(products.Data)
+		currentPage++
 	}
 
 	err = f.Save()
