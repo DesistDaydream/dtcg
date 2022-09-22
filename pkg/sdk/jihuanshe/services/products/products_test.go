@@ -3,6 +3,7 @@ package products
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
@@ -13,7 +14,16 @@ import (
 var token string = ""
 var cardVersionID string = "2544"
 
+func getToken() {
+	file, err := os.ReadFile("token")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	token = string(file)
+}
+
 func TestProductsClientGet(t *testing.T) {
+	getToken()
 	client := NewProductsClient(core.NewClient(token))
 
 	got, err := client.Get(cardVersionID)
@@ -25,6 +35,7 @@ func TestProductsClientGet(t *testing.T) {
 }
 
 func TestProductsClientList(t *testing.T) {
+	getToken()
 	currentPage := 1
 	for {
 		client := NewProductsClient(core.NewClient(token))
