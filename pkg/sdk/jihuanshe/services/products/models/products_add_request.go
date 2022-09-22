@@ -9,3 +9,7 @@ type ProductsAddRequestBody struct {
 	GameKey              string `query:"game_key"`
 	UserCardVersionImage string `query:"user_card_version_image"`
 }
+
+type ProductsAddRequestQuery struct {
+	Token string `query:"token"`
+}

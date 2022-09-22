@@ -71,24 +71,16 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 	return &productsGetresp, nil
 }
 
-func (p *ProductsClient) Add(cardVersionID string, price string, quantity string) (*models.ProductsAddResponse, error) {
+func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddRequestBody) (*models.ProductsAddResponse, error) {
 	var productsAddResponse models.ProductsAddResponse
 	uri := "/api/market/sellers/products"
 
 	reqOpts := &core.RequestOption{
 		Method: "POST",
-		ReqQuery: StructToMapStr(&models.ProductsGetRequestQuery{
+		ReqQuery: StructToMapStr(&models.ProductsAddRequestQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: StructToMapStr(&models.ProductsAddRequestBody{
-			CardVersionID:        cardVersionID,
-			Price:                price,
-			Quantity:             quantity,
-			Condition:            "1",
-			Remark:               "",
-			GameKey:              "dgm",
-			UserCardVersionImage: "",
-		}),
+		ReqBody: StructToMapStr(productsAddRequestBody),
 	}
 
 	body, err := p.client.Request(uri, reqOpts)
@@ -105,7 +97,31 @@ func (p *ProductsClient) Add(cardVersionID string, price string, quantity string
 
 }
 
-func (p *ProductsClient) Del() {}
+func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, error) {
+	var productsDelResponse models.ProductsDelResponse
+
+	uri := "/api/market/sellers/products/" + productID
+
+	reqOpts := &core.RequestOption{
+		Method: "DELETE",
+		ReqQuery: StructToMapStr(&models.ProductsDelRequestQuery{
+			Token: p.client.Token,
+		}),
+		ReqBody: StructToMapStr(&models.ProductsDelRequestBody{}),
+	}
+
+	body, err := p.client.Request(uri, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &productsDelResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	return &productsDelResponse, nil
+}
 
 func (p *ProductsClient) Update() {}
 
