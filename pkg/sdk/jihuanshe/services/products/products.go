@@ -94,7 +94,6 @@ func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddRequestBo
 	}
 
 	return &productsAddResponse, nil
-
 }
 
 func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, error) {
