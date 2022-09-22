@@ -53,6 +53,8 @@ func TestStructToMapStr(t *testing.T) {
 
 	got := StructToMapStr(&obj)
 
+	fmt.Println(len(got))
+
 	gotByte, _ := json.Marshal(got)
 	fmt.Println(string(gotByte))
 	for k, v := range got {

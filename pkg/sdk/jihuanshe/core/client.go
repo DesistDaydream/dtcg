@@ -1,6 +1,8 @@
 package core
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -20,11 +22,51 @@ func NewClient(token string) *Client {
 	}
 }
 
-func Request(api string) ([]byte, error) {
-	url := fmt.Sprintf("%s%s", BaseAPI, api)
-	// method := "GET"
+type RequestOption struct {
+	Method   string
+	ReqQuery map[string]string
+	ReqBody  map[string]string
+}
 
-	resp, err := http.Get(url)
+func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
+	var (
+		rb  *bytes.Buffer
+		req *http.Request
+		err error
+	)
+
+	url := fmt.Sprintf("%s%s", BaseAPI, api)
+
+	//  如果有请求体则添加
+	if len(reqOpts.ReqBody) > 0 {
+		requestBody, err := json.Marshal(reqOpts.ReqBody)
+		if err != nil {
+			return nil, err
+		}
+		rb = bytes.NewBuffer(requestBody)
+	}
+
+	if rb != nil {
+		req, err = http.NewRequest(reqOpts.Method, url, rb)
+	} else {
+		req, err = http.NewRequest(reqOpts.Method, url, nil)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 如果有 URL 的 Query 则逐一添加
+	if len(reqOpts.ReqQuery) > 0 {
+		q := req.URL.Query()
+		for key, value := range reqOpts.ReqQuery {
+			q.Add(key, value)
+		}
+		req.URL.RawQuery = q.Encode()
+	}
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

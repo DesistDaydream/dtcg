@@ -2,9 +2,6 @@ package products
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
 	"reflect"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
@@ -21,51 +18,12 @@ func NewProductsClient(client *core.Client) *ProductsClient {
 	}
 }
 
-const (
-	BaseAPI = "https://api.jihuanshe.com"
-)
-
-type RequestOption struct {
-	Method   string
-	ReqQuery map[string]string
-}
-
-func request(api string, reqOpts *RequestOption) ([]byte, error) {
-	url := fmt.Sprintf("%s%s", BaseAPI, api)
-	method := "GET"
-
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	q := req.URL.Query()
-	for key, value := range reqOpts.ReqQuery {
-		q.Add(key, value)
-	}
-	req.URL.RawQuery = q.Encode()
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
-}
-
 func (p *ProductsClient) List(page string) (*models.ProductsListResponse, error) {
 	var products models.ProductsListResponse
 
 	uri := "/api/market/sellers/products"
 
-	reqOpts := &RequestOption{
+	reqOpts := &core.RequestOption{
 		Method: "GET",
 		ReqQuery: StructToMapStr(&models.ProductsListRequestQuery{
 			GameKey:    "dgm",
@@ -76,7 +34,7 @@ func (p *ProductsClient) List(page string) (*models.ProductsListResponse, error)
 		}),
 	}
 
-	body, err := request(uri, reqOpts)
+	body, err := p.client.Request(uri, reqOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +48,7 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 	var productsGetresp models.ProductsGetResponse
 	uri := "/api/market/products/bySellerCardVersionId"
 
-	reqOpts := &RequestOption{
+	reqOpts := &core.RequestOption{
 		Method: "GET",
 		ReqQuery: StructToMapStr(&models.ProductsGetRequestQuery{
 			GameKey:       "dgm",
@@ -100,7 +58,7 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 		}),
 	}
 
-	body, err := request(uri, reqOpts)
+	body, err := p.client.Request(uri, reqOpts)
 	if err != nil {
 		return nil, err
 	}
