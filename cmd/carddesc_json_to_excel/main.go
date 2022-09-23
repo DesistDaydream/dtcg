@@ -5,7 +5,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/DesistDaydream/dtcg/cmd/excel/fileparse"
+	"github.com/DesistDaydream/dtcg/cmd/carddesc_json_to_excel/fileparse"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
