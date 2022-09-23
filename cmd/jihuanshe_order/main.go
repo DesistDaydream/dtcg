@@ -33,63 +33,57 @@ func AddFlsgs(f *Flags) {
 type Orders struct {
 }
 
-func GetBuyerOrderList(client *orders.OrdersClient, page string) ([]int64, error) {
-	buyerOrders, err := client.GetBuyerOrders(page)
-	if err != nil {
-		return nil, err
-	}
+func GetBuyerOrderList(client *orders.OrdersClient) ([]int64, error) {
+	var orders []int64
 
-	var buyerOrderList []int64
-
-	for _, buyerOrder := range buyerOrders.Data {
-		buyerOrderList = append(buyerOrderList, int64(buyerOrder.OrderID))
-	}
-
-	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。并将查询到的记录合并
-	if buyerOrders.LastPage > 1 {
-		for i := 2; i <= buyerOrders.LastPage; i++ {
-			buyerOrders, err := client.GetBuyerOrders(strconv.Itoa(i))
-			if err != nil {
-				return nil, err
-			}
-
-			for _, buyerOrder := range buyerOrders.Data {
-				buyerOrderList = append(buyerOrderList, int64(buyerOrder.OrderID))
-			}
+	page := 1
+	for {
+		buyerOrders, err := client.GetBuyerOrders(strconv.Itoa(page))
+		if err != nil {
+			return nil, err
 		}
+
+		for _, order := range buyerOrders.Data {
+			orders = append(orders, int64(order.OrderID))
+		}
+
+		logrus.Infof("买入订单共 %v 页，已处理完第 %v 页", buyerOrders.LastPage, buyerOrders.CurrentPage)
+		if buyerOrders.CurrentPage == buyerOrders.LastPage {
+			logrus.Debugln("%v/%v 已处理完成，退出循环", buyerOrders.CurrentPage, buyerOrders.LastPage)
+			break
+		}
+
+		page = buyerOrders.CurrentPage + 1
 	}
 
-	return buyerOrderList, nil
+	return orders, nil
 }
 
-func GetSellerOrderList(client *orders.OrdersClient, page string) ([]int64, error) {
+func GetSellerOrderList(client *orders.OrdersClient) ([]int64, error) {
+	var orders []int64
 
-	sellerOrders, err := client.GetSellerOrders(page)
-	if err != nil {
-		return nil, err
-	}
-
-	var sellerOrderList []int64
-
-	for _, sellerOrder := range sellerOrders.Data {
-		sellerOrderList = append(sellerOrderList, int64(sellerOrder.OrderID))
-	}
-
-	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。并将查询到的记录合并
-	if sellerOrders.LastPage > 1 {
-		for i := 2; i <= sellerOrders.LastPage; i++ {
-			sellerOrders, err := client.GetSellerOrders(strconv.Itoa(i))
-			if err != nil {
-				return nil, err
-			}
-
-			for _, sellerOrder := range sellerOrders.Data {
-				sellerOrderList = append(sellerOrderList, int64(sellerOrder.OrderID))
-			}
+	page := 1
+	// 分页
+	for {
+		sellerOrders, err := client.GetSellerOrders(strconv.Itoa(page))
+		if err != nil {
+			return nil, err
 		}
+
+		for _, order := range sellerOrders.Data {
+			orders = append(orders, int64(order.OrderID))
+		}
+
+		logrus.Infof("卖出订单共 %v 页，已处理完第 %v 页", sellerOrders.LastPage, sellerOrders.CurrentPage)
+		if sellerOrders.CurrentPage == sellerOrders.LastPage {
+			logrus.Debugln("%v/%v 已处理完成，退出循环", sellerOrders.CurrentPage, sellerOrders.LastPage)
+			break
+		}
+
+		page = sellerOrders.CurrentPage + 1
 	}
 
-	return sellerOrderList, nil
+	return orders, nil
 }
 
 func main() {
@@ -107,12 +101,12 @@ func main() {
 
 	client := orders.NewOrdersClient(core.NewClient(flags.Token))
 
-	buyerOrderList, err := GetBuyerOrderList(client, "1")
+	buyerOrderList, err := GetBuyerOrderList(client)
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	sellerOrderList, err := GetSellerOrderList(client, "1")
+	sellerOrderList, err := GetSellerOrderList(client)
 	if err != nil {
 		logrus.Error(err)
 	}
