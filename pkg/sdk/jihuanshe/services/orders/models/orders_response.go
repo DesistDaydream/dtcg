@@ -1,6 +1,6 @@
 package models
 
-type SellerOrderProducts struct {
+type SellerOrderProductsResponse struct {
 	OrderID                 int            `json:"order_id"`
 	OrderUUID               string         `json:"order_uuid"`
 	OrderName               string         `json:"order_name"`
@@ -39,7 +39,7 @@ type SellerOrderProducts struct {
 	OrderProducts           []OrderProduct `json:"order_products"`
 }
 
-type BuyerOrderProducts struct {
+type BuyerOrderProductsResponse struct {
 	OrderID                 int            `json:"order_id"`
 	OrderUUID               string         `json:"order_uuid"`
 	OrderName               string         `json:"order_name"`

@@ -9,7 +9,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jihuanshe_order/fileparse"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/orders"
 )
 
 func checkFile(rrFile string) {
@@ -33,7 +33,7 @@ type Orders struct {
 }
 
 func GetBuyerOrderList(page string, token string) ([]int64, error) {
-	buyerOrders, err := services.GetBuyerOrders(page, token)
+	buyerOrders, err := orders.GetBuyerOrders(page, token)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func GetBuyerOrderList(page string, token string) ([]int64, error) {
 	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。并将查询到的记录合并
 	if buyerOrders.LastPage > 1 {
 		for i := 2; i <= buyerOrders.LastPage; i++ {
-			buyerOrders, err := services.GetBuyerOrders(strconv.Itoa(i), token)
+			buyerOrders, err := orders.GetBuyerOrders(strconv.Itoa(i), token)
 			if err != nil {
 				return nil, err
 			}
@@ -62,7 +62,7 @@ func GetBuyerOrderList(page string, token string) ([]int64, error) {
 }
 
 func GetSellerOrderList(page string, token string) ([]int64, error) {
-	sellerOrders, err := services.GetSellerOrders(page, token)
+	sellerOrders, err := orders.GetSellerOrders(page, token)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func GetSellerOrderList(page string, token string) ([]int64, error) {
 	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。并将查询到的记录合并
 	if sellerOrders.LastPage > 1 {
 		for i := 2; i <= sellerOrders.LastPage; i++ {
-			sellerOrders, err := services.GetSellerOrders(strconv.Itoa(i), token)
+			sellerOrders, err := orders.GetSellerOrders(strconv.Itoa(i), token)
 			if err != nil {
 				return nil, err
 			}

@@ -1,6 +1,6 @@
 package models
 
-type SellerOrders struct {
+type SellerOrdersResponse struct {
 	Total       int           `json:"total"`
 	PerPage     int           `json:"per_page"`
 	CurrentPage int           `json:"current_page"`

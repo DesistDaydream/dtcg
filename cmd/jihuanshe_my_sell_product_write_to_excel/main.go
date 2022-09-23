@@ -73,12 +73,12 @@ func main() {
 	}
 
 	// 分页查询
-	currentPage := 1 // 从获取到的数据的第一页开始
-	row := 2         // 从 Excel 表的第二行开始写入数据
+	page := 1 // 从获取到的数据的第一页开始
+	row := 2  // 从 Excel 表的第二行开始写入数据
 	for {
-		products, err := client.List(strconv.Itoa(currentPage))
+		products, err := client.List(strconv.Itoa(page))
 		if err != nil || len(products.Data) <= 0 {
-			logrus.Fatalf("获取商品列表失败，列表为空或发生错误：%v", err)
+			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
 
 		for i, product := range products.Data {
@@ -99,14 +99,17 @@ func main() {
 			}
 		}
 
+		logrus.Infof("共 %v 页数据，已写完第 %v 页", products.LastPage, products.CurrentPage)
+		// 如果当前处理的页等于最后页，则退出循环
 		if products.CurrentPage == products.LastPage {
+			logrus.Debugf("退出循环时共 %v 页,处理完 %v 页", products.LastPage, products.CurrentPage)
 			break
 		}
 
-		logrus.Infof("共 %v 页数据，已写完第 %v 页", products.LastPage, products.CurrentPage)
-
+		// 每页商品写入到 Excel 后，写入下一页商品是，不能从第二行开始了，要接着上一页写完的行开始
 		row = row + len(products.Data)
-		currentPage++
+		// 每处理完一页，下一个循环需要处理的页+1
+		page++
 	}
 
 	err = f.Save()

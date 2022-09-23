@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/orders"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/orders/models"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 )
@@ -46,10 +46,10 @@ func FileParse(file string, orders []int64, token string, buyOrSell string) {
 	}
 }
 
-func BuyerFileParse(f *excelize.File, orders []int64, token string, buyOrSell string) {
+func BuyerFileParse(f *excelize.File, allOrders []int64, token string, buyOrSell string) {
 	// 从第二行开始写入产品信息，所以 row = 2
-	for i, row := 0, 2; i < len(orders); i++ {
-		ops, err := services.GetBuyerOrderProducts(int(orders[i]), token)
+	for i, row := 0, 2; i < len(allOrders); i++ {
+		ops, err := orders.GetBuyerOrderProducts(int(allOrders[i]), token)
 		if err != nil {
 			logrus.Errorln(err)
 		}
@@ -77,9 +77,9 @@ func BuyerFileParse(f *excelize.File, orders []int64, token string, buyOrSell st
 	}
 }
 
-func SellerFileParse(f *excelize.File, orders []int64, token string, buyOrSell string) {
-	for i, row := 0, 2; i < len(orders); i++ {
-		ops, err := services.GetSellerOrderProducts(int(orders[i]), token)
+func SellerFileParse(f *excelize.File, allOrders []int64, token string, buyOrSell string) {
+	for i, row := 0, 2; i < len(allOrders); i++ {
+		ops, err := orders.GetSellerOrderProducts(int(allOrders[i]), token)
 		if err != nil {
 			logrus.Errorln(err)
 		}
