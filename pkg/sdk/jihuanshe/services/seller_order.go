@@ -3,7 +3,7 @@ package services
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/models"
@@ -33,7 +33,7 @@ func GetSellerOrders(page string, token string) (*models.SellerOrders, error) {
 	}
 	defer res.Body.Close()
 
-	body, err := ioutil.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
 	}

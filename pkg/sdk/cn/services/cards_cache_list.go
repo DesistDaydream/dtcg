@@ -10,7 +10,8 @@ import (
 
 // 获取卡牌效果关键字
 func GetCardGetway() (*models.CacheListResp, error) {
-	body, err := core.RequestCachelist("cardgetway")
+	client := core.NewClient()
+	body, err := client.RequestCachelist("cardgetway")
 	if err != nil {
 		logrus.Errorf("获取卡牌效果关键字列表失败: %v", err)
 		return nil, err
@@ -29,7 +30,8 @@ func GetCardGetway() (*models.CacheListResp, error) {
 
 // 获取卡牌颜色
 func GetCardColor() (*models.CacheListResp, error) {
-	body, err := core.RequestCachelist("cardcolor")
+	client := core.NewClient()
+	body, err := client.RequestCachelist("cardcolor")
 	if err != nil {
 		logrus.Errorf("获取卡牌颜色列表失败: %v", err)
 		return nil, err
@@ -48,7 +50,8 @@ func GetCardColor() (*models.CacheListResp, error) {
 
 // 获取卡牌等级
 func GetCardLevel() (*models.CacheListResp, error) {
-	body, err := core.RequestCachelist("cardlevels")
+	client := core.NewClient()
+	body, err := client.RequestCachelist("cardlevels")
 	if err != nil {
 		logrus.Errorf("获取卡牌等级列表失败: %v", err)
 		return nil, err

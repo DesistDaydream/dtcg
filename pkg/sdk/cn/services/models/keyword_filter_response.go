@@ -1,12 +1,12 @@
 package models
 
 // 卡包列表
-type CardPackage struct {
-	Msg  string            `json:"msg"`
-	Code int               `json:"code"`
-	List []CardPackageList `json:"list"`
+type CardGroupsResponse struct {
+	Msg  string      `json:"msg"`
+	Code int         `json:"code"`
+	List []CardGroup `json:"list"`
 }
-type CardPackageList struct {
+type CardGroup struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
 	Image      string `json:"image"`
