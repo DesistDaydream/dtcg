@@ -9,6 +9,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jihuanshe_order/fileparse"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/orders"
 )
 
@@ -32,8 +33,8 @@ func AddFlsgs(f *Flags) {
 type Orders struct {
 }
 
-func GetBuyerOrderList(page string, token string) ([]int64, error) {
-	buyerOrders, err := orders.GetBuyerOrders(page, token)
+func GetBuyerOrderList(client *orders.OrdersClient, page string) ([]int64, error) {
+	buyerOrders, err := client.GetBuyerOrders(page)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func GetBuyerOrderList(page string, token string) ([]int64, error) {
 	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。并将查询到的记录合并
 	if buyerOrders.LastPage > 1 {
 		for i := 2; i <= buyerOrders.LastPage; i++ {
-			buyerOrders, err := orders.GetBuyerOrders(strconv.Itoa(i), token)
+			buyerOrders, err := client.GetBuyerOrders(strconv.Itoa(i))
 			if err != nil {
 				return nil, err
 			}
@@ -61,8 +62,9 @@ func GetBuyerOrderList(page string, token string) ([]int64, error) {
 	return buyerOrderList, nil
 }
 
-func GetSellerOrderList(page string, token string) ([]int64, error) {
-	sellerOrders, err := orders.GetSellerOrders(page, token)
+func GetSellerOrderList(client *orders.OrdersClient, page string) ([]int64, error) {
+
+	sellerOrders, err := client.GetSellerOrders(page)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +78,7 @@ func GetSellerOrderList(page string, token string) ([]int64, error) {
 	// 如果查询到的记录条数大于 pageSize 的值，那么需要分页查询。并将查询到的记录合并
 	if sellerOrders.LastPage > 1 {
 		for i := 2; i <= sellerOrders.LastPage; i++ {
-			sellerOrders, err := orders.GetSellerOrders(strconv.Itoa(i), token)
+			sellerOrders, err := client.GetSellerOrders(strconv.Itoa(i))
 			if err != nil {
 				return nil, err
 			}
@@ -103,12 +105,14 @@ func main() {
 
 	checkFile(flags.File)
 
-	buyerOrderList, err := GetBuyerOrderList("1", flags.Token)
+	client := orders.NewOrdersClient(core.NewClient(flags.Token))
+
+	buyerOrderList, err := GetBuyerOrderList(client, "1")
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	sellerOrderList, err := GetSellerOrderList("1", flags.Token)
+	sellerOrderList, err := GetSellerOrderList(client, "1")
 	if err != nil {
 		logrus.Error(err)
 	}
@@ -116,6 +120,6 @@ func main() {
 	logrus.Debugln("买入订单号", buyerOrderList, len(buyerOrderList))
 	logrus.Debugln("卖出订单号", sellerOrderList, len(sellerOrderList))
 
-	fileparse.FileParse(flags.File, buyerOrderList, flags.Token, "买入")
-	fileparse.FileParse(flags.File, sellerOrderList, flags.Token, "卖出")
+	fileparse.FileParse(client, flags.File, buyerOrderList, "买入")
+	fileparse.FileParse(client, flags.File, sellerOrderList, "卖出")
 }

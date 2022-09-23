@@ -10,7 +10,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func FileParse(file string, orders []int64, token string, buyOrSell string) {
+func FileParse(client *orders.OrdersClient, file string, orders []int64, buyOrSell string) {
 	opts := excelize.Options{}
 	f, err := excelize.OpenFile(file, opts)
 	if err != nil {
@@ -35,9 +35,9 @@ func FileParse(file string, orders []int64, token string, buyOrSell string) {
 
 	switch buyOrSell {
 	case "买入":
-		BuyerFileParse(f, orders, token, buyOrSell)
+		BuyerFileParse(client, f, orders, buyOrSell)
 	case "卖出":
-		SellerFileParse(f, orders, token, buyOrSell)
+		SellerFileParse(client, f, orders, buyOrSell)
 	}
 
 	err = f.Save()
@@ -46,10 +46,10 @@ func FileParse(file string, orders []int64, token string, buyOrSell string) {
 	}
 }
 
-func BuyerFileParse(f *excelize.File, allOrders []int64, token string, buyOrSell string) {
+func BuyerFileParse(client *orders.OrdersClient, f *excelize.File, allOrders []int64, buyOrSell string) {
 	// 从第二行开始写入产品信息，所以 row = 2
 	for i, row := 0, 2; i < len(allOrders); i++ {
-		ops, err := orders.GetBuyerOrderProducts(int(allOrders[i]), token)
+		ops, err := client.GetBuyerOrderProducts(int(allOrders[i]))
 		if err != nil {
 			logrus.Errorln(err)
 		}
@@ -77,9 +77,9 @@ func BuyerFileParse(f *excelize.File, allOrders []int64, token string, buyOrSell
 	}
 }
 
-func SellerFileParse(f *excelize.File, allOrders []int64, token string, buyOrSell string) {
+func SellerFileParse(client *orders.OrdersClient, f *excelize.File, allOrders []int64, buyOrSell string) {
 	for i, row := 0, 2; i < len(allOrders); i++ {
-		ops, err := orders.GetSellerOrderProducts(int(allOrders[i]), token)
+		ops, err := client.GetSellerOrderProducts(int(allOrders[i]))
 		if err != nil {
 			logrus.Errorln(err)
 		}
