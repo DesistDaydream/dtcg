@@ -19,7 +19,7 @@ type ProductsGetResponse struct {
 type ProductGet struct {
 	ProductID       int         `json:"product_id"`
 	CardNameCn      string      `json:"card_name_cn"`
-	Price           int         `json:"price"`
+	Price           float32     `json:"price"`
 	Quantity        int         `json:"quantity"`
 	Condition       int         `json:"condition"`
 	Remark          string      `json:"remark"`

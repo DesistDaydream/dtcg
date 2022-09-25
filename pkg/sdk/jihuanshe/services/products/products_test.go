@@ -115,6 +115,7 @@ func TestProductsClientDel(t *testing.T) {
 	}
 }
 
+// 批量更新售卖的商品
 func TestProductsClientUpdate(t *testing.T) {
 	getToken()
 	client := NewProductsClient(core.NewClient(token))

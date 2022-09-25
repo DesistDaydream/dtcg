@@ -1,12 +1,12 @@
 package collector
 
 import (
-	"encoding/json"
-	"fmt"
 	"strconv"
 	"sync"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
@@ -57,23 +57,15 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 	for _, jhsCardDesc := range client.JihuansheCardsDesc {
 		concurrenceyControl <- true
 		wg.Add(1)
-		url := fmt.Sprintf("/api/market/products/bySellerCardVersionId?seller_user_id=550420&card_version_id=%v&game_key=dgm", jhsCardDesc.CardVersionID)
-		method := "GET"
-		go func(url string, jhsCardDesc models.JihuansheCardDesc) {
+		go func(jhsCardDesc models.JihuansheCardDesc) {
 			defer wg.Done()
-			var cardInfo CardInfo
-			respBodyUser, err := client.Request(method, url, nil)
+
+			client := products.NewProductsClient(core.NewClient(""))
+			cardInfo, err := client.Get(jhsCardDesc.CardVersionID)
 			if err != nil {
-				logrus.Errorf("获取 %v 用户数据失败，原因:%v", url, err)
-				<-concurrenceyControl
-				return
+				logrus.Errorf("获取卡片信息异常：%v", err)
 			}
-			err = json.Unmarshal(respBodyUser, &cardInfo)
-			if err != nil {
-				logrus.Errorf("解析 %v 用户数据失败，原因:%v", url, err)
-				<-concurrenceyControl
-				return
-			}
+
 			fMin, _ := strconv.ParseFloat(cardInfo.MinPrice, 64)
 			fAvg, _ := strconv.ParseFloat(cardInfo.AvgPrice, 64)
 			// 最低价格
@@ -95,34 +87,8 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 			)
 
 			<-concurrenceyControl
-		}(url, jhsCardDesc)
+		}(jhsCardDesc)
 	}
 
 	return nil
-}
-
-// 用户统计信息
-type CardInfo struct {
-	CardID               int         `json:"card_id"`
-	CardNameCn           string      `json:"card_name_cn"`
-	CardSubName          string      `json:"card_sub_name"`
-	CardVersionNumber    string      `json:"card_version_number"`
-	CardVersionRarity    string      `json:"card_version_rarity"`
-	CardVersionImage     string      `json:"card_version_image"`
-	UserCardVersionImage interface{} `json:"user_card_version_image"`
-	Language             interface{} `json:"language"`
-	ProductLanguage      string      `json:"product_language"`
-	MinPrice             string      `json:"min_price"`
-	AvgPrice             string      `json:"avg_price"`
-	Warehouse            bool        `json:"warehouse"`
-	Products             []Products  `json:"products"`
-}
-type Products struct {
-	ProductID       int         `json:"product_id"`
-	CardNameCn      string      `json:"card_name_cn"`
-	Price           float32     `json:"price"`
-	Quantity        int         `json:"quantity"`
-	Condition       int         `json:"condition"`
-	Remark          string      `json:"remark"`
-	PublishLocation interface{} `json:"publish_location"`
 }

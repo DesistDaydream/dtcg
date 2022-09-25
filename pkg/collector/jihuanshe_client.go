@@ -238,6 +238,6 @@ func (o *JihuansheOpts) AddFlag() {
 	pflag.IntVar(&o.Concurrency, "concurrent", 5, "并发数。")
 	pflag.DurationVar(&o.Timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
 	pflag.BoolVar(&o.Insecure, "insecure", true, "是否禁用 TLS 验证。")
-	pflag.StringVar(&o.File, "file", "/mnt/e/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx", "是否进行测试。")
+	pflag.StringVar(&o.File, "file", "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx", "是否进行测试。")
 	pflag.BoolVar(&o.Test, "test", false, "是否进行测试。")
 }
