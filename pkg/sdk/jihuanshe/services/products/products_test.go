@@ -156,7 +156,6 @@ func TestProductsClientUpdate(t *testing.T) {
 			logrus.Infof("商品 %v %v 修改成功：%v", rows[i][10], rows[i][8], resp)
 		}
 	}
-
 }
 
 func TestProductsClientGet(t *testing.T) {
