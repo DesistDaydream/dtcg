@@ -3,7 +3,6 @@ package products
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
@@ -26,7 +25,7 @@ func (p *ProductsClient) List(page string) (*models.ProductsListResponse, error)
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: StructToMapStr(&models.ProductsListRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsListRequestQuery{
 			GameKey:    "dgm",
 			GameSubKey: "sc",
 			OnSale:     "1",
@@ -51,7 +50,7 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: StructToMapStr(&models.ProductsGetRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsGetRequestQuery{
 			GameKey:       "dgm",
 			SellerUserID:  "609077",
 			CardVersionID: cardVersionID,
@@ -78,10 +77,10 @@ func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddRequestBo
 
 	reqOpts := &core.RequestOption{
 		Method: "POST",
-		ReqQuery: StructToMapStr(&models.ProductsAddRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsAddRequestQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: StructToMapStr(productsAddRequestBody),
+		ReqBody: core.StructToMapStr(productsAddRequestBody),
 	}
 
 	body, err := p.client.Request(uri, reqOpts)
@@ -104,10 +103,10 @@ func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, err
 
 	reqOpts := &core.RequestOption{
 		Method: "DELETE",
-		ReqQuery: StructToMapStr(&models.ProductsDelRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsDelRequestQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: StructToMapStr(&models.ProductsDelRequestBody{}),
+		ReqBody: core.StructToMapStr(&models.ProductsDelRequestBody{}),
 	}
 
 	body, err := p.client.Request(uri, reqOpts)
@@ -129,10 +128,10 @@ func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdate
 
 	reqOpts := &core.RequestOption{
 		Method: "PUT",
-		ReqQuery: StructToMapStr(&models.ProductsUpdateRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsUpdateRequestQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: StructToMapStr(productsUpdateRequestBody),
+		ReqBody: core.StructToMapStr(productsUpdateRequestBody),
 	}
 
 	body, err := p.client.Request(uri, reqOpts)
@@ -146,25 +145,4 @@ func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdate
 	}
 
 	return &productsUpdateResponse, nil
-}
-
-func StructToMapStr(obj interface{}) map[string]string {
-	data := make(map[string]string)
-
-	objV := reflect.ValueOf(obj)
-	v := objV.Elem()
-	typeOfType := v.Type()
-
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		tField := typeOfType.Field(i)
-		tFieldTag := string(tField.Tag.Get("query"))
-		if len(tFieldTag) > 0 {
-			data[tFieldTag] = field.String()
-		} else {
-			data[tField.Name] = field.String()
-		}
-	}
-
-	return data
 }

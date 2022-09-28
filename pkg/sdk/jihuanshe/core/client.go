@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 )
 
 const (
@@ -80,4 +81,25 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 	}
 
 	return body, nil
+}
+
+func StructToMapStr(obj interface{}) map[string]string {
+	data := make(map[string]string)
+
+	objV := reflect.ValueOf(obj)
+	v := objV.Elem()
+	typeOfType := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		tField := typeOfType.Field(i)
+		tFieldTag := string(tField.Tag.Get("query"))
+		if len(tFieldTag) > 0 {
+			data[tFieldTag] = field.String()
+		} else {
+			data[tField.Name] = field.String()
+		}
+	}
+
+	return data
 }

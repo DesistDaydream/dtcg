@@ -31,7 +31,7 @@ func TestStructToMapStr(t *testing.T) {
 		Token:         token,
 	}
 
-	got := StructToMapStr(&obj)
+	got := core.StructToMapStr(&obj)
 
 	fmt.Println(len(got))
 

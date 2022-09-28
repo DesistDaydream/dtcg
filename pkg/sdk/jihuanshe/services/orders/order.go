@@ -3,7 +3,6 @@ package orders
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"strconv"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
@@ -26,7 +25,7 @@ func (o *OrdersClient) GetBuyerOrders(page string) (*models.BuyerOrdersResponse,
 	uri := "/api/market/orders"
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: StructToMapStr(&models.BuyerOrdersQuery{
+		ReqQuery: core.StructToMapStr(&models.BuyerOrdersQuery{
 			Page:   page,
 			Status: "complete,waiting_to_confirm,waiting_to_pay,waiting_to_send,waiting_to_receive,waiting_to_refund,waiting_to_return_goods",
 			Token:  o.client.Token,
@@ -53,7 +52,7 @@ func (o *OrdersClient) GetBuyerOrderProducts(orderID int) (*models.BuyerOrderPro
 	uri := "/api/market/orders/" + orderIDStr
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: StructToMapStr(&models.BuyerOrderProductsRequest{
+		ReqQuery: core.StructToMapStr(&models.BuyerOrderProductsRequest{
 			Token: o.client.Token,
 		}),
 	}
@@ -78,7 +77,7 @@ func (o *OrdersClient) GetSellerOrders(page string) (*models.SellerOrdersRespons
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: StructToMapStr(&models.BuyerOrdersQuery{
+		ReqQuery: core.StructToMapStr(&models.BuyerOrdersQuery{
 			Page:   page,
 			Status: "complete,waiting_to_confirm,waiting_to_pay,waiting_to_send,waiting_to_receive,waiting_to_refund,waiting_to_return_goods",
 			Token:  o.client.Token,
@@ -105,7 +104,7 @@ func (o *OrdersClient) GetSellerOrderProducts(orderID int) (*models.SellerOrderP
 	uri := "/api/market/sellers/orders/" + orderIDStr
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: StructToMapStr(&models.SellerOrderProductsRequest{
+		ReqQuery: core.StructToMapStr(&models.SellerOrderProductsRequest{
 			Token: o.client.Token,
 		}),
 	}
@@ -121,25 +120,4 @@ func (o *OrdersClient) GetSellerOrderProducts(orderID int) (*models.SellerOrderP
 	}
 
 	return &orderProducts, nil
-}
-
-func StructToMapStr(obj interface{}) map[string]string {
-	data := make(map[string]string)
-
-	objV := reflect.ValueOf(obj)
-	v := objV.Elem()
-	typeOfType := v.Type()
-
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		tField := typeOfType.Field(i)
-		tFieldTag := string(tField.Tag.Get("query"))
-		if len(tFieldTag) > 0 {
-			data[tFieldTag] = field.String()
-		} else {
-			data[tField.Name] = field.String()
-		}
-	}
-
-	return data
 }
