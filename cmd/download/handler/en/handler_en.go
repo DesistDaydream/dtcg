@@ -39,9 +39,10 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 
 	for _, cardSet := range cardPackages.Success.CardSetList {
 		logrus.WithFields(logrus.Fields{
-			"名称": cardSet.Name,
-			"ID": cardSet.ID,
-			"编号": cardSet.Number,
+			"名称":   cardSet.Name,
+			"ID":   cardSet.ID,
+			"编号":   cardSet.Number,
+			"创建时间": cardSet.CreatedAt,
 		}).Infof("卡包信息")
 
 		// ID 转为 string
