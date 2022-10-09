@@ -32,3 +32,7 @@ keyEffect=
 - https://dtcgweb-api.digimoncard.cn/card/cardgetway/cachelist # 关键词效果
 
 上面这些接口获取到信息可以填充到 https://dtcgweb-api.digimoncard.cn/gamecard/gamecardmanager/weblist 中的 URL 参数中
+
+# 构建
+
+docker build . -t lchdzh/jihuanshe-exporter -f build/Dockerfile

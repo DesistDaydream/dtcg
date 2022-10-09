@@ -90,7 +90,7 @@ func FileToJson(file string, test bool) ([]models.JihuansheExporterCardDesc, err
 			erd.Name = rows[i][9]
 			erd.ParallCard = parallCard
 			erd.CardVersionID = rows[i][25]
-			erd.Exporter = rows[i][26]
+			erd.AvgPrice = rows[i][28]
 
 			jihuansheExporterCardDesc = append(jihuansheExporterCardDesc, erd)
 		}
@@ -215,7 +215,7 @@ func (c *JihuansheClient) GetConcurrency() int {
 	return c.Opts.Concurrency
 }
 
-// JihuansheOpts 登录 E37 所需属性
+// 集换社采集器标志
 type JihuansheOpts struct {
 	URL      string
 	Username string
@@ -230,6 +230,8 @@ type JihuansheOpts struct {
 	File string
 	// 是否进行测试，若不进行测试，则获取所有卡盒的信息
 	Test bool
+	// 要采集集换价大于多少的卡的信息
+	Price float64
 }
 
 // AddFlag use after set Opts
@@ -241,4 +243,5 @@ func (o *JihuansheOpts) AddFlag() {
 	pflag.BoolVar(&o.Insecure, "insecure", true, "是否禁用 TLS 验证。")
 	pflag.StringVar(&o.File, "file", "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx", "是否进行测试。")
 	pflag.BoolVar(&o.Test, "test", false, "是否进行测试。")
+	pflag.Float64Var(&o.Price, "price", 1, "要采集集换价大于多少的卡，单位：元")
 }

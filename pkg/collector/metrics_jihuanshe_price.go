@@ -62,7 +62,13 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 		go func(jhsCardDesc models.JihuansheExporterCardDesc) {
 			defer wg.Done()
 
-			if jhsCardDesc.Exporter == "TRUE" {
+			avgPice, err := strconv.ParseFloat(jhsCardDesc.AvgPrice, 64)
+			if err != nil {
+				logrus.Errorf("%v %v 卡牌集换价 %v 转换失败：%v", jhsCardDesc.Model, jhsCardDesc.Name, jhsCardDesc.AvgPrice, err)
+			}
+
+			// 只采集集换价大于 client.Opts.Price 的卡的信息
+			if avgPice > client.Opts.Price {
 				cardInfo, err := c.Get(jhsCardDesc.CardVersionID)
 				if err != nil {
 					logrus.Errorf("获取卡片信息异常：%v", err)

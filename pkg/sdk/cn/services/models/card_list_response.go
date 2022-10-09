@@ -101,6 +101,6 @@ type JihuansheExporterCardDesc struct {
 	UpdateTime           string `json:"updateTime"`           // 更新时间
 	CardVersionID        string `json:"card_version_id"`      // 集换社的卡片唯一标识符
 	Exporter             string `json:"exporter"`             // 是否采集
-	MinPice              string `json:"min_pice"`             // 最低价
-	AvgPice              string `json:"avg_pice"`             // 集换价
+	MinPrice             string `json:"min_pice"`             // 最低价
+	AvgPrice             string `json:"avg_pice"`             // 集换价
 }
