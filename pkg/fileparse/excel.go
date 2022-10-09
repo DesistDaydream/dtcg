@@ -10,7 +10,7 @@ type ExcelData struct {
 	Rows []models.JihuansheExporterCardDesc `json:"rows"`
 }
 
-func NewExcelData(file string, sheet string) (*ExcelData, error) {
+func NewExcelData(file string, sheets []string) (*ExcelData, error) {
 	var d ExcelData
 	// var ed *models.JihuansheExporterCardDesc
 	f, err := excelize.OpenFile(file)
@@ -26,23 +26,25 @@ func NewExcelData(file string, sheet string) (*ExcelData, error) {
 		}
 	}()
 
-	// 逐行读取Excel文件
-	rows, err := f.GetRows(sheet)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"file":  file,
-			"sheet": sheet,
-		}).Errorf("读取中sheet页异常: %v", err)
-		return nil, err
-	}
+	for _, sheet := range sheets {
+		// 逐行读取Excel文件
+		rows, err := f.GetRows(sheet)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"file":  file,
+				"sheet": sheet,
+			}).Errorf("读取中sheet页异常: %v", err)
+			return nil, err
+		}
 
-	for i := 1; i < len(rows); i++ {
-		var data models.JihuansheExporterCardDesc
-		data.Model = rows[i][2]
-		data.Name = rows[i][9]
-		data.CardVersionID = rows[i][25]
+		for i := 1; i < len(rows); i++ {
+			var data models.JihuansheExporterCardDesc
+			data.Model = rows[i][2]
+			data.Name = rows[i][9]
+			data.CardVersionID = rows[i][25]
 
-		d.Rows = append(d.Rows, data)
+			d.Rows = append(d.Rows, data)
+		}
 	}
 
 	return &d, nil
