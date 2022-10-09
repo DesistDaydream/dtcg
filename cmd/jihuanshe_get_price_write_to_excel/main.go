@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/DesistDaydream/dtcg/cards"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
@@ -12,7 +14,7 @@ import (
 func main() {
 	client := products.NewProductsClient(core.NewClient(""))
 
-	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
+	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表-测试.xlsx"
 	f, err := excelize.OpenFile(file)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -30,7 +32,7 @@ func main() {
 		logrus.Fatalln(err)
 	}
 
-	// cardGroups = []string{"BTC-02", "STC-06", "STC-05", "STC-04", "BTC-01", "PR卡", "STC-03", "STC-02", "STC-01"}
+	// cardGroups = []string{"STC-01"}
 
 	for _, sheet := range cardGroups {
 		rows, err := f.GetRows(sheet)
@@ -41,25 +43,38 @@ func main() {
 			}).Fatalf("读取中sheet页异常: %v", err)
 		}
 
-		f.SetCellValue(sheet, "AB1", "最低价")
-		f.SetCellValue(sheet, "AC1", "集换价")
+		f.SetCellValue(sheet, "AA1", "最低价")
+		f.SetCellValue(sheet, "AB1", "集换价")
 
-		for i := 1; i < len(rows); i++ {
-			cardVersionID := rows[i][25]
+		for row := 1; row < len(rows); row++ {
+			// cardVersionID := rows[row][25]
+			cellCardVersionID, err := excelize.CoordinatesToCellName(26, row+1)
+			if err != nil {
+				logrus.Errorf("获取CardVersionID单元格名称错误：%v", err)
+			}
+			cardVersionID, err := f.GetCellValue(sheet, cellCardVersionID)
+			if err != nil {
+				logrus.Errorf("获取CardVersionID单元格的值错误：%v", err)
+			}
+
+			// 获取卡牌加个信息
 			productsGetResponse, err := client.Get(cardVersionID)
 			if err != nil {
 				logrus.Fatal(err)
 			}
+			minPrice, _ := strconv.ParseFloat(productsGetResponse.MinPrice, 64)
+			avgPrice, _ := strconv.ParseFloat(productsGetResponse.AvgPrice, 64)
 
-			cellMin, _ := excelize.CoordinatesToCellName(28, i+1)
-			err = f.SetCellValue(sheet, cellMin, productsGetResponse.MinPrice)
+			// 向单元格写入数据
+			cellMin, _ := excelize.CoordinatesToCellName(27, row+1)
+			err = f.SetCellValue(sheet, cellMin, minPrice)
 			if err != nil {
-				logrus.Errorln(err)
+				logrus.Errorf("设置最低价单元格的值错误：%v", err)
 			}
-			cellAvg, _ := excelize.CoordinatesToCellName(29, i+1)
-			err = f.SetCellValue(sheet, cellAvg, productsGetResponse.AvgPrice)
+			cellAvg, _ := excelize.CoordinatesToCellName(28, row+1)
+			err = f.SetCellValue(sheet, cellAvg, avgPrice)
 			if err != nil {
-				logrus.Errorln(err)
+				logrus.Errorf("设置集换价单元格的值错误：%v", err)
 			}
 		}
 	}
