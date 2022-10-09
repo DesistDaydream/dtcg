@@ -33,17 +33,17 @@ func GetToken(opts *JihuansheOpts) (token string, err error) {
 }
 
 // 从 Excel 中获取卡片详情写入到结构体中以便后续使用，其中包括适用于集换社的 card_version_id
-func FileToJson(file string, test bool) ([]models.JihuansheCardDesc, error) {
+func FileToJson(file string, test bool) ([]models.JihuansheExporterCardDesc, error) {
 	var (
-		jihuansheCardsDesc []models.JihuansheCardDesc
-		cardGroups         []string
-		err                error
+		jihuansheExporterCardDesc []models.JihuansheExporterCardDesc
+		cardGroups                []string
+		err                       error
 	)
 
 	if test {
 		cardGroups = []string{"STC-01"}
 	} else {
-		cardGroups, err = cards.GetCardGroups()
+		cardGroups, err = cards.GetCardGroups("")
 		if err != nil {
 			return nil, fmt.Errorf("获取卡盒列表失败：%v", err)
 		}
@@ -70,10 +70,10 @@ func FileToJson(file string, test bool) ([]models.JihuansheCardDesc, error) {
 
 		// 跳过第一行的标题，从第二行开始，所以 i := 1
 		for i := 1; i < len(rows); i++ {
-			logrus.WithFields(logrus.Fields{
-				"行号":  i,
-				"行数据": rows[i],
-			}).Debugf("检查每一条需要处理的解析记录")
+			// logrus.WithFields(logrus.Fields{
+			// 	"行号":  i,
+			// 	"行数据": rows[i],
+			// }).Debugf("检查每一条需要处理的解析记录")
 
 			var parallCard string
 
@@ -84,18 +84,19 @@ func FileToJson(file string, test bool) ([]models.JihuansheCardDesc, error) {
 			}
 
 			// 将每一行中的的每列数据赋值到结构体重
-			var erd models.JihuansheCardDesc
+			var erd models.JihuansheExporterCardDesc
 			erd.CardGroup = rows[i][1]
 			erd.Model = rows[i][2]
 			erd.Name = rows[i][9]
 			erd.ParallCard = parallCard
 			erd.CardVersionID = rows[i][25]
+			erd.Exporter = rows[i][26]
 
-			jihuansheCardsDesc = append(jihuansheCardsDesc, erd)
+			jihuansheExporterCardDesc = append(jihuansheExporterCardDesc, erd)
 		}
 	}
 
-	return jihuansheCardsDesc, nil
+	return jihuansheExporterCardDesc, nil
 }
 
 // ######## 从此处开始到文件结尾，都是关于配置连接 E37 的代码 ########
@@ -106,7 +107,7 @@ type JihuansheClient struct {
 	Token  string
 	Opts   *JihuansheOpts
 
-	JihuansheCardsDesc []models.JihuansheCardDesc
+	JihuansheCardsDesc []models.JihuansheExporterCardDesc
 }
 
 // NewE37Client 实例化 E37 客户端

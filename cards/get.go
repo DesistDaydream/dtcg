@@ -8,13 +8,16 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 )
 
-func GetCardGroups() ([]string, error) {
+func GetCardGroups(filePath string) ([]string, error) {
+	if filePath == "" {
+		filePath = "cards/card_package.json"
+	}
 	var (
 		cardGroups     *models.CacheListResp
 		cardGroupsName []string
 	)
 
-	file, err := os.ReadFile("cards/card_package.json")
+	file, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}

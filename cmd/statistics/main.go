@@ -141,7 +141,7 @@ func main() {
 	AddFlsgs(&flags)
 	pflag.Parse()
 
-	cardGroups, err := cards.GetCardGroups()
+	cardGroups, err := cards.GetCardGroups("")
 	if err != nil {
 		logrus.Fatalln(err)
 	}

@@ -50,7 +50,7 @@ func main() {
 
 	if !flags.Test {
 		var err error
-		if flags.CardGroups, err = cards.GetCardGroups(); err != nil {
+		if flags.CardGroups, err = cards.GetCardGroups(""); err != nil {
 			logrus.Fatalf("获取卡盒列表失败：%v", err)
 		}
 	}

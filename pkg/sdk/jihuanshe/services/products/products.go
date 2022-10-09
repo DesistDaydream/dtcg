@@ -54,7 +54,7 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 			GameKey:       "dgm",
 			SellerUserID:  "609077",
 			CardVersionID: cardVersionID,
-			Token:         p.client.Token,
+			// Token:         p.client.Token,
 		}),
 	}
 

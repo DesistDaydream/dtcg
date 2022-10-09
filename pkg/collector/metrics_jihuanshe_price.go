@@ -54,37 +54,40 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 	// 用来控制并发数量
 	concurrenceyControl := make(chan bool, client.GetConcurrency())
 
+	c := products.NewProductsClient(core.NewClient(""))
+
 	for _, jhsCardDesc := range client.JihuansheCardsDesc {
 		concurrenceyControl <- true
 		wg.Add(1)
-		go func(jhsCardDesc models.JihuansheCardDesc) {
+		go func(jhsCardDesc models.JihuansheExporterCardDesc) {
 			defer wg.Done()
 
-			client := products.NewProductsClient(core.NewClient(""))
-			cardInfo, err := client.Get(jhsCardDesc.CardVersionID)
-			if err != nil {
-				logrus.Errorf("获取卡片信息异常：%v", err)
+			if jhsCardDesc.Exporter == "TRUE" {
+				cardInfo, err := c.Get(jhsCardDesc.CardVersionID)
+				if err != nil {
+					logrus.Errorf("获取卡片信息异常：%v", err)
+				}
+
+				fMin, _ := strconv.ParseFloat(cardInfo.MinPrice, 64)
+				fAvg, _ := strconv.ParseFloat(cardInfo.AvgPrice, 64)
+				// 最低价格
+				ch <- prometheus.MustNewConstMetric(minPrice, prometheus.GaugeValue, float64(fMin),
+					jhsCardDesc.CardGroup,
+					jhsCardDesc.Model,
+					jhsCardDesc.Name,
+					jhsCardDesc.ParallCard,
+					jhsCardDesc.CardVersionID,
+				)
+
+				// 平均价格
+				ch <- prometheus.MustNewConstMetric(avgPrice, prometheus.GaugeValue, float64(fAvg),
+					jhsCardDesc.CardGroup,
+					jhsCardDesc.Model,
+					jhsCardDesc.Name,
+					jhsCardDesc.ParallCard,
+					jhsCardDesc.CardVersionID,
+				)
 			}
-
-			fMin, _ := strconv.ParseFloat(cardInfo.MinPrice, 64)
-			fAvg, _ := strconv.ParseFloat(cardInfo.AvgPrice, 64)
-			// 最低价格
-			ch <- prometheus.MustNewConstMetric(minPrice, prometheus.GaugeValue, float64(fMin),
-				jhsCardDesc.CardGroup,
-				jhsCardDesc.Model,
-				jhsCardDesc.Name,
-				jhsCardDesc.ParallCard,
-				jhsCardDesc.CardVersionID,
-			)
-
-			// 平均价格
-			ch <- prometheus.MustNewConstMetric(avgPrice, prometheus.GaugeValue, float64(fAvg),
-				jhsCardDesc.CardGroup,
-				jhsCardDesc.Model,
-				jhsCardDesc.Name,
-				jhsCardDesc.ParallCard,
-				jhsCardDesc.CardVersionID,
-			)
 
 			<-concurrenceyControl
 		}(jhsCardDesc)

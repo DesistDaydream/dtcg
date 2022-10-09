@@ -26,7 +26,7 @@ func marshal() {
 		}
 	}()
 
-	cardGroups, _ := cards.GetCardGroups()
+	cardGroups, _ := cards.GetCardGroups("")
 	for _, cardGroup := range cardGroups {
 		rows, err := f.GetRows(cardGroup)
 		if err != nil {
