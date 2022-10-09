@@ -9,11 +9,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/DesistDaydream/dtcg/cards"
+	"github.com/DesistDaydream/dtcg/pkg/fileparse"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
-	"github.com/xuri/excelize/v2"
 )
 
 // 这三个常量用于给每个 Metrics 名字添加前缀
@@ -32,73 +31,6 @@ func GetToken(opts *JihuansheOpts) (token string, err error) {
 	return opts.password, nil
 }
 
-// 从 Excel 中获取卡片详情写入到结构体中以便后续使用，其中包括适用于集换社的 card_version_id
-func FileToJson(file string, test bool) ([]models.JihuansheExporterCardDesc, error) {
-	var (
-		jihuansheExporterCardDesc []models.JihuansheExporterCardDesc
-		cardGroups                []string
-		err                       error
-	)
-
-	if test {
-		cardGroups = []string{"STC-01"}
-	} else {
-		cardGroups, err = cards.GetCardGroups("")
-		if err != nil {
-			return nil, fmt.Errorf("获取卡盒列表失败：%v", err)
-		}
-	}
-
-	opts := excelize.Options{}
-	f, err := excelize.OpenFile(file, opts)
-	if err != nil {
-		return nil, fmt.Errorf("%v", err)
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			logrus.Errorln(err)
-			return
-		}
-	}()
-
-	for _, cardGroup := range cardGroups {
-		// 逐行读取Excel文件
-		rows, err := f.GetRows(cardGroup)
-		if err != nil {
-			return nil, fmt.Errorf("读取sheet页%v异常：%v", cardGroup, err)
-		}
-
-		// 跳过第一行的标题，从第二行开始，所以 i := 1
-		for i := 1; i < len(rows); i++ {
-			// logrus.WithFields(logrus.Fields{
-			// 	"行号":  i,
-			// 	"行数据": rows[i],
-			// }).Debugf("检查每一条需要处理的解析记录")
-
-			var parallCard string
-
-			if rows[i][21] == "1" {
-				parallCard = "原画"
-			} else {
-				parallCard = "异画"
-			}
-
-			// 将每一行中的的每列数据赋值到结构体重
-			var erd models.JihuansheExporterCardDesc
-			erd.CardGroup = rows[i][1]
-			erd.Model = rows[i][2]
-			erd.Name = rows[i][9]
-			erd.ParallCard = parallCard
-			erd.CardVersionID = rows[i][25]
-			erd.AvgPrice = rows[i][27]
-
-			jihuansheExporterCardDesc = append(jihuansheExporterCardDesc, erd)
-		}
-	}
-
-	return jihuansheExporterCardDesc, nil
-}
-
 // ######## 从此处开始到文件结尾，都是关于配置连接 E37 的代码 ########
 
 // JihuansheClient 连接 E37 所需信息
@@ -107,7 +39,7 @@ type JihuansheClient struct {
 	Token  string
 	Opts   *JihuansheOpts
 
-	JihuansheCardsDesc []models.JihuansheExporterCardDesc
+	JihuansheCardsDesc []models.JihuansheCardDescForPrice
 }
 
 // NewE37Client 实例化 E37 客户端
@@ -142,8 +74,8 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	}
 	// ######## 配置 http.Client 的信息结束 ########
 
-	//
-	JhsCardsDesc, err := FileToJson(opts.File, opts.Test)
+	// 解析 Excel 文件，获取其中所有卡片信息
+	JhsCardsDesc, err := fileparse.NewExcelDataForPrice(opts.File, "", opts.Test)
 	if err != nil {
 		logrus.Fatalf("从 %v 文件中解析卡牌信息异常：%v", opts.File, err)
 	}
@@ -160,7 +92,7 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 			Timeout:   opts.Timeout,
 			Transport: transport,
 		},
-		JihuansheCardsDesc: JhsCardsDesc,
+		JihuansheCardsDesc: JhsCardsDesc.Rows,
 	}
 }
 

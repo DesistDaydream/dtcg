@@ -59,7 +59,7 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 	for _, jhsCardDesc := range client.JihuansheCardsDesc {
 		concurrenceyControl <- true
 		wg.Add(1)
-		go func(jhsCardDesc models.JihuansheExporterCardDesc) {
+		go func(jhsCardDesc models.JihuansheCardDescForPrice) {
 			defer wg.Done()
 
 			avgPice, err := strconv.ParseFloat(jhsCardDesc.AvgPrice, 64)

@@ -73,7 +73,7 @@ type NewCardDesc struct {
 
 // 用来与集换社交互的，多了一个 cardVersionID
 // 用以使用 exporter 采集
-type JihuansheExporterCardDesc struct {
+type JihuansheCardDescForPrice struct {
 	ID                   string `json:"id"`                   // ID
 	CardGroup            string `json:"cardGroup"`            // 卡包
 	Model                string `json:"model"`                // 编号
