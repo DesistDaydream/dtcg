@@ -1,6 +1,7 @@
 package fileparse
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/cards"
@@ -25,7 +26,8 @@ func TestNewExcelData(t *testing.T) {
 	var count int64 = 0
 
 	for _, data := range got.Rows {
-		if data.Exporter == "TRUE" {
+		f, _ := strconv.ParseFloat(data.AvgPrice, 64)
+		if f > 1 {
 			count++
 		}
 	}

@@ -90,7 +90,7 @@ func FileToJson(file string, test bool) ([]models.JihuansheExporterCardDesc, err
 			erd.Name = rows[i][9]
 			erd.ParallCard = parallCard
 			erd.CardVersionID = rows[i][25]
-			erd.AvgPrice = rows[i][28]
+			erd.AvgPrice = rows[i][27]
 
 			jihuansheExporterCardDesc = append(jihuansheExporterCardDesc, erd)
 		}
