@@ -1,10 +1,6 @@
 package services
 
 import (
-	"encoding/json"
-	"os"
-	"path/filepath"
-	"sort"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -16,19 +12,11 @@ func TestGetCardPackage(t *testing.T) {
 		logrus.Fatalln(err)
 	}
 
-	sort.Slice(cardPackageResp.List, func(i, j int) bool {
-		return cardPackageResp.List[i].CreateTime < cardPackageResp.List[j].CreateTime
-	})
-
-	jsonByte, _ := json.Marshal(cardPackageResp)
-
-	fileName := filepath.Join("../../../../cards", "card_package.json")
-	os.WriteFile(fileName, jsonByte, 0666)
-	// for _, p := range cardPackageResp.List {
-	// 	logrus.WithFields(logrus.Fields{
-	// 		"名称": p.Name,
-	// 		"ID": p.ID,
-	// 		"状态": p.State,
-	// 	}).Info("卡包信息")
-	// }
+	for _, p := range cardPackageResp.List {
+		logrus.WithFields(logrus.Fields{
+			"名称": p.Name,
+			"ID": p.ID,
+			"状态": p.State,
+		}).Info("卡包信息")
+	}
 }
