@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -17,7 +18,7 @@ func InitDB(dbInfo *DBInfo) {
 	var err error
 	db, err = gorm.Open(sqlite.Open(dbInfo.FilePath), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
+		logrus.Fatalf("连接数据库失败: %v", err)
 	}
 
 	// AutoMigrate 用来刷新数据表，不存在则创建，表名默认为结构体名称的复数，e.g.这里会创建一个名为 products 的表，假如 Product 为 ProductTest，则会创建出一个名为 product_test 的表
