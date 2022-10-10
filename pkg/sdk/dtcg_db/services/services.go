@@ -42,7 +42,7 @@ func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostRespo
 	reqOpts := &core.RequestOption{
 		Method: "POST",
 		ReqQuery: core.StructToMapStr(&models.SearchReqQuery{
-			Limit: "20",
+			Limit: "300",
 			Page:  "1",
 		}),
 		ReqBody: &models.CardSearchRequestBody{

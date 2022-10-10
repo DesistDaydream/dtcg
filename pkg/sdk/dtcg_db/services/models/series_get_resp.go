@@ -18,7 +18,7 @@ type SeriesPack struct {
 	Language        string `json:"language"`
 	PackCover       string `json:"pack_cover"`
 	PackEnName      string `json:"pack_enName"`
-	PackID          int64  `json:"pack_id"`
+	PackID          int    `json:"pack_id"`
 	PackJapName     string `json:"pack_japName"`
 	PackName        string `json:"pack_name"`
 	PackPrefix      string `json:"pack_prefix"`
