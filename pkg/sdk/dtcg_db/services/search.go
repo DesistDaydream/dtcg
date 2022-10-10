@@ -18,18 +18,13 @@ func NewSearchClient(client *core.Client) *SearchClient {
 }
 
 func (s *SearchClient) PostDeckSearch(reqBody *models.DeckSearchRequestBody, reqQuery *models.SearchReqQuery) (*models.DeckSearchPostResponse, error) {
-	var deckSearchResp *models.DeckSearchPostResponse
+	var deckSearchResp models.DeckSearchPostResponse
 	uri := "/api/community/deck/search"
-
-	rb, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, err
-	}
 
 	reqOpts := &core.RequestOption{
 		Method:   "POST",
 		ReqQuery: core.StructToMapStr(reqQuery),
-		ReqBody:  rb,
+		ReqBody:  reqBody,
 	}
 
 	respBody, err := s.client.Request(uri, reqOpts)
@@ -42,11 +37,11 @@ func (s *SearchClient) PostDeckSearch(reqBody *models.DeckSearchRequestBody, req
 		return nil, err
 	}
 
-	return deckSearchResp, nil
+	return &deckSearchResp, nil
 }
 
 func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostResponse, error) {
-	var deckSearchResp *models.CardSearchPostResponse
+	var deckSearchResp models.CardSearchPostResponse
 	uri := "/api/cdb/cards/search"
 
 	reqBody := &models.CardSearchRequestBody{
@@ -59,18 +54,13 @@ func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostRespo
 		Type:       "",
 	}
 
-	rb, err := json.Marshal(reqBody)
-	if err != nil {
-		return nil, err
-	}
-
 	reqOpts := &core.RequestOption{
 		Method: "POST",
 		ReqQuery: core.StructToMapStr(&models.SearchReqQuery{
 			Limit: "20",
 			Page:  "1",
 		}),
-		ReqBody: rb,
+		ReqBody: reqBody,
 	}
 
 	body, err := s.client.Request(uri, reqOpts)
@@ -83,5 +73,22 @@ func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostRespo
 		return nil, err
 	}
 
-	return deckSearchResp, nil
+	return &deckSearchResp, nil
 }
+
+// func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
+// 	var resp models.SeriesGetResp
+// 	uri := "/api/cdb/series"
+
+// 	body, err := s.client.Request(uri, reqOpts)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	err = json.Unmarshal(body, &deckSearchResp)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	return &resp, nil
+// }

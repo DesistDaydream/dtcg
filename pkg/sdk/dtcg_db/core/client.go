@@ -2,6 +2,7 @@ package core
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,12 +26,11 @@ func NewClient(token string) *Client {
 type RequestOption struct {
 	Method   string
 	ReqQuery map[string]string
-	ReqBody  []byte
+	ReqBody  interface{}
 }
 
 func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 	var (
-		rb  *bytes.Buffer
 		req *http.Request
 		err error
 	)
@@ -38,8 +38,11 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 	url := fmt.Sprintf("%s%s", BaseAPI, api)
 
 	if reqOpts.ReqBody != nil {
-		rb = bytes.NewBuffer(reqOpts.ReqBody)
-		req, err = http.NewRequest(reqOpts.Method, url, rb)
+		rb, err := json.Marshal(reqOpts.ReqBody)
+		if err != nil {
+			return nil, err
+		}
+		req, err = http.NewRequest(reqOpts.Method, url, bytes.NewBuffer(rb))
 	} else {
 		req, err = http.NewRequest(reqOpts.Method, url, nil)
 	}
