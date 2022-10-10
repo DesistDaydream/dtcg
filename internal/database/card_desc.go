@@ -1,9 +1,16 @@
 package database
 
+import "github.com/sirupsen/logrus"
+
+type CardsDesc struct {
+	Data []CardDesc
+}
+
 type CardDesc struct {
 	// gorm.Model 是一个包含了ID, CreatedAt, UpdatedAt, DeletedAt四个字段的结构体。
 	// gorm.Model
-	ID                   int    `gorm:"primaryKey" json:"id"` // ID
+	ID                   int    `gorm:"primaryKey" json:"my_id"` // ID
+	OfficialID           int    `json:"id"`
 	CardGroup            string `json:"cardGroup"`            // 卡包
 	Model                string `json:"model"`                // 编号
 	RareDegree           string `json:"rareDegree"`           // 稀有度
@@ -25,9 +32,26 @@ type CardDesc struct {
 	ImageCover           string `json:"imageCover"`           // 图片。这是一个卡图的 URL
 	State                string `json:"state"`                // 状态。0：显示，1：不显示
 	ParallCard           string `json:"parallCard"`           // 是否是平卡。1 是平卡，0 是异画
-	KeyEffect            string `json:"keyEffect" copier:"-"` // 效果关键字
+	KeyEffect            string `json:"keyEffect"`            // 效果关键字
 }
 
-func AddCard(cardDesc *CardDesc) {
-	db.Create(cardDesc)
+func AddCardDesc(cardDesc *CardDesc) {
+	// db.Create(cardDesc)
+	result := db.FirstOrCreate(cardDesc, cardDesc)
+	if result.Error != nil {
+		logrus.Errorf("插入数据失败: %v", result.Error)
+	}
+}
+
+// 获取所有卡片描述
+func ListCardDesc() (*CardsDesc, error) {
+	var cd []CardDesc
+	result := db.Find(&cd)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &CardsDesc{
+		Data: cd,
+	}, nil
 }

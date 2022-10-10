@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-func TestListCardGroups(t *testing.T) {
+func TestListCardDesc(t *testing.T) {
 	i := &DBInfo{
 		FilePath: "my_dtcg.db",
 	}
 	InitDB(i)
 
-	got, err := ListCardGroups()
+	got, err := ListCardDesc()
 	if err != nil {
 		log.Fatalln(err)
 	}

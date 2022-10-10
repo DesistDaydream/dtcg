@@ -30,6 +30,7 @@ func AddCardGroup(wirteToJSON bool) {
 
 	for _, cardGroup := range cardPackageResp.List {
 		g := &database.CardGroup{
+			OfficialID: cardGroup.ID,
 			Name:       cardGroup.Name,
 			Image:      cardGroup.Image,
 			State:      cardGroup.State,

@@ -1,27 +1,17 @@
-package card
+package carddesc
 
 import (
-	"encoding/json"
-	"os"
+	"log"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
-	"github.com/sirupsen/logrus"
 )
 
-func AddCard() {
-	filePath := "cards/card_package.json"
-	file, err := os.ReadFile(filePath)
+func AddCardDesc() {
+	cardGroups, err := database.ListCardGroups()
 	if err != nil {
-		logrus.Fatalln(err)
-	}
-
-	var cardGroups *models.CacheListResp
-
-	err = json.Unmarshal(file, &cardGroups)
-	if err != nil {
-		logrus.Fatalln(err)
+		log.Fatalln(err)
 	}
 
 	c := &models.FilterConditionReq{
@@ -29,7 +19,7 @@ func AddCard() {
 		State: "0",
 	}
 
-	for _, cardGroup := range cardGroups.List {
+	for _, cardGroup := range cardGroups.Data {
 		// 若要获取卡盒所有卡，需要将限制扩大
 		c.Limit = "300"
 		c.CardGroup = cardGroup.Name
@@ -42,6 +32,7 @@ func AddCard() {
 
 		for _, cardDesc := range cardDescs.Page.CardsDesc {
 			d := &database.CardDesc{
+				OfficialID:           cardDesc.ID,
 				CardGroup:            cardDesc.CardGroup,
 				Model:                cardDesc.Model,
 				RareDegree:           cardDesc.RareDegree,
@@ -65,7 +56,7 @@ func AddCard() {
 				ParallCard:           cardDesc.ParallCard,
 				KeyEffect:            cardDesc.KeyEffect,
 			}
-			database.AddCard(d)
+			database.AddCardDesc(d)
 		}
 	}
 }

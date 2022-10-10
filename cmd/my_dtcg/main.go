@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/DesistDaydream/dtcg/cmd/my_dtcg/card"
+	carddesc "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_desc"
 	cardgroup "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_group"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
@@ -35,8 +35,8 @@ func main() {
 	database.InitDB(i)
 
 	switch flags.Add {
-	case "card":
-		card.AddCard()
+	case "carddesc":
+		carddesc.AddCardDesc()
 	case "cardgroup":
 		cardgroup.AddCardGroup(false)
 	default:
