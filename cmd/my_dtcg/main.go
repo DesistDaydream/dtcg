@@ -7,9 +7,11 @@ import (
 	"sort"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/pflag"
 )
 
 func addCard() {
@@ -102,8 +104,34 @@ func addCardGroup(wirteToJSON bool) {
 	}
 }
 
+type Flags struct {
+	Add string
+}
+
+func AddFlsgs(f *Flags) {
+	pflag.StringVarP(&f.Add, "add", "a", "", "向数据库添加数据的内容")
+
+}
+
 func main() {
+	var flags Flags
+	AddFlsgs(&flags)
+	logFlags := logging.LoggingFlags{}
+	logFlags.AddFlags()
+	pflag.Parse()
+
+	if err := logging.LogInit(logFlags.LogLevel, logFlags.LogOutput, logFlags.LogFormat); err != nil {
+		logrus.Fatal("初始化日志失败", err)
+	}
+
 	database.InitDB()
-	// addCard()
-	addCardGroup(false)
+
+	switch flags.Add {
+	case "card":
+		addCard()
+	case "cardgroup":
+		addCardGroup(false)
+	default:
+		logrus.Errorln("使用 --add 指定要添加的数据")
+	}
 }
