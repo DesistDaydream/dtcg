@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/models"
 )
@@ -39,16 +40,21 @@ func main() {
 			cardColor = "混色"
 		}
 
-		req := &models.DeckSearchReq{}
-		req.Body.Tags = []string{cardType, c}
-		req.Body.Kw = ""
-		req.Body.Envir = gameEnv
-		req.Query.Limit = "50"
-		req.Query.Page = "1"
+		reqBody := &models.DeckSearchRequestBody{
+			Tags:  []string{cardType, c},
+			Kw:    "",
+			Envir: gameEnv,
+		}
+		reqQuery := &models.SearchReqQuery{
+			Limit: "100",
+			Page:  "1",
+		}
 
-		resp, err := services.PostDeckSearch(req)
+		client := services.NewSearchClient(core.NewClient(""))
+
+		resp, err := client.PostDeckSearch(reqBody, reqQuery)
 		if err != nil {
-			logrus.Fatalln(err)
+			logrus.Fatalf("获取卡组列表异常：%v", err)
 		}
 
 		var count int = 0

@@ -27,6 +27,18 @@
         "-s",
         "dp"
       ]
+    },
+    {
+      "name": "card_deck",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": "${workspaceRoot}",
+      "program": "cmd/card_deck/main.go",
+      // "args": [
+      //   "-s",
+      //   "dp"
+      // ]
     }
   ]
 }
