@@ -13,3 +13,13 @@ type CardGroup struct {
 func AddCardGroup(cardGroup *CardGroup) {
 	db.Create(cardGroup)
 }
+
+// 获取所有卡包
+func ListCardGroups() ([]CardGroup, error) {
+	var cg []CardGroup
+	result := db.Find(&cg)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return cg, nil
+}

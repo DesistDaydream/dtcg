@@ -6,12 +6,16 @@ import (
 )
 
 var (
-	db  *gorm.DB
-	err error
+	db *gorm.DB
 )
 
-func InitDB() {
-	db, err = gorm.Open(sqlite.Open("internal/database/my_dtcg.db"), &gorm.Config{})
+type DBInfo struct {
+	FilePath string
+}
+
+func InitDB(dbInfo *DBInfo) {
+	var err error
+	db, err = gorm.Open(sqlite.Open(dbInfo.FilePath), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}

@@ -29,7 +29,10 @@ func main() {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	database.InitDB()
+	i := &database.DBInfo{
+		FilePath: "internal/database/my_dtcg.db",
+	}
+	database.InitDB(i)
 
 	switch flags.Add {
 	case "card":
