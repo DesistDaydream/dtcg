@@ -29,7 +29,21 @@ type RequestOption struct {
 	ReqBody  interface{}
 }
 
-func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
+func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOption) error {
+	body, err := c.request(uri, reqOpts)
+	if err != nil {
+		return err
+	}
+
+	err = json.Unmarshal(body, wantResp)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) request(api string, reqOpts *RequestOption) ([]byte, error) {
 	var (
 		req *http.Request
 		err error

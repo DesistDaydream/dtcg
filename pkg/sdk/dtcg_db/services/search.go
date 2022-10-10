@@ -1,8 +1,6 @@
 package services
 
 import (
-	"encoding/json"
-
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/models"
 )
@@ -27,12 +25,7 @@ func (s *SearchClient) PostDeckSearch(reqBody *models.DeckSearchRequestBody, req
 		ReqBody:  reqBody,
 	}
 
-	respBody, err := s.client.Request(uri, reqOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(respBody, &deckSearchResp)
+	err := s.client.Request(uri, &deckSearchResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -41,18 +34,8 @@ func (s *SearchClient) PostDeckSearch(reqBody *models.DeckSearchRequestBody, req
 }
 
 func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostResponse, error) {
-	var deckSearchResp models.CardSearchPostResponse
+	var cardSearchResp models.CardSearchPostResponse
 	uri := "/api/cdb/cards/search"
-
-	reqBody := &models.CardSearchRequestBody{
-		CardPack:   cardPack,
-		ClassInput: false,
-		Keyword:    "",
-		Language:   "chs",
-		OrderType:  "default",
-		TagsLogic:  "or",
-		Type:       "",
-	}
 
 	reqOpts := &core.RequestOption{
 		Method: "POST",
@@ -60,35 +43,35 @@ func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostRespo
 			Limit: "20",
 			Page:  "1",
 		}),
-		ReqBody: reqBody,
+		ReqBody: &models.CardSearchRequestBody{
+			CardPack:   cardPack,
+			ClassInput: false,
+			Keyword:    "",
+			Language:   "chs",
+			OrderType:  "default",
+			TagsLogic:  "or",
+			Type:       "",
+		},
 	}
 
-	body, err := s.client.Request(uri, reqOpts)
+	err := s.client.Request(uri, &cardSearchResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(body, &deckSearchResp)
-	if err != nil {
-		return nil, err
-	}
-
-	return &deckSearchResp, nil
+	return &cardSearchResp, nil
 }
 
-// func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
-// 	var resp models.SeriesGetResp
-// 	uri := "/api/cdb/series"
+func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
+	var resp models.SeriesGetResp
+	uri := "/api/cdb/series"
 
-// 	body, err := s.client.Request(uri, reqOpts)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	reqOpts := &core.RequestOption{}
 
-// 	err = json.Unmarshal(body, &deckSearchResp)
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	err := s.client.Request(uri, &resp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
 
-// 	return &resp, nil
-// }
+	return &resp, nil
+}
