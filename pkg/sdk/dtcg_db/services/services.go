@@ -15,6 +15,7 @@ func NewSearchClient(client *core.Client) *SearchClient {
 	}
 }
 
+// 搜索卡组
 func (s *SearchClient) PostDeckSearch(reqBody *models.DeckSearchRequestBody, reqQuery *models.SearchReqQuery) (*models.DeckSearchPostResponse, error) {
 	var deckSearchResp models.DeckSearchPostResponse
 	uri := "/api/community/deck/search"
@@ -33,6 +34,7 @@ func (s *SearchClient) PostDeckSearch(reqBody *models.DeckSearchRequestBody, req
 	return &deckSearchResp, nil
 }
 
+// 搜索卡片
 func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostResponse, error) {
 	var cardSearchResp models.CardSearchPostResponse
 	uri := "/api/cdb/cards/search"
@@ -62,6 +64,7 @@ func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostRespo
 	return &cardSearchResp, nil
 }
 
+// 获取卡包列表
 func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
 	var resp models.SeriesGetResp
 	uri := "/api/cdb/series"
