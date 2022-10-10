@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"sort"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,10 @@ func TestGetCardPackage(t *testing.T) {
 	if err != nil {
 		logrus.Fatalln(err)
 	}
+
+	sort.Slice(cardPackageResp.List, func(i, j int) bool {
+		return cardPackageResp.List[i].CreateTime < cardPackageResp.List[j].CreateTime
+	})
 
 	jsonByte, _ := json.Marshal(cardPackageResp)
 
