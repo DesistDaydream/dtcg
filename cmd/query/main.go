@@ -1,13 +1,10 @@
 package main
 
 import (
-	"encoding/json"
-	"os"
-	"path"
+	"log"
 	"strings"
 
-	"github.com/DesistDaydream/dtcg/cards"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
+	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -30,7 +27,7 @@ func AddFlsgs(f *Flags) {
 }
 
 // 从 进化源效果、安防效果、卡牌效果 中查找根据自己定义的关键字过滤卡片
-func EffectKey(cardDesc models.CardDesc, flags Flags, cardGroup string) {
+func EffectKey(cardDesc database.CardDesc, flags Flags, cardGroup string) {
 	if strings.Contains(cardDesc.Effect, flags.EffectKey) || strings.Contains(cardDesc.SafeEffect, flags.EffectKey) || strings.Contains(cardDesc.EnvolutionEffect, flags.EffectKey) {
 		logrus.WithFields(logrus.Fields{
 			"卡包":    cardGroup,
@@ -48,28 +45,20 @@ func main() {
 	AddFlsgs(&flags)
 	pflag.Parse()
 
-	if !flags.Test {
-		var err error
-		if flags.CardGroups, err = cards.GetCardGroups(""); err != nil {
-			logrus.Fatalf("获取卡盒列表失败：%v", err)
+	i := &database.DBInfo{
+		FilePath: "internal/database/my_dtcg.db",
+	}
+	database.InitDB(i)
+
+	cardsDesc, err := database.ListCardDesc()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, cardDesc := range cardsDesc.Data {
+		if cardDesc.ParallCard == "1" {
+			EffectKey(cardDesc, flags, cardDesc.CardGroup)
 		}
 	}
 
-	for _, cardGroup := range flags.CardGroups {
-		file := path.Join("./cards", cardGroup+".json")
-		//打开文件
-		fileByte, _ := os.ReadFile(file)
-
-		var cardsDesc []models.CardDesc
-		err := json.Unmarshal(fileByte, &cardsDesc)
-		if err != nil {
-			logrus.Fatalln(err)
-		}
-
-		for _, cardDesc := range cardsDesc {
-			if cardDesc.ParallCard == "1" {
-				EffectKey(cardDesc, flags, cardGroup)
-			}
-		}
-	}
 }
