@@ -7,6 +7,9 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -35,9 +38,15 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 		return err
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"uri":   uri,
+		"请求体":   reqOpts.ReqBody,
+		"url参数": reqOpts.ReqQuery,
+	}).Debugf("检查请求")
+
 	err = json.Unmarshal(body, wantResp)
 	if err != nil {
-		return err
+		return fmt.Errorf("解析 %v 异常: %v", string(body), err)
 	}
 
 	return nil
@@ -45,8 +54,9 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 
 func (c *Client) request(api string, reqOpts *RequestOption) ([]byte, error) {
 	var (
-		req *http.Request
-		err error
+		req  *http.Request
+		resp *http.Response
+		err  error
 	)
 
 	url := fmt.Sprintf("%s%s", BaseAPI, api)
@@ -57,11 +67,14 @@ func (c *Client) request(api string, reqOpts *RequestOption) ([]byte, error) {
 			return nil, err
 		}
 		req, err = http.NewRequest(reqOpts.Method, url, bytes.NewBuffer(rb))
+		if err != nil {
+			return nil, err
+		}
 	} else {
 		req, err = http.NewRequest(reqOpts.Method, url, nil)
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	req.Header.Add("content-type", "application/json")
@@ -77,16 +90,23 @@ func (c *Client) request(api string, reqOpts *RequestOption) ([]byte, error) {
 	}
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err = client.Do(req)
 	if err != nil {
 		return nil, err
 	}
-
 	defer resp.Body.Close()
+
+	// TODO: 限流重试逻辑
+	// 请求过多会被限流返回 429
+	time.Sleep(500 * time.Millisecond)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("请求失败，响应码：%v", resp.StatusCode)
 	}
 
 	return body, nil
@@ -96,7 +116,6 @@ func StructToMapStr(obj interface{}) map[string]string {
 	data := make(map[string]string)
 
 	v := reflect.ValueOf(obj).Elem()
-	// v := objV.Elem()
 	typeOfType := v.Type()
 
 	for i := 0; i < v.NumField(); i++ {

@@ -80,8 +80,8 @@ func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
 }
 
 // 获取卡片价格
-func (s *SearchClient) GetCardPrice(cardID string) (*models.CardsPriceGetResponse, error) {
-	var resp models.CardsPriceGetResponse
+func (s *SearchClient) GetCardPrice(cardID string) (*models.CardPriceGetResponse, error) {
+	var resp models.CardPriceGetResponse
 	uri := "/api/cdb/jhs/price"
 
 	reqOpts := &core.RequestOption{

@@ -1,6 +1,6 @@
 package models
 
-type CardsPriceGetResponse struct {
+type CardPriceGetResponse struct {
 	Data    CardPrice `json:"data"`
 	Message string    `json:"message"`
 	Success bool      `json:"success"`
