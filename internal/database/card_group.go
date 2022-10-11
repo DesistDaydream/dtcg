@@ -3,18 +3,19 @@ package database
 import "github.com/sirupsen/logrus"
 
 type CardGroups struct {
-	Data []CardGroup
+	Count int64       `json:"count"`
+	Data  []CardGroup `json:"data"`
 }
 
 type CardGroup struct {
-	ID         int `gorm:"primaryKey"`
-	OfficialID int
-	Name       string
-	Image      string
-	State      string
-	Position   string
-	CreateTime string
-	UpdateTime string
+	ID         int    `gorm:"primaryKey"`
+	OfficialID int    `json:"official_id"`
+	Name       string `json:"name"`
+	Image      string `json:"image"`
+	State      string `json:"state"`
+	Position   string `json:"position"`
+	CreateTime string `json:"create_time"`
+	UpdateTime string `json:"update_time"`
 }
 
 func AddCardGroup(cardGroup *CardGroup) {
@@ -34,6 +35,7 @@ func ListCardGroups() (*CardGroups, error) {
 	}
 
 	return &CardGroups{
-		Data: cg,
+		Count: result.RowsAffected,
+		Data:  cg,
 	}, nil
 }

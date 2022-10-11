@@ -4,7 +4,7 @@ import "github.com/sirupsen/logrus"
 
 type CardsDescFromDtcgDB struct {
 	Count int64                `json:"count"`
-	List  []CardDescFromDtcgDB `json:"list"`
+	Data  []CardDescFromDtcgDB `json:"data"`
 }
 
 type CardDescFromDtcgDB struct {
@@ -13,8 +13,8 @@ type CardDescFromDtcgDB struct {
 	CardPack       int    `json:"card_pack"`
 	Serial         string `json:"serial"`
 	SubSerial      string `json:"sub_serial"`
-	JapName        string `json:"japName"`
-	ScName         string `json:"scName"`
+	JapName        string `json:"jap_name"`
+	ScName         string `json:"sc_name"`
 	Rarity         string `json:"rarity"`
 	Type           string `json:"type"`
 	Color          string `json:"color"`
@@ -22,7 +22,7 @@ type CardDescFromDtcgDB struct {
 	Cost           string `json:"cost"`
 	Cost1          string `json:"cost_1"`
 	EvoCond        string `json:"evo_cond"`
-	DP             string `json:"DP"`
+	DP             string `json:"dp"`
 	Grade          string `json:"grade"`
 	Attribute      string `json:"attribute"`
 	Class          string `json:"class"`
@@ -31,7 +31,7 @@ type CardDescFromDtcgDB struct {
 	EvoCoverEffect string `json:"evo_cover_effect"`
 	SecurityEffect string `json:"security_effect"`
 	IncludeInfo    string `json:"include_info"`
-	RaritySC       string `json:"rarity$SC"`
+	RaritySC       string `json:"rarity_sc"`
 }
 
 func AddCardDescFromDtcgDB(cardDescFromDtcgDB *CardDescFromDtcgDB) {
@@ -39,4 +39,18 @@ func AddCardDescFromDtcgDB(cardDescFromDtcgDB *CardDescFromDtcgDB) {
 	if result.Error != nil {
 		logrus.Errorf("插入数据失败: %v", result.Error)
 	}
+}
+
+// 获取所有卡片描述
+func ListCardDescFromDtcgDB() (*CardsDescFromDtcgDB, error) {
+	var cd []CardDescFromDtcgDB
+	result := db.Find(&cd)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &CardsDescFromDtcgDB{
+		Count: result.RowsAffected,
+		Data:  cd,
+	}, nil
 }

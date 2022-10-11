@@ -20,3 +20,20 @@ func TestListCardDesc(t *testing.T) {
 		log.Println(g.Name)
 	}
 }
+
+func TestListCardDescFromDtcgDB(t *testing.T) {
+	i := &DBInfo{
+		FilePath: "my_dtcg.db",
+	}
+	InitDB(i)
+
+	got, err := ListCardDescFromDtcgDB()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println(got.Count)
+
+	// for _, g := range got.List {
+	// 	log.Println(g.ScName)
+	// }
+}

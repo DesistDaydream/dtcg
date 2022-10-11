@@ -3,7 +3,8 @@ package database
 import "github.com/sirupsen/logrus"
 
 type CardGroupsFromDtcgDB struct {
-	Data []CardGroupFromDtcgDB
+	Count int64                 `json:"count"`
+	Data  []CardGroupFromDtcgDB `json:"data"`
 }
 
 type CardGroupFromDtcgDB struct {
@@ -37,6 +38,7 @@ func ListCardGroupsFromDtcgDB() (*CardGroupsFromDtcgDB, error) {
 	}
 
 	return &CardGroupsFromDtcgDB{
-		Data: cg,
+		Count: result.RowsAffected,
+		Data:  cg,
 	}, nil
 }
