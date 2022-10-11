@@ -9,10 +9,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/DesistDaydream/dtcg/pkg/fileparse"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 // 这三个常量用于给每个 Metrics 名字添加前缀
@@ -39,11 +39,10 @@ type JihuansheClient struct {
 	Token  string
 	Opts   *JihuansheOpts
 
-	JihuansheCardsDesc []models.JihuansheCardDescForPrice
-	CardPrice          []CardPrice
+	CardsPrice []CardPrice
 }
 
-// NewE37Client 实例化 E37 客户端
+// 实例化 HTTP 客户端
 func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	uri := opts.URL
 
@@ -75,18 +74,27 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	}
 	// ######## 配置 http.Client 的信息结束 ########
 
-	// 解析 Excel 文件，获取其中所有卡片信息
-	JhsCardsDesc, err := fileparse.NewExcelDataForPrice(opts.File, "", opts.Test)
+	// 从数据库中获取卡片信息
+	db, err := gorm.Open(sqlite.Open(opts.DBPath), &gorm.Config{})
 	if err != nil {
-		logrus.Fatalf("从 %v 文件中解析卡牌信息异常：%v", opts.File, err)
+		logrus.Fatalf("连接数据库失败: %v", err)
 	}
 
-	// 从数据库中获取卡片信息
-	// db, err = gorm.Open(sqlite.Open(opts.DBPath), &gorm.Config{})
-	// if err != nil {
-	// 	logrus.Fatalf("连接数据库失败: %v", err)
-	// }
-	// TODO: 从数据库中获取卡片信息，以替换上面从 Excel 中获取信息
+	var cardsPrice []CardPrice
+	sql := `
+SELECT
+	c_set.pack_prefix,
+	card.card_id,
+	card_version_id,
+	serial,sc_name,rarity,min_price,avg_price
+FROM
+	card_desc_from_dtcg_dbs card
+	LEFT JOIN card_prices price ON price.card_id=card.card_id
+	LEFT JOIN card_group_from_dtcg_dbs c_set ON c_set.pack_id=card.card_pack`
+	result := db.Raw(sql, 3).Scan(&cardsPrice)
+	if result.Error != nil {
+		logrus.Fatalf("从数据库获取卡片信息失败: %v", result.Error)
+	}
 
 	// 第一次启动程序时获取 Token，若无法获取 Token 则程序无法启动
 	// token, err := GetToken(opts)
@@ -100,11 +108,12 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 			Timeout:   opts.Timeout,
 			Transport: transport,
 		},
-		JihuansheCardsDesc: JhsCardsDesc.Rows,
+		// JihuansheCardsDesc: JhsCardsDesc.Rows,
+		CardsPrice: cardsPrice,
 	}
 }
 
-// Request 建立与 E37 的连接，并返回 Response Body
+// 发起 HTTP 请求，并返回响应体
 func (c *JihuansheClient) Request(method string, endpoint string, reqBody io.Reader) (body []byte, err error) {
 	// 根据认证信息及 endpoint 参数，创建与 E37 的连接，并返回 Body 给每个 Metric 采集器
 	url := c.Opts.URL + endpoint
@@ -157,7 +166,6 @@ func (c *JihuansheClient) GetConcurrency() int {
 
 // 集换社采集器标志
 type JihuansheOpts struct {
-	DBPath   string
 	URL      string
 	Username string
 	password string
@@ -167,8 +175,9 @@ type JihuansheOpts struct {
 	Timeout  time.Duration
 	Insecure bool
 
-	// 卡片详情的 Excel 文件
-	File string
+	// 存储卡片详情的文件
+	DBPath string
+	// File string
 	// 是否进行测试，若不进行测试，则获取所有卡盒的信息
 	Test bool
 	// 要采集集换价大于多少的卡的信息
@@ -177,12 +186,12 @@ type JihuansheOpts struct {
 
 // AddFlag use after set Opts
 func (o *JihuansheOpts) AddFlag() {
-	pflag.StringVar(&o.URL, "e37-server", "https://api.jihuanshe.com", "集换社的 HTTP API 地址。")
+	pflag.StringVar(&o.URL, "jhs-server", "https://api.jihuanshe.com", "集换社的 HTTP API 地址。")
 	pflag.StringVar(&o.password, "password", "", "token")
 	pflag.IntVar(&o.Concurrency, "concurrent", 5, "并发数。")
 	pflag.DurationVar(&o.Timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
 	pflag.BoolVar(&o.Insecure, "insecure", true, "是否禁用 TLS 验证。")
-	pflag.StringVar(&o.File, "file", "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx", "是否进行测试。")
+	pflag.StringVar(&o.DBPath, "dbpath", "internal/database/my_dtcg.db", "是否进行测试。")
 	pflag.BoolVar(&o.Test, "test", false, "是否进行测试。")
 	pflag.Float64Var(&o.Price, "price", 1, "要采集集换价大于多少的卡，单位：元")
 }

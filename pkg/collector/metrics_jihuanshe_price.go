@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
 	"github.com/prometheus/client_golang/prometheus"
@@ -56,20 +55,20 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 
 	c := products.NewProductsClient(core.NewClient(""))
 
-	for _, jhsCardDesc := range client.JihuansheCardsDesc {
+	for _, cardPrice := range client.CardsPrice {
 		concurrenceyControl <- true
 		wg.Add(1)
-		go func(jhsCardDesc models.JihuansheCardDescForPrice) {
+		go func(cardPrice CardPrice) {
 			defer wg.Done()
 
-			avgPice, err := strconv.ParseFloat(jhsCardDesc.AvgPrice, 64)
-			if err != nil {
-				logrus.Errorf("%v %v 卡牌集换价 %v 转换失败：%v", jhsCardDesc.Model, jhsCardDesc.Name, jhsCardDesc.AvgPrice, err)
-			}
+			// avgPice, err := strconv.ParseFloat(cardPrice.AvgPrice, 64)
+			// if err != nil {
+			// 	logrus.Errorf("%v %v 卡牌集换价 %v 转换失败：%v", cardPrice.Model, cardPrice.Name, cardPrice.AvgPrice, err)
+			// }
 
 			// 只采集集换价大于 client.Opts.Price 的卡的信息
-			if avgPice >= client.Opts.Price {
-				cardInfo, err := c.Get(jhsCardDesc.CardVersionID)
+			if cardPrice.AvgPrice >= client.Opts.Price {
+				cardInfo, err := c.Get(cardPrice.CardVersionID)
 				if err != nil {
 					logrus.Errorf("获取卡片信息异常：%v", err)
 				}
@@ -78,34 +77,37 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 				fAvg, _ := strconv.ParseFloat(cardInfo.AvgPrice, 64)
 				// 最低价格
 				ch <- prometheus.MustNewConstMetric(minPrice, prometheus.GaugeValue, float64(fMin),
-					jhsCardDesc.CardGroup,
-					jhsCardDesc.Model,
-					jhsCardDesc.Name,
-					jhsCardDesc.ParallCard,
-					jhsCardDesc.CardVersionID,
+					cardPrice.PackPrefix,
+					cardPrice.Serial,
+					cardPrice.ScName,
+					cardPrice.Rarity,
+					cardPrice.CardVersionID,
 				)
 
 				// 平均价格
 				ch <- prometheus.MustNewConstMetric(avgPrice, prometheus.GaugeValue, float64(fAvg),
-					jhsCardDesc.CardGroup,
-					jhsCardDesc.Model,
-					jhsCardDesc.Name,
-					jhsCardDesc.ParallCard,
-					jhsCardDesc.CardVersionID,
+					cardPrice.PackPrefix,
+					cardPrice.Serial,
+					cardPrice.ScName,
+					cardPrice.Rarity,
+					cardPrice.CardVersionID,
 				)
 			}
 
 			<-concurrenceyControl
-		}(jhsCardDesc)
+		}(cardPrice)
 	}
 
 	return nil
 }
 
 type CardPrice struct {
-	CardVersionID string
-	PackPrefix    string
-	Serial        string
-	ScName        string
-	Rarity        string
+	PackPrefix    string  `gorm:"column:pack_prefix"`
+	CardID        string  `gorm:"column:card_id"`
+	CardVersionID string  `gorm:"column:card_version_id"`
+	Serial        string  `gorm:"column:serial"`
+	ScName        string  `gorm:"column:sc_name"`
+	Rarity        string  `gorm:"column:rarity"`
+	MinPrice      float64 `gorm:"column:min_price"`
+	AvgPrice      float64 `gorm:"column:avg_price"`
 }
