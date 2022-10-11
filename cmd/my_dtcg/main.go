@@ -3,6 +3,7 @@ package main
 import (
 	carddesc "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_desc"
 	cardgroup "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_group"
+	cardprice "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_price"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
@@ -43,6 +44,8 @@ func main() {
 		cardgroup.AddCardGroupFromDtcgDB()
 	case "carddescdtcgdb":
 		carddesc.AddCardDescFromDtcgDB()
+	case "cardprice":
+		cardprice.AddCardPrice()
 	default:
 		logrus.Errorln("使用 --add 指定要添加的数据")
 	}
