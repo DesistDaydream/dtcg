@@ -40,6 +40,7 @@ type JihuansheClient struct {
 	Opts   *JihuansheOpts
 
 	JihuansheCardsDesc []models.JihuansheCardDescForPrice
+	CardPrice          []CardPrice
 }
 
 // NewE37Client 实例化 E37 客户端
@@ -79,6 +80,13 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	if err != nil {
 		logrus.Fatalf("从 %v 文件中解析卡牌信息异常：%v", opts.File, err)
 	}
+
+	// 从数据库中获取卡片信息
+	// db, err = gorm.Open(sqlite.Open(opts.DBPath), &gorm.Config{})
+	// if err != nil {
+	// 	logrus.Fatalf("连接数据库失败: %v", err)
+	// }
+	// TODO: 从数据库中获取卡片信息，以替换上面从 Excel 中获取信息
 
 	// 第一次启动程序时获取 Token，若无法获取 Token 则程序无法启动
 	// token, err := GetToken(opts)
@@ -149,6 +157,7 @@ func (c *JihuansheClient) GetConcurrency() int {
 
 // 集换社采集器标志
 type JihuansheOpts struct {
+	DBPath   string
 	URL      string
 	Username string
 	password string

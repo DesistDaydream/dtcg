@@ -101,3 +101,11 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 
 	return nil
 }
+
+type CardPrice struct {
+	CardVersionID string
+	PackPrefix    string
+	Serial        string
+	ScName        string
+	Rarity        string
+}
