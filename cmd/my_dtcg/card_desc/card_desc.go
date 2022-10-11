@@ -1,11 +1,15 @@
 package carddesc
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
+	core2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
+	services2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
+	"github.com/sirupsen/logrus"
 )
 
 func AddCardDesc() {
@@ -57,6 +61,52 @@ func AddCardDesc() {
 				KeyEffect:            cardDesc.KeyEffect,
 			}
 			database.AddCardDesc(d)
+		}
+	}
+}
+
+func AddCardDescFromDtcgDB() {
+	d, err := database.ListCardGroupsFromDtcgDB()
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+	for _, set := range d.Data {
+		client := services2.NewSearchClient(core2.NewClient(""))
+		resp, err := client.PostCardSearch(set.PackID)
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+
+		for _, l := range resp.Data.List {
+			color, _ := json.Marshal(l.Color)
+			class, _ := json.Marshal(l.Class)
+			d := &database.CardDescFromDtcgDB{
+				CardID:         l.CardID,
+				CardPack:       l.CardPack,
+				Serial:         l.Serial,
+				SubSerial:      l.SubSerial,
+				JapName:        l.JapName,
+				ScName:         l.ScName,
+				Rarity:         l.Rarity,
+				Type:           l.Type,
+				Color:          string(color),
+				Level:          l.Level,
+				Cost:           l.Cost,
+				Cost1:          l.Cost1,
+				EvoCond:        l.EvoCond,
+				DP:             l.DP,
+				Grade:          l.Grade,
+				Attribute:      l.Attribute,
+				Class:          string(class),
+				Illustrator:    l.Illustrator,
+				Effect:         l.Effect,
+				EvoCoverEffect: l.EvoCoverEffect,
+				SecurityEffect: l.SecurityEffect,
+				IncludeInfo:    l.IncludeInfo,
+				RaritySC:       l.RaritySC,
+			}
+
+			database.AddCardDescFromDtcgDB(d)
 		}
 	}
 }

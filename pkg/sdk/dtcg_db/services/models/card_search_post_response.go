@@ -13,8 +13,8 @@ type CardSearchPostData struct {
 
 type Card struct {
 	Attribute      string   `json:"attribute"`
-	CardID         int64    `json:"card_id"`
-	CardPack       int64    `json:"card_pack"`
+	CardID         int      `json:"card_id"`
+	CardPack       int      `json:"card_pack"`
 	Class          []string `json:"class"`
 	Color          []string `json:"color"`
 	Cost           string   `json:"cost"`
@@ -26,7 +26,7 @@ type Card struct {
 	Grade          string   `json:"grade"`
 	Illustrator    string   `json:"illustrator"`
 	Images         []Image  `json:"images"`
-	IncludeInfo    *string  `json:"include_info"`
+	IncludeInfo    string   `json:"include_info"`
 	JapName        string   `json:"japName"`
 	Level          string   `json:"level"`
 	Package        Package  `json:"package"`
