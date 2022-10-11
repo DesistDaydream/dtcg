@@ -33,16 +33,20 @@ type RequestOption struct {
 }
 
 func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOption) error {
-	body, err := c.request(uri, reqOpts)
-	if err != nil {
-		return err
-	}
-
 	logrus.WithFields(logrus.Fields{
 		"uri":   uri,
 		"请求体":   reqOpts.ReqBody,
 		"url参数": reqOpts.ReqQuery,
 	}).Debugf("检查请求")
+
+	statusCode, body, err := c.request(uri, reqOpts)
+	if err != nil {
+		return err
+	}
+
+	if statusCode != 200 {
+		return fmt.Errorf("响应异常，响应码：%v", statusCode)
+	}
 
 	err = json.Unmarshal(body, wantResp)
 	if err != nil {
@@ -52,7 +56,7 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 	return nil
 }
 
-func (c *Client) request(api string, reqOpts *RequestOption) ([]byte, error) {
+func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error) {
 	var (
 		req  *http.Request
 		resp *http.Response
@@ -64,16 +68,16 @@ func (c *Client) request(api string, reqOpts *RequestOption) ([]byte, error) {
 	if reqOpts.ReqBody != nil {
 		rb, err := json.Marshal(reqOpts.ReqBody)
 		if err != nil {
-			return nil, err
+			return 0, nil, fmt.Errorf("解析请求体失败：%v", err)
 		}
 		req, err = http.NewRequest(reqOpts.Method, url, bytes.NewBuffer(rb))
 		if err != nil {
-			return nil, err
+			return 0, nil, fmt.Errorf("构建请求失败：%v", err)
 		}
 	} else {
 		req, err = http.NewRequest(reqOpts.Method, url, nil)
 		if err != nil {
-			return nil, err
+			return 0, nil, fmt.Errorf("构建请求失败：%v", err)
 		}
 	}
 
@@ -92,24 +96,20 @@ func (c *Client) request(api string, reqOpts *RequestOption) ([]byte, error) {
 	client := &http.Client{}
 	resp, err = client.Do(req)
 	if err != nil {
-		return nil, err
+		return 0, nil, fmt.Errorf("获取HTTP响应异常：%v", err)
 	}
 	defer resp.Body.Close()
 
 	// TODO: 限流重试逻辑
 	// 请求过多会被限流返回 429
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(1000 * time.Millisecond)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return 0, nil, fmt.Errorf("读取响应体异常：%v", err)
 	}
 
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("请求失败，响应码：%v", resp.StatusCode)
-	}
-
-	return body, nil
+	return resp.StatusCode, body, nil
 }
 
 func StructToMapStr(obj interface{}) map[string]string {
