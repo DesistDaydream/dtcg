@@ -45,7 +45,7 @@ func main() {
 	case "carddescdtcgdb":
 		carddesc.AddCardDescFromDtcgDB()
 	case "cardprice":
-		cardprice.AddCardPrice()
+		cardprice.AddCardPrice("2780")
 	default:
 		logrus.Errorln("使用 --add 指定要添加的数据")
 	}
