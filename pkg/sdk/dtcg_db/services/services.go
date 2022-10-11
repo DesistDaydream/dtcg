@@ -78,3 +78,24 @@ func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
 
 	return &resp, nil
 }
+
+// 获取卡片价格
+func (s *SearchClient) GetCardPrice(cardID string) (*models.CardsPriceGetResponse, error) {
+	var resp models.CardsPriceGetResponse
+	uri := "/api/cdb/jhs/price"
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+		ReqQuery: core.StructToMapStr(&models.CardsPriceGetRequest{
+			CardID: cardID,
+		}),
+		ReqBody: nil,
+	}
+
+	err := s.client.Request(uri, &resp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}

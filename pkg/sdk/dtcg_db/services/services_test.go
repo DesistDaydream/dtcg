@@ -98,3 +98,14 @@ func TestSearchClient_PostCardSearch(t *testing.T) {
 		logrus.Infof("%v 中有 %v 种卡", name, cards.Data.Count)
 	}
 }
+
+func TestSearchClient_GetCardPrice(t *testing.T) {
+	client := NewSearchClient(core.NewClient(""))
+
+	got, err := client.GetCardPrice("1896")
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	fmt.Println(got)
+}
