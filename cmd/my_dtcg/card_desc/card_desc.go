@@ -83,6 +83,8 @@ func AddCardDescFromDtcgDB() {
 			d := &database.CardDescFromDtcgDB{
 				CardID:         l.CardID,
 				CardPack:       l.CardPack,
+				PackName:       set.PackName,
+				PackPrefix:     set.PackPrefix,
 				Serial:         l.Serial,
 				SubSerial:      l.SubSerial,
 				JapName:        l.JapName,

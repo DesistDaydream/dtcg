@@ -14,6 +14,8 @@ type CardDescFromDtcgDB struct {
 	ID             int    `gorm:"primaryKey" json:"my_id"` // ID
 	CardID         int    `json:"card_id"`
 	CardPack       int    `json:"card_pack"`
+	PackName       string `json:"pack_name"`
+	PackPrefix     string `json:"pack_prefix"`
 	Serial         string `json:"serial"`
 	SubSerial      string `json:"sub_serial"`
 	JapName        string `json:"jap_name"`
