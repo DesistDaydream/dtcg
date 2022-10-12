@@ -94,7 +94,7 @@ func main() {
 	logFlags.AddFlags()
 	pflag.Parse()
 
-	if err := logging.LogInit(logFlags.LogLevel, logFlags.LogOutput, logFlags.LogFormat); err != nil {
+	if err := logging.LogInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 

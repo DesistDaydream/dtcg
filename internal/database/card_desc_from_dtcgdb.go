@@ -54,3 +54,9 @@ func ListCardDescFromDtcgDB() (*CardsDescFromDtcgDB, error) {
 		Data:  cd,
 	}, nil
 }
+
+// 根据条件获取卡片描述
+func GetCardDescFromDtcgDB() (*CardsDescFromDtcgDB, error) {
+	var cardsDesc *CardsDescFromDtcgDB
+	return cardsDesc, nil
+}

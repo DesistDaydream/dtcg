@@ -58,7 +58,7 @@ func main() {
 	// ####################################
 
 	// 初始化日志
-	if err := logging.LogInit(logFlags.LogLevel, logFlags.LogOutput, logFlags.LogFormat); err != nil {
+	if err := logging.LogInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
@@ -69,7 +69,7 @@ func main() {
 	enabledScrapers := []collector.CommonScraper{}
 	for scraper, enabled := range scraperFlags {
 		if *enabled {
-			logrus.Info("Scraper enabled ", scraper.Name())
+			logrus.Info("已启用的抓取器: ", scraper.Name())
 			enabledScrapers = append(enabledScrapers, scraper)
 		}
 	}
@@ -99,7 +99,7 @@ func main() {
 	})
 
 	// 启动前检查并启动 Exporter
-	logrus.Info("Listening on address ", *listenAddress)
+	logrus.Infof("监听在 %v 上", *listenAddress)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
 		logrus.Fatal(err)

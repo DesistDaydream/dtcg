@@ -21,7 +21,7 @@ func main() {
 	pflag.Parse()
 
 	// 初始化日志
-	if err := logging.LogInit(logFlags.LogLevel, logFlags.LogOutput, logFlags.LogFormat); err != nil {
+	if err := logging.LogInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
