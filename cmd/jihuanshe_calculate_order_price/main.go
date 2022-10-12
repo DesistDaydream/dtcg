@@ -13,6 +13,7 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
+// 根据 Excel 计算所有卡片的集换价和最低价
 func main() {
 	// var flags Flags
 	// AddFlsgs(&flags)

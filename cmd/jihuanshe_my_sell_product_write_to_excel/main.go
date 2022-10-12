@@ -36,6 +36,7 @@ func AddFlsgs(f *Flags) {
 type Orders struct {
 }
 
+// 获取所有我在卖的信息，写入到 Excel 中
 func main() {
 	var flags Flags
 	AddFlsgs(&flags)
