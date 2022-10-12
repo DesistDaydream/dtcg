@@ -85,14 +85,14 @@ func NewJihuansheClient(opts *JihuansheOpts) *JihuansheClient {
 	var cardsPrice []CardPrice
 	sql := `
 SELECT
-	c_set.pack_prefix,
-	card.card_id,
-	card_version_id,
-	serial,sc_name,rarity,min_price,avg_price
+    set_id,set_prefix,
+    card.card_id_from_db,card_version_id,card.card_id_from_db - card_version_id AS chazhi,
+    serial,sc_name,rarity,
+    min_price,avg_price
 FROM
-	card_desc_from_dtcg_dbs card
-	LEFT JOIN card_prices price ON price.card_id=card.card_id
-	LEFT JOIN card_group_from_dtcg_dbs c_set ON c_set.pack_id=card.card_pack`
+    card_descs card
+    LEFT JOIN card_prices price ON price.card_id=card.card_id_from_db
+`
 	result := db.Raw(sql).Scan(&cardsPrice)
 	if result.Error != nil {
 		logrus.Fatalf("从数据库获取卡片信息失败: %v", result.Error)
