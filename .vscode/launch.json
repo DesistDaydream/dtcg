@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "jihuanshe_exporter",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": "${workspaceRoot}",
+      "program": "cmd/jihuanshe_exporter/main.go",
+    },
+    {
       "name": "jihuanshe_my_sell_product_write_to_excel",
       "type": "go",
       "request": "launch",

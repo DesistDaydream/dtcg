@@ -1,8 +1,10 @@
 package collector
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,32 +28,32 @@ func Name() string {
 	return name
 }
 
-// GetToken 获取 E37 认证所需 Token
+// GetToken 获取 集换社 认证所需 Token
 func GetToken(opts *JihuansheOpts) (token string, err error) {
-	return opts.password, nil
+	return opts.token, nil
 }
 
-// ######## 从此处开始到文件结尾，都是关于配置连接 E37 的代码 ########
+// ######## 从此处开始到文件结尾，都是关于配置连接 集换社 的代码 ########
 
-// JihuansheClient 连接 E37 所需信息
+// JihuansheClient 连接 集换社 所需信息
 type JihuansheClient struct {
 	Client *http.Client
 	Token  string
 	Opts   *JihuansheOpts
 
-	CardsPrice []CardPrice
+	CardsPrice *CardsPrice
 }
 
 // 实例化 HTTP 客户端
-func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
-	uri := opts.URL
+func NewJihuansheClient(opts *JihuansheOpts) *JihuansheClient {
+	uri := opts.url
 
 	u, err := url.Parse(uri)
 	if err != nil {
-		panic(fmt.Sprintf("invalid E37 URL: %s", err))
+		panic(fmt.Sprintf("invalid URL: %s", err))
 	}
 	if u.Host == "" || (u.Scheme != "http" && u.Scheme != "https") {
-		panic(fmt.Sprintf("invalid E37 URL: %s", uri))
+		panic(fmt.Sprintf("invalid URL: %s", uri))
 	}
 
 	// ######## 配置 http.Client 的信息 ########
@@ -66,7 +68,7 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	}
 	// 可以通过命令行选项配置 TLS 的 InsecureSkipVerify
 	// 这个配置决定是否跳过 https 协议的验证过程，就是 curl 加不加 -k 选项。默认跳过
-	if opts.Insecure {
+	if opts.insecure {
 		tlsClientConfig.InsecureSkipVerify = true
 	}
 	transport := &http.Transport{
@@ -75,7 +77,7 @@ func NewE37Client(opts *JihuansheOpts) *JihuansheClient {
 	// ######## 配置 http.Client 的信息结束 ########
 
 	// 从数据库中获取卡片信息
-	db, err := gorm.Open(sqlite.Open(opts.DBPath), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(opts.dbPath), &gorm.Config{})
 	if err != nil {
 		logrus.Fatalf("连接数据库失败: %v", err)
 	}
@@ -91,10 +93,12 @@ FROM
 	card_desc_from_dtcg_dbs card
 	LEFT JOIN card_prices price ON price.card_id=card.card_id
 	LEFT JOIN card_group_from_dtcg_dbs c_set ON c_set.pack_id=card.card_pack`
-	result := db.Raw(sql, 3).Scan(&cardsPrice)
+	result := db.Raw(sql).Scan(&cardsPrice)
 	if result.Error != nil {
 		logrus.Fatalf("从数据库获取卡片信息失败: %v", result.Error)
 	}
+
+	logrus.Debugf("已获取 %v 条卡片信息", result.RowsAffected)
 
 	// 第一次启动程序时获取 Token，若无法获取 Token 则程序无法启动
 	// token, err := GetToken(opts)
@@ -102,31 +106,52 @@ FROM
 	// 	panic(err)
 	// }
 	return &JihuansheClient{
-		Opts: opts,
-		// Token: token,
 		Client: &http.Client{
-			Timeout:   opts.Timeout,
+			Timeout:   opts.timeout,
 			Transport: transport,
 		},
-		// JihuansheCardsDesc: JhsCardsDesc.Rows,
-		CardsPrice: cardsPrice,
+		Token: "",
+		Opts:  opts,
+		CardsPrice: &CardsPrice{
+			Count: result.RowsAffected,
+			Data:  cardsPrice,
+		},
 	}
 }
 
+type RequestOption struct {
+	Method   string
+	ReqQuery map[string]string
+	ReqBody  interface{}
+}
+
 // 发起 HTTP 请求，并返回响应体
-func (c *JihuansheClient) Request(method string, endpoint string, reqBody io.Reader) (body []byte, err error) {
-	// 根据认证信息及 endpoint 参数，创建与 E37 的连接，并返回 Body 给每个 Metric 采集器
-	url := c.Opts.URL + endpoint
+func (c *JihuansheClient) Request(endpoint string, reqOpts *RequestOption) (body []byte, err error) {
+	var req *http.Request
+	// 根据认证信息及 endpoint 参数，创建与 集换社 的连接，并返回 Body 给每个 Metric 采集器
+	url := c.Opts.url + endpoint
 	logrus.WithFields(logrus.Fields{
 		"url":    url,
-		"method": method,
+		"method": reqOpts.Method,
 	}).Debugf("抓取指标时的请求URL")
 
 	// 创建一个新的 Request
-	req, err := http.NewRequest(method, url, reqBody)
-	if err != nil {
-		return nil, err
+	if reqOpts.ReqBody != nil {
+		rb, err := json.Marshal(reqOpts.ReqBody)
+		if err != nil {
+			return nil, fmt.Errorf("解析请求体失败：%v", err)
+		}
+		req, err = http.NewRequest(reqOpts.Method, url, bytes.NewBuffer(rb))
+		if err != nil {
+			return nil, fmt.Errorf("构建请求失败：%v", err)
+		}
+	} else {
+		req, err = http.NewRequest(reqOpts.Method, url, nil)
+		if err != nil {
+			return nil, fmt.Errorf("构建请求失败：%v", err)
+		}
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	// req.Header.Set("Authorization", fmt.Sprintf("Bearer %v", c.Token))
 
@@ -161,37 +186,36 @@ func (c *JihuansheClient) Ping() (b bool, err error) {
 
 // 从 Opts 中获取并发数
 func (c *JihuansheClient) GetConcurrency() int {
-	return c.Opts.Concurrency
+	return c.Opts.concurrency
 }
 
 // 集换社采集器标志
 type JihuansheOpts struct {
-	URL      string
-	Username string
-	password string
+	url   string
+	token string
 	// 并发数
-	Concurrency int
+	concurrency int
 	// 这俩是关于 http.Client 的选项
-	Timeout  time.Duration
-	Insecure bool
+	timeout  time.Duration
+	insecure bool
 
 	// 存储卡片详情的文件
-	DBPath string
+	dbPath string
 	// File string
 	// 是否进行测试，若不进行测试，则获取所有卡盒的信息
-	Test bool
+	test bool
 	// 要采集集换价大于多少的卡的信息
-	Price float64
+	price float64
 }
 
 // AddFlag use after set Opts
 func (o *JihuansheOpts) AddFlag() {
-	pflag.StringVar(&o.URL, "jhs-server", "https://api.jihuanshe.com", "集换社的 HTTP API 地址。")
-	pflag.StringVar(&o.password, "password", "", "token")
-	pflag.IntVar(&o.Concurrency, "concurrent", 5, "并发数。")
-	pflag.DurationVar(&o.Timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
-	pflag.BoolVar(&o.Insecure, "insecure", true, "是否禁用 TLS 验证。")
-	pflag.StringVar(&o.DBPath, "dbpath", "internal/database/my_dtcg.db", "是否进行测试。")
-	pflag.BoolVar(&o.Test, "test", false, "是否进行测试。")
-	pflag.Float64Var(&o.Price, "price", 1, "要采集集换价大于多少的卡，单位：元")
+	pflag.StringVar(&o.url, "jhs-server", "https://api.jihuanshe.com", "集换社的 HTTP API 地址。")
+	pflag.StringVar(&o.token, "token", "", "token")
+	pflag.IntVar(&o.concurrency, "concurrent", 5, "并发数。")
+	pflag.DurationVar(&o.timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
+	pflag.BoolVar(&o.insecure, "insecure", true, "是否禁用 TLS 验证。")
+	pflag.StringVar(&o.dbPath, "dbpath", "internal/database/my_dtcg.db", "是否进行测试。")
+	pflag.BoolVar(&o.test, "test", false, "是否进行测试。")
+	pflag.Float64Var(&o.price, "price", 1, "要采集集换价大于多少的卡，单位：元")
 }

@@ -74,7 +74,7 @@ func main() {
 		}
 	}
 	// 实例化 Exporter，其中包括所有自定义的 Metrics
-	e37Client := collector.NewE37Client(opts)
+	e37Client := collector.NewJihuansheClient(opts)
 	exporter := collector.NewExporter(e37Client, enabledScrapers)
 	// 实例化一个注册器,并使用这个注册器注册 exporter
 	reg := prometheus.NewRegistry()

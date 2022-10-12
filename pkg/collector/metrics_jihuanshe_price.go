@@ -55,7 +55,7 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 
 	c := products.NewProductsClient(core.NewClient(""))
 
-	for _, cardPrice := range client.CardsPrice {
+	for _, cardPrice := range client.CardsPrice.Data {
 		concurrenceyControl <- true
 		wg.Add(1)
 		go func(cardPrice CardPrice) {
@@ -67,7 +67,7 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 			// }
 
 			// 只采集集换价大于 client.Opts.Price 的卡的信息
-			if cardPrice.AvgPrice >= client.Opts.Price {
+			if cardPrice.AvgPrice >= client.Opts.price {
 				cardInfo, err := c.Get(cardPrice.CardVersionID)
 				if err != nil {
 					logrus.Errorf("获取卡片信息异常：%v", err)
@@ -99,6 +99,11 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 	}
 
 	return nil
+}
+
+type CardsPrice struct {
+	Count int64
+	Data  []CardPrice
 }
 
 type CardPrice struct {

@@ -24,7 +24,7 @@ func TestDatabase(t *testing.T) {
 	}
 	InitDB(i)
 
-	var c []CardPriceA
+	var cardsPrice []CardPrice
 	sql := `
 SELECT
 	c_set.pack_prefix,
@@ -35,13 +35,12 @@ FROM
 	card_desc_from_dtcg_dbs card
 	LEFT JOIN card_prices price ON price.card_id=card.card_id
 	LEFT JOIN card_group_from_dtcg_dbs c_set ON c_set.pack_id=card.card_pack`
-
-	result := db.Raw(sql, 3).Scan(&c)
+	result := db.Raw(sql).Scan(&cardsPrice)
 	if result.Error != nil {
-		logrus.Errorf("%v", result.Error)
+		logrus.Fatalf("从数据库获取卡片信息失败: %v", result.Error)
 	}
 
-	for _, a := range c {
-		fmt.Println(a)
+	for _, cardPrice := range cardsPrice {
+		fmt.Println(cardPrice)
 	}
 }
