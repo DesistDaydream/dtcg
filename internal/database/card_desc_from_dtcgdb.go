@@ -3,8 +3,11 @@ package database
 import "github.com/sirupsen/logrus"
 
 type CardsDescFromDtcgDB struct {
-	Count int64                `json:"count"`
-	Data  []CardDescFromDtcgDB `json:"data"`
+	Count       int64 `json:"count"`
+	PageSize    int
+	PageCurrent int
+	PageTotal   int
+	Data        []CardDescFromDtcgDB `json:"data"`
 }
 
 type CardDescFromDtcgDB struct {
@@ -56,7 +59,24 @@ func ListCardDescFromDtcgDB() (*CardsDescFromDtcgDB, error) {
 }
 
 // 根据条件获取卡片描述
-func GetCardDescFromDtcgDB() (*CardsDescFromDtcgDB, error) {
-	var cardsDesc *CardsDescFromDtcgDB
-	return cardsDesc, nil
+func GetCardDescFromDtcgDB(pageSize int, pageNum int) (*CardsDescFromDtcgDB, error) {
+	var (
+		CardCount int64
+		cd        []CardDescFromDtcgDB
+	)
+
+	db.Model(&CardDescFromDtcgDB{}).Count(&CardCount)
+
+	result := db.Limit(pageSize).Offset(pageSize * (pageNum - 1)).Find(&cd)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &CardsDescFromDtcgDB{
+		Count:       CardCount,
+		PageSize:    pageSize,
+		PageCurrent: pageNum,
+		PageTotal:   (int(CardCount) / pageSize) + 1,
+		Data:        cd,
+	}, nil
 }

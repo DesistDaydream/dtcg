@@ -27,13 +27,18 @@ func TestListCardDescFromDtcgDB(t *testing.T) {
 	}
 	InitDB(i)
 
-	got, err := ListCardDescFromDtcgDB()
+	pageSize := 0
+	pageNum := 0
+
+	got, err := GetCardDescFromDtcgDB(pageSize, pageNum)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	log.Println(got.Count)
 
-	// for _, g := range got.List {
-	// 	log.Println(g.ScName)
-	// }
+	log.Printf("卡片总数: %v", got.Count)
+	log.Printf("总页: %v", got.PageTotal)
+	log.Printf("当前页: %v", got.PageCurrent)
+	for _, g := range got.Data {
+		log.Println(g.ID, g.ScName)
+	}
 }

@@ -4,15 +4,18 @@ import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/router"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
 
 type Flags struct {
+	Debug      bool
 	ListenAddr string
 }
 
 func (f *Flags) AddFlags() {
+	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 debug 模式")
 	pflag.StringVarP(&f.ListenAddr, "listen", "l", ":2205", "程序监听地址")
 }
 
@@ -30,6 +33,10 @@ func main() {
 		FilePath: "internal/database/my_dtcg.db",
 	}
 	database.InitDB(i)
+
+	if !flags.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	r := router.InitRouter()
 	r.Run(flags.ListenAddr)
