@@ -1,53 +1,19 @@
 package cardgroup
 
 import (
-	"encoding/json"
-	"os"
-	"path/filepath"
 	"sort"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
-	core2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	services2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	"github.com/sirupsen/logrus"
 )
 
-func AddCardGroup(wirteToJSON bool) {
-	cardPackageResp, err := services.GetCardGroups()
-	if err != nil {
-		logrus.Fatalln(err)
-	}
+func AddCardSet() {
+	var cardSets models.CardSets
 
-	sort.Slice(cardPackageResp.List, func(i, j int) bool {
-		return cardPackageResp.List[i].CreateTime < cardPackageResp.List[j].CreateTime
-	})
-
-	if wirteToJSON {
-		jsonByte, _ := json.Marshal(cardPackageResp)
-
-		fileName := filepath.Join("cards", "card_package.json")
-		os.WriteFile(fileName, jsonByte, 0666)
-	}
-
-	for _, cardGroup := range cardPackageResp.List {
-		g := &database.CardGroup{
-			OfficialID: cardGroup.ID,
-			Name:       cardGroup.Name,
-			Image:      cardGroup.Image,
-			State:      cardGroup.State,
-			Position:   cardGroup.Position,
-			CreateTime: cardGroup.CreateTime,
-			UpdateTime: cardGroup.UpdateTime,
-		}
-		database.AddCardGroup(g)
-	}
-}
-
-func AddCardGroupFromDtcgDB() {
-	var cardGroupsFromDtcgDB database.CardGroupsFromDtcgDB
-
-	client := services2.NewSearchClient(core2.NewClient(""))
+	client := services.NewSearchClient(core.NewClient(""))
 	series, err := client.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)
@@ -56,7 +22,7 @@ func AddCardGroupFromDtcgDB() {
 	for _, serie := range series.Data {
 		for _, pack := range serie.SeriesPack {
 			if pack.Language == "chs" {
-				d := &database.CardGroupFromDtcgDB{
+				d := &models.CardSet{
 					SeriesID:        int(serie.SeriesID),
 					SeriesName:      serie.SeriesName,
 					Language:        pack.Language,
@@ -70,16 +36,16 @@ func AddCardGroupFromDtcgDB() {
 					PackRemark:      pack.PackRemark,
 				}
 
-				cardGroupsFromDtcgDB.Data = append(cardGroupsFromDtcgDB.Data, *d)
+				cardSets.Data = append(cardSets.Data, *d)
 
 			}
 		}
 	}
-	sort.Slice(cardGroupsFromDtcgDB.Data, func(i, j int) bool {
-		return cardGroupsFromDtcgDB.Data[i].PackID < cardGroupsFromDtcgDB.Data[j].PackID
+	sort.Slice(cardSets.Data, func(i, j int) bool {
+		return cardSets.Data[i].PackID < cardSets.Data[j].PackID
 	})
 
-	for _, pack := range cardGroupsFromDtcgDB.Data {
+	for _, pack := range cardSets.Data {
 		logrus.WithFields(logrus.Fields{
 			"前缀":     pack.PackPrefix,
 			"名称":     pack.PackName,
@@ -87,6 +53,6 @@ func AddCardGroupFromDtcgDB() {
 			"发布时间":   pack.PackReleaseDate,
 		}).Infof("%v 中的卡包信息", pack.SeriesName)
 
-		database.AddCardGroupFromDtcgDB(&pack)
+		database.AddCardSet(&pack)
 	}
 }

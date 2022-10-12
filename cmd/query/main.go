@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -27,15 +28,15 @@ func AddFlsgs(f *Flags) {
 }
 
 // 从 进化源效果、安防效果、卡牌效果 中查找根据自己定义的关键字过滤卡片
-func EffectKey(cardDesc database.CardDesc, flags Flags, cardGroup string) {
-	if strings.Contains(cardDesc.Effect, flags.EffectKey) || strings.Contains(cardDesc.SafeEffect, flags.EffectKey) || strings.Contains(cardDesc.EnvolutionEffect, flags.EffectKey) {
+func EffectKey(cardDesc models.CardDesc, flags Flags, cardSet string) {
+	if strings.Contains(cardDesc.Effect, flags.EffectKey) || strings.Contains(cardDesc.SecurityEffect, flags.EffectKey) || strings.Contains(cardDesc.EvoCoverEffect, flags.EffectKey) {
 		logrus.WithFields(logrus.Fields{
-			"卡包":    cardGroup,
-			"名称":    cardDesc.Name,
+			"卡包":    cardSet,
+			"名称":    cardDesc.ScName,
 			"颜色":    cardDesc.Color,
 			"效果":    cardDesc.Effect,
-			"安防效果":  cardDesc.SafeEffect,
-			"进化源效果": cardDesc.EnvolutionEffect,
+			"安防效果":  cardDesc.SecurityEffect,
+			"进化源效果": cardDesc.EvoCoverEffect,
 		}).Infoln(flags.EffectKey)
 	}
 }
@@ -55,9 +56,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	logrus.Infof("共有 %v 张卡", cardsDesc.Count)
+
 	for _, cardDesc := range cardsDesc.Data {
-		if cardDesc.ParallCard == "1" {
-			EffectKey(cardDesc, flags, cardDesc.CardGroup)
+		if cardDesc.AlternativeArt == "否" {
+			EffectKey(cardDesc, flags, cardDesc.SetPrefix)
 		}
 	}
 

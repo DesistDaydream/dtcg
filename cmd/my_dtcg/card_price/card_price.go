@@ -5,22 +5,23 @@ import (
 	"strconv"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	"github.com/sirupsen/logrus"
 )
 
 func AddCardPrice(startAtForCardID string) {
-	cardsDesc, err := database.ListCardDescFromDtcgDB()
+	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
 
+	// 从 startAt 号卡之后开始添加价格信息
 	var startAt int
-
 	if startAtForCardID != "" {
 		for i, cardDesc := range cardsDesc.Data {
-			if fmt.Sprint(cardDesc.CardID) == startAtForCardID {
+			if fmt.Sprint(cardDesc.CardIDFromDB) == startAtForCardID {
 				startAt = i
 			}
 		}
@@ -31,7 +32,7 @@ func AddCardPrice(startAtForCardID string) {
 	for i := startAt; i < len(cardsDesc.Data); i++ {
 		client := services.NewSearchClient(core.NewClient(""))
 
-		cardPrice, err := client.GetCardPrice(fmt.Sprint(cardsDesc.Data[i].CardID))
+		cardPrice, err := client.GetCardPrice(fmt.Sprint(cardsDesc.Data[i].CardIDFromDB))
 		if err != nil {
 			logrus.Errorf("获取卡片价格失败: %v", err)
 		}
@@ -45,8 +46,8 @@ func AddCardPrice(startAtForCardID string) {
 
 		f2, _ := strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
 
-		d := &database.CardPrice{
-			CardID:        cardsDesc.Data[i].CardID,
+		d := &models.CardPrice{
+			CardID:        cardsDesc.Data[i].CardIDFromDB,
 			CardVersionID: int(cardPrice.Data.Products[0].CardVersionID),
 			MinPrice:      f1,
 			AvgPrice:      f2,

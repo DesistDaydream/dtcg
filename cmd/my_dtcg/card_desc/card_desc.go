@@ -2,93 +2,46 @@ package carddesc
 
 import (
 	"encoding/json"
-	"log"
+	"strings"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
-	core2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	services2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	"github.com/sirupsen/logrus"
 )
 
 func AddCardDesc() {
-	cardGroups, err := database.ListCardGroups()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	c := &models.FilterConditionReq{
-		Limit: "3",
-		State: "0",
-	}
-
-	for _, cardGroup := range cardGroups.Data {
-		// 若要获取卡盒所有卡，需要将限制扩大
-		c.Limit = "300"
-		c.CardGroup = cardGroup.Name
-
-		// 根据过滤条件获取卡片详情
-		cardDescs, err := services.GetCardsDesc(c)
-		if err != nil {
-			panic(err)
-		}
-
-		for _, cardDesc := range cardDescs.Page.CardsDesc {
-			d := &database.CardDesc{
-				OfficialID:           cardDesc.ID,
-				CardGroup:            cardDesc.CardGroup,
-				Model:                cardDesc.Model,
-				RareDegree:           cardDesc.RareDegree,
-				BelongsType:          cardDesc.BelongsType,
-				CardLevel:            cardDesc.CardLevel,
-				Color:                cardDesc.Color,
-				Form:                 cardDesc.Form,
-				Attribute:            cardDesc.Attribute,
-				Name:                 cardDesc.Name,
-				Dp:                   cardDesc.Dp,
-				Type:                 cardDesc.Type,
-				EntryConsumeValue:    cardDesc.EntryConsumeValue,
-				EnvolutionConsumeOne: cardDesc.EnvolutionConsumeOne,
-				EnvolutionConsumeTwo: cardDesc.EnvolutionConsumeTwo,
-				GetWay:               cardDesc.GetWay,
-				Effect:               cardDesc.Effect,
-				SafeEffect:           cardDesc.SafeEffect,
-				EnvolutionEffect:     cardDesc.EnvolutionEffect,
-				ImageCover:           cardDesc.ImageCover,
-				State:                cardDesc.State,
-				ParallCard:           cardDesc.ParallCard,
-				KeyEffect:            cardDesc.KeyEffect,
-			}
-			database.AddCardDesc(d)
-		}
-	}
-}
-
-func AddCardDescFromDtcgDB() {
-	d, err := database.ListCardGroupsFromDtcgDB()
+	d, err := database.ListCardSets()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 	for _, set := range d.Data {
-		client := services2.NewSearchClient(core2.NewClient(""))
+		client := services.NewSearchClient(core.NewClient(""))
 		resp, err := client.PostCardSearch(set.PackID)
 		if err != nil {
 			logrus.Fatalln(err)
 		}
 
 		for _, l := range resp.Data.List {
+			var alternativeArt string
+			if strings.Contains(l.Rarity, "-") {
+				alternativeArt = "是"
+			} else {
+				alternativeArt = "否"
+			}
 			color, _ := json.Marshal(l.Color)
 			class, _ := json.Marshal(l.Class)
-			d := &database.CardDescFromDtcgDB{
-				CardID:         l.CardID,
-				CardPack:       l.CardPack,
-				PackName:       set.PackName,
-				PackPrefix:     set.PackPrefix,
+			d := &models.CardDesc{
+				CardIDFromDB:   l.CardID,
+				SetID:          l.CardPack,
+				SetName:        set.PackName,
+				SetPrefix:      set.PackPrefix,
 				Serial:         l.Serial,
 				SubSerial:      l.SubSerial,
 				JapName:        l.JapName,
 				ScName:         l.ScName,
+				AlternativeArt: alternativeArt,
 				Rarity:         l.Rarity,
 				Type:           l.Type,
 				Color:          string(color),
@@ -108,7 +61,7 @@ func AddCardDescFromDtcgDB() {
 				RaritySC:       l.RaritySC,
 			}
 
-			database.AddCardDescFromDtcgDB(d)
+			database.AddCardDesc(d)
 		}
 	}
 }

@@ -20,7 +20,7 @@ func PostCardsDesc(c *gin.Context) {
 		return
 	}
 
-	cardsDesc, err := database.GetCardDescFromDtcgDB(req.PageSize, req.PageNum)
+	cardsDesc, err := database.GetCardDesc(req.PageSize, req.PageNum)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}

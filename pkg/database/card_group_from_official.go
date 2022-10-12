@@ -2,12 +2,12 @@ package database
 
 import "github.com/sirupsen/logrus"
 
-type CardGroups struct {
-	Count int64       `json:"count"`
-	Data  []CardGroup `json:"data"`
+type CardGroupsOfficial struct {
+	Count int64               `json:"count"`
+	Data  []CardGroupOfficial `json:"data"`
 }
 
-type CardGroup struct {
+type CardGroupOfficial struct {
 	ID         int    `gorm:"primaryKey"`
 	OfficialID int    `json:"official_id"`
 	Name       string `json:"name"`
@@ -18,7 +18,7 @@ type CardGroup struct {
 	UpdateTime string `json:"update_time"`
 }
 
-func AddCardGroup(cardGroup *CardGroup) {
+func AddCardGroupFromOfficial(cardGroup *CardGroupOfficial) {
 	// 根据第二个参数匹配记录，若没找到，则插入
 	result := db.FirstOrCreate(cardGroup, cardGroup)
 	if result.Error != nil {
@@ -27,14 +27,14 @@ func AddCardGroup(cardGroup *CardGroup) {
 }
 
 // 获取所有卡包
-func ListCardGroups() (*CardGroups, error) {
-	var cg []CardGroup
+func ListCardGroupsFromOfficial() (*CardGroupsOfficial, error) {
+	var cg []CardGroupOfficial
 	result := db.Find(&cg)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &CardGroups{
+	return &CardGroupsOfficial{
 		Count: result.RowsAffected,
 		Data:  cg,
 	}, nil

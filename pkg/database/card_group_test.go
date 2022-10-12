@@ -11,7 +11,7 @@ func TestListCardGroups(t *testing.T) {
 	}
 	InitDB(i)
 
-	got, err := ListCardGroups()
+	got, err := ListCardGroupsFromOfficial()
 	if err != nil {
 		log.Fatalln(err)
 	}

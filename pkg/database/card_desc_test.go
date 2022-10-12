@@ -11,7 +11,7 @@ func TestListCardDesc(t *testing.T) {
 	}
 	InitDB(i)
 
-	got, err := ListCardDesc()
+	got, err := ListCardDescOfficial()
 	if err != nil {
 		log.Fatalln(err)
 	}
