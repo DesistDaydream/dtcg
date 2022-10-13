@@ -88,10 +88,12 @@ func GetSellerOrderList(client *orders.OrdersClient) ([]int64, error) {
 
 // 获取买入和卖出订单中所有产品信息，写入到 Excel 中
 func main() {
-	var flags Flags
+	var (
+		flags    Flags
+		logFlags logging.LoggingFlags
+	)
 	AddFlsgs(&flags)
-	logFlags := logging.LoggingFlags{}
-	logFlags.AddFlags()
+	logging.AddFlags(&logFlags)
 	pflag.Parse()
 
 	if err := logging.LogInit(&logFlags); err != nil {

@@ -20,7 +20,7 @@ type LoggingFlags struct {
 }
 
 // 添加命令行标志
-func (flags *LoggingFlags) AddFlags() {
+func AddFlags(flags *LoggingFlags) {
 	pflag.StringVar(&flags.LogLevel, "log-level", "info", "日志级别:[debug, info, warn, error, fatal]")
 	pflag.StringVar(&flags.LogOutput, "log-output", "", "日志输出位置，不填默认标准输出 stdout")
 	pflag.StringVar(&flags.LogFormat, "log-format", "text", "日志输出格式: [text, json]")

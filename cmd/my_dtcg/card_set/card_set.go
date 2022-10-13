@@ -1,4 +1,4 @@
-package cardgroup
+package cardset
 
 import (
 	"github.com/spf13/cobra"

@@ -12,12 +12,25 @@ import (
 	"github.com/spf13/pflag"
 )
 
+type Flags struct {
+	Lang      string
+	DirPrefix string
+}
+
+func AddFlags(f *Flags) {
+	pflag.StringVarP(&f.Lang, "lang", "l", "cn", "图片的语言")
+	pflag.StringVarP(&f.DirPrefix, "dir-prefix", "d", "/mnt/d/Projects/dtcg/images", "保存目录的前缀")
+}
+
 func main() {
-	logFlags := logging.LoggingFlags{}
-	logFlags.AddFlags()
+	var (
+		flags    Flags
+		logFlags logging.LoggingFlags
+	)
+	AddFlags(&flags)
+	logging.AddFlags(&logFlags)
 	// 指定要下载的图片的语言
-	lang := pflag.StringP("lang", "l", "cn", "图片的语言")
-	dirPrefix := pflag.StringP("dir-prefix", "d", "/mnt/d/Projects/dtcg/images", "保存目录的前缀")
+
 	pflag.Parse()
 
 	// 初始化日志
@@ -27,21 +40,21 @@ func main() {
 
 	// 判断当前系统是 Win 还是 Linux
 	if runtime.GOOS == "windows" {
-		*dirPrefix = "D:\\Projects\\dtcg\\images"
+		flags.DirPrefix = "D:\\Projects\\dtcg\\images"
 	}
 
 	var imageHandler handler.ImageHandler
 
-	switch *lang {
+	switch flags.Lang {
 	case "cn":
-		imageHandler = cn.NewImageHandler(*dirPrefix)
+		imageHandler = cn.NewImageHandler(flags.DirPrefix)
 	case "en":
-		imageHandler = en.NewImageHandler(*dirPrefix)
+		imageHandler = en.NewImageHandler(flags.DirPrefix)
 	default:
 		logrus.Fatalln("不支持的语言")
 	}
 
-	imageHandler.GetLang(*lang)
+	imageHandler.GetLang(flags.Lang)
 	// 获取卡包列表
 	cardInfo := imageHandler.GetCardGroups()
 	// 确认是否要下载

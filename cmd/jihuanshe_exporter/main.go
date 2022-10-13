@@ -29,8 +29,10 @@ func main() {
 	metricsPath := pflag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
 
 	// 设置日志相关命令行标志
-	logFlags := logging.LoggingFlags{}
-	logFlags.AddFlags()
+	var (
+		logFlags logging.LoggingFlags
+	)
+	logging.AddFlags(&logFlags)
 
 	// 设置关于抓取 Metric 目标客户端的一些信息的标志
 	opts := &collector.JihuansheOpts{}

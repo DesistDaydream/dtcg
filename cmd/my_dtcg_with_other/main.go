@@ -13,16 +13,18 @@ type Flags struct {
 	Add string
 }
 
-func AddFlsgs(f *Flags) {
+func AddFlags(f *Flags) {
 	pflag.StringVarP(&f.Add, "add", "a", "", "向数据库添加数据的内容")
 
 }
 
 func main() {
-	var flags Flags
-	AddFlsgs(&flags)
-	logFlags := logging.LoggingFlags{}
-	logFlags.AddFlags()
+	var (
+		flags    Flags
+		logFlags logging.LoggingFlags
+	)
+	AddFlags(&flags)
+	logging.AddFlags(&logFlags)
 	pflag.Parse()
 
 	if err := logging.LogInit(&logFlags); err != nil {

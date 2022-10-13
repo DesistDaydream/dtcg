@@ -15,10 +15,12 @@ import (
 
 // 根据 Excel 计算所有卡片的集换价和最低价
 func main() {
-	// var flags Flags
+	var (
+		// flags    Flags
+		logFlags logging.LoggingFlags
+	)
 	// AddFlsgs(&flags)
-	logFlags := logging.LoggingFlags{}
-	logFlags.AddFlags()
+	logging.AddFlags(&logFlags)
 	pflag.Parse()
 
 	if err := logging.LogInit(&logFlags); err != nil {

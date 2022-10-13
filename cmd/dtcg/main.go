@@ -14,16 +14,18 @@ type Flags struct {
 	ListenAddr string
 }
 
-func (f *Flags) AddFlags() {
+func AddFlags(f *Flags) {
 	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 debug 模式")
 	pflag.StringVarP(&f.ListenAddr, "listen", "l", ":2205", "程序监听地址")
 }
 
 func main() {
-	flags := Flags{}
-	flags.AddFlags()
-	logFlags := logging.LoggingFlags{}
-	logFlags.AddFlags()
+	var (
+		flags    Flags
+		logFlags logging.LoggingFlags
+	)
+	AddFlags(&flags)
+	logging.AddFlags(&logFlags)
 	pflag.Parse()
 	if err := logging.LogInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)

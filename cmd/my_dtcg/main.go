@@ -4,8 +4,8 @@ import (
 	"os"
 
 	carddesc "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_desc"
-	cardgroup "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_group"
 	cardprice "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_price"
+	cardset "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_set"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
@@ -36,7 +36,12 @@ func main() {
 }
 
 func newApp() *cobra.Command {
-	long := ``
+	long := `
+数码宝贝集换式卡牌游戏，简称 DTCG。该工具可以从如下几个地方获取卡牌数据并保存到自己的数据库中
+	[官网](https://www.digimoncard.cn/)
+	[数码兽卡片游戏数据库](https://digimon.card.moe/)
+还可以从集换社获取卡牌的价格
+`
 
 	var RootCmd = &cobra.Command{
 		Use:              "mydtcg",
@@ -46,13 +51,11 @@ func newApp() *cobra.Command {
 	}
 
 	AddFlsgs(&flags)
-	logFlags = logging.LoggingFlags{}
-	logFlags.AddFlags()
-	// pflag.Parse()
+	logging.AddFlags(&logFlags)
 
 	// 添加子命令
 	RootCmd.AddCommand(
-		cardgroup.CreateCommand(),
+		cardset.CreateCommand(),
 		carddesc.CreateCommand(),
 		cardprice.CreateCommand(),
 	)

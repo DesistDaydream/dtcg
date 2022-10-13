@@ -38,10 +38,12 @@ type Orders struct {
 
 // 获取所有我在卖的信息，写入到 Excel 中
 func main() {
-	var flags Flags
+	var (
+		flags    Flags
+		logFlags logging.LoggingFlags
+	)
 	AddFlsgs(&flags)
-	logFlags := logging.LoggingFlags{}
-	logFlags.AddFlags()
+	logging.AddFlags(&logFlags)
 	pflag.Parse()
 
 	if err := logging.LogInit(&logFlags); err != nil {
