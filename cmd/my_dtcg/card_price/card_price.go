@@ -7,7 +7,7 @@ import (
 func CreateCommand() *cobra.Command {
 	cardSetCmd := &cobra.Command{
 		Use:   "card-price",
-		Short: "控制卡片加个信息",
+		Short: "控制卡片价格信息",
 	}
 
 	cardSetCmd.AddCommand(
