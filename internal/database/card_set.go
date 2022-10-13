@@ -6,7 +6,7 @@ import (
 )
 
 func AddCardSet(cardGroup *models.CardSet) {
-	result := db.FirstOrCreate(cardGroup, cardGroup)
+	result := DB.FirstOrCreate(cardGroup, cardGroup)
 	if result.Error != nil {
 		logrus.Errorf("插入数据失败: %v", result.Error)
 	}
@@ -15,7 +15,7 @@ func AddCardSet(cardGroup *models.CardSet) {
 // 获取所有卡包
 func ListCardSets() (*models.CardSets, error) {
 	var cg []models.CardSet
-	result := db.Find(&cg)
+	result := DB.Find(&cg)
 	if result.Error != nil {
 		return nil, result.Error
 	}

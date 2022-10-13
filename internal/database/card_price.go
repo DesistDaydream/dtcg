@@ -6,7 +6,7 @@ import (
 )
 
 func AddCardPirce(cardPrice *models.CardPrice) {
-	result := db.FirstOrCreate(cardPrice, models.CardPrice{CardID: cardPrice.CardID})
+	result := DB.FirstOrCreate(cardPrice, models.CardPrice{CardIDFromDB: cardPrice.CardIDFromDB})
 	if result.Error != nil {
 		logrus.Errorf("插入数据失败: %v", result.Error)
 	}

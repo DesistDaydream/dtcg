@@ -1,10 +1,10 @@
 package models
 
 type CardsDesc struct {
-	Count       int64 `json:"count"`
-	PageSize    int
-	PageCurrent int
-	PageTotal   int
+	Count       int64      `json:"count"`
+	PageSize    int        `json:"page_size"`
+	PageCurrent int        `json:"page_current"`
+	PageTotal   int        `json:"page_total"`
 	Data        []CardDesc `json:"data"`
 }
 

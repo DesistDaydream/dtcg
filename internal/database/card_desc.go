@@ -6,7 +6,7 @@ import (
 )
 
 func AddCardDesc(cardDesc *models.CardDesc) {
-	result := db.FirstOrCreate(cardDesc, cardDesc)
+	result := DB.FirstOrCreate(cardDesc, cardDesc)
 	if result.Error != nil {
 		logrus.Errorf("插入数据失败: %v", result.Error)
 	}
@@ -15,14 +15,17 @@ func AddCardDesc(cardDesc *models.CardDesc) {
 // 获取所有卡片描述
 func ListCardDesc() (*models.CardsDesc, error) {
 	var cd []models.CardDesc
-	result := db.Find(&cd)
+	result := DB.Find(&cd)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	return &models.CardsDesc{
-		Count: result.RowsAffected,
-		Data:  cd,
+		Count:       result.RowsAffected,
+		PageSize:    -1,
+		PageCurrent: 1,
+		PageTotal:   1,
+		Data:        cd,
 	}, nil
 }
 
@@ -33,9 +36,9 @@ func GetCardDesc(pageSize int, pageNum int) (*models.CardsDesc, error) {
 		cd        []models.CardDesc
 	)
 
-	db.Model(&models.CardDesc{}).Count(&CardCount)
+	DB.Model(&models.CardDesc{}).Count(&CardCount)
 
-	result := db.Limit(pageSize).Offset(pageSize * (pageNum - 1)).Find(&cd)
+	result := DB.Limit(pageSize).Offset(pageSize * (pageNum - 1)).Find(&cd)
 	if result.Error != nil {
 		return nil, result.Error
 	}

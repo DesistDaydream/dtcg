@@ -29,10 +29,10 @@ func main() {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	i := &database.DBInfo{
+	dbInfo := &database.DBInfo{
 		FilePath: "internal/database/my_dtcg.db",
 	}
-	database.InitDB(i)
+	database.InitDB(dbInfo)
 
 	if !flags.Debug {
 		gin.SetMode(gin.ReleaseMode)
