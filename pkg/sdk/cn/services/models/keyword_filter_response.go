@@ -7,11 +7,11 @@ type CardGroupsResponse struct {
 	List []CardGroup `json:"list"`
 }
 type CardGroup struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	Image      string `json:"image"`
-	State      string `json:"state"`
-	Position   string `json:"position"`
-	CreateTime string `json:"createTime"`
-	UpdateTime string `json:"updateTime"`
+	ID         int         `json:"id"`
+	Name       string      `json:"name"`
+	Image      string      `json:"image"`
+	State      string      `json:"state"`
+	Position   interface{} `json:"position"`
+	CreateTime string      `json:"createTime"`
+	UpdateTime string      `json:"updateTime"`
 }

@@ -29,7 +29,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 	// 获取 cardGroup 列表。即获取所有卡包的名称
 	cardPackages, err := services.GetCardGroups()
 	if err != nil {
-		logrus.Errorf("GetGameCard error: %v", err)
+		logrus.Errorf("获取卡牌集合失败: %v", err)
 	}
 
 	var allCardPackageInfo []*handler.CardPackageInfo

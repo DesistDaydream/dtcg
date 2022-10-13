@@ -8,14 +8,14 @@ type CardGroupsOfficial struct {
 }
 
 type CardGroupOfficial struct {
-	ID         int    `gorm:"primaryKey"`
-	OfficialID int    `json:"official_id"`
-	Name       string `json:"name"`
-	Image      string `json:"image"`
-	State      string `json:"state"`
-	Position   string `json:"position"`
-	CreateTime string `json:"create_time"`
-	UpdateTime string `json:"update_time"`
+	ID         int         `gorm:"primaryKey"`
+	OfficialID int         `json:"official_id"`
+	Name       string      `json:"name"`
+	Image      string      `json:"image"`
+	State      string      `json:"state"`
+	Position   interface{} `json:"position"`
+	CreateTime string      `json:"create_time"`
+	UpdateTime string      `json:"update_time"`
 }
 
 func AddCardGroupFromOfficial(cardGroup *CardGroupOfficial) {

@@ -2,10 +2,10 @@ package services
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
-	"github.com/sirupsen/logrus"
 )
 
 // 获取卡组列表
@@ -13,17 +13,17 @@ func GetCardGroups() (*models.CardGroupsResponse, error) {
 	url := "https://dtcgweb-api.digimoncard.cn/game/gamecard/weblist"
 	resp, err := http.Get(url)
 	if err != nil {
-		logrus.Errorf("获取卡牌系列列表失败: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("获取卡牌系列列表失败: %v", err)
 	}
 	defer resp.Body.Close()
 
-	var cardGroups *models.CardGroupsResponse
+	// body, _ := io.ReadAll(resp.Body)
+	var cardGroups models.CardGroupsResponse
+	// err = json.Unmarshal(body, &cardGroups)
 	err = json.NewDecoder(resp.Body).Decode(&cardGroups)
 	if err != nil {
-		logrus.Errorf("解析卡牌系列列表失败: %v", err)
-		return nil, err
+		return nil, fmt.Errorf("解析卡牌系列列表失败: %v", err)
 	}
 
-	return cardGroups, nil
+	return &cardGroups, nil
 }
