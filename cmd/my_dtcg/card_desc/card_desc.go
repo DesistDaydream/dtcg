@@ -2,6 +2,7 @@ package carddesc
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -11,14 +12,60 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func AddCardDesc() {
-	d, err := database.ListCardSets()
+func GetWantAddCardDesc() []models.CardSet {
+	var wantCardSets []models.CardSet
+
+	allCardSets, err := database.ListCardSets()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-	for _, set := range d.Data {
+
+	for _, cardSet := range allCardSets.Data {
+		logrus.WithFields(logrus.Fields{
+			"名称": cardSet.PackPrefix,
+		}).Infof("卡包信息")
+	}
+
+	fmt.Printf("请选择需要下载图片的卡包，多个卡包用逗号分隔(使用 all 下载所有): ")
+
+	var userInput string
+
+	fmt.Scanln(&userInput)
+
+	userInputCardSets := strings.Split(userInput, ",")
+	for _, name := range userInputCardSets {
+		for _, cardInfo := range allCardSets.Data {
+			if cardInfo.PackPrefix == name {
+				wantCardSets = append(wantCardSets, cardInfo)
+			}
+		}
+	}
+
+	switch userInput {
+	case "all":
+		return allCardSets.Data
+	default:
+		return wantCardSets
+	}
+}
+
+func AddCardDesc() {
+	wantCardSets := GetWantAddCardDesc()
+
+	for _, cardSet := range wantCardSets {
+		logrus.WithField("卡包名称", cardSet.PackPrefix).Infof("待下载卡包名称")
+	}
+	fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
+	var confirm string
+	fmt.Scanln(&confirm)
+	if confirm != "y" {
+		logrus.Infof("取消下载")
+		return
+	}
+
+	for _, cardSet := range wantCardSets {
 		client := services.NewSearchClient(core.NewClient(""))
-		resp, err := client.PostCardSearch(set.PackID)
+		resp, err := client.PostCardSearch(cardSet.PackID)
 		if err != nil {
 			logrus.Fatalln(err)
 		}
@@ -32,11 +79,12 @@ func AddCardDesc() {
 			}
 			color, _ := json.Marshal(l.Color)
 			class, _ := json.Marshal(l.Class)
-			d := &models.CardDesc{
+
+			database.AddCardDesc(&models.CardDesc{
 				CardIDFromDB:   l.CardID,
 				SetID:          l.CardPack,
-				SetName:        set.PackName,
-				SetPrefix:      set.PackPrefix,
+				SetName:        cardSet.PackName,
+				SetPrefix:      cardSet.PackPrefix,
 				Serial:         l.Serial,
 				SubSerial:      l.SubSerial,
 				JapName:        l.JapName,
@@ -59,9 +107,7 @@ func AddCardDesc() {
 				SecurityEffect: l.SecurityEffect,
 				IncludeInfo:    l.IncludeInfo,
 				RaritySC:       l.RaritySC,
-			}
-
-			database.AddCardDesc(d)
+			})
 		}
 	}
 }
