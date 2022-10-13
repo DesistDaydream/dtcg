@@ -19,23 +19,23 @@ func AddCardPriceCommand() *cobra.Command {
 		Run:   addCardPrice,
 	}
 
-	AddCardPriceCmd.Flags().Int("startAtCardID", 0, "从哪个卡牌开始添加")
+	AddCardPriceCmd.Flags().Int("startAt", 0, "从哪个卡牌开始添加，使用从 dtcg db 中获取到的卡片 ID。")
 
 	return AddCardPriceCmd
 }
 
 func addCardPrice(cmd *cobra.Command, args []string) {
-	startAtCardID, _ := cmd.Flags().GetInt("startAtCardID")
+	startAtCardIDFromDB, _ := cmd.Flags().GetInt("startAt")
 	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
 
-	// 从 startAt 号卡之后开始添加价格信息
+	// startAt 是我自己的编号。
 	var startAt int
-	if startAtCardID != 0 {
+	if startAtCardIDFromDB != 0 {
 		for i, cardDesc := range cardsDesc.Data {
-			if cardDesc.CardIDFromDB == startAtCardID {
+			if cardDesc.CardIDFromDB == startAtCardIDFromDB {
 				startAt = i
 			}
 		}
@@ -60,17 +60,17 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 
 		f2, _ := strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
 
-		d := &models.CardPrice{
+		database.AddCardPirce(&models.CardPrice{
 			CardIDFromDB:   cardsDesc.Data[i].CardIDFromDB,
-			CardVersionID:  int(cardPrice.Data.Products[0].CardVersionID),
-			AlternativeArt: cardsDesc.Data[i].AlternativeArt,
-			Rarity:         cardsDesc.Data[i].Rarity,
 			SetID:          cardsDesc.Data[i].SetID,
 			SetPrefix:      cardsDesc.Data[i].SetPrefix,
+			Serial:         cardsDesc.Data[i].Serial,
+			ScName:         cardsDesc.Data[i].ScName,
+			AlternativeArt: cardsDesc.Data[i].AlternativeArt,
+			Rarity:         cardsDesc.Data[i].Rarity,
+			CardVersionID:  int(cardPrice.Data.Products[0].CardVersionID),
 			MinPrice:       f1,
 			AvgPrice:       f2,
-		}
-
-		database.AddCardPirce(d)
+		})
 	}
 }
