@@ -35,6 +35,4 @@ keyEffect=
 
 # 构建
 
-docker build . -t lchdzh/jihuanshe-exporter:v1.0.0 -f build/Dockerfile
-
-docker run -it --rm -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.0.0
+docker build . -t lchdzh/jihuanshe-exporter:v1.0.1 -f build/Dockerfile

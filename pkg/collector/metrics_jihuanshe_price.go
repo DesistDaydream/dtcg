@@ -1,9 +1,11 @@
 package collector
 
 import (
+	"fmt"
 	"strconv"
 	"sync"
 
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
 	"github.com/prometheus/client_golang/prometheus"
@@ -58,39 +60,35 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 	for _, cardPrice := range client.CardsPrice.Data {
 		concurrenceyControl <- true
 		wg.Add(1)
-		go func(cardPrice CardPrice) {
+		go func(cardPrice models.CardPrice) {
 			defer wg.Done()
-
-			// avgPice, err := strconv.ParseFloat(cardPrice.AvgPrice, 64)
-			// if err != nil {
-			// 	logrus.Errorf("%v %v 卡牌集换价 %v 转换失败：%v", cardPrice.Model, cardPrice.Name, cardPrice.AvgPrice, err)
-			// }
 
 			// 只采集集换价大于 client.Opts.Price 的卡的信息
 			if cardPrice.AvgPrice >= client.Opts.price {
-				cardInfo, err := c.Get(cardPrice.CardVersionID)
+				priceInfo, err := c.Get(fmt.Sprint(cardPrice.CardVersionID))
 				if err != nil {
 					logrus.Errorf("获取卡片信息异常：%v", err)
 				}
 
-				fMin, _ := strconv.ParseFloat(cardInfo.MinPrice, 64)
-				fAvg, _ := strconv.ParseFloat(cardInfo.AvgPrice, 64)
+				fMin, _ := strconv.ParseFloat(priceInfo.MinPrice, 64)
+				fAvg, _ := strconv.ParseFloat(priceInfo.AvgPrice, 64)
+
 				// 最低价格
 				ch <- prometheus.MustNewConstMetric(minPrice, prometheus.GaugeValue, float64(fMin),
-					cardPrice.PackPrefix,
+					cardPrice.SetPrefix,
 					cardPrice.Serial,
 					cardPrice.ScName,
 					cardPrice.Rarity,
-					cardPrice.CardVersionID,
+					fmt.Sprint(cardPrice.CardVersionID),
 				)
 
 				// 平均价格
 				ch <- prometheus.MustNewConstMetric(avgPrice, prometheus.GaugeValue, float64(fAvg),
-					cardPrice.PackPrefix,
+					cardPrice.SetPrefix,
 					cardPrice.Serial,
 					cardPrice.ScName,
 					cardPrice.Rarity,
-					cardPrice.CardVersionID,
+					fmt.Sprint(cardPrice.CardVersionID),
 				)
 			}
 
@@ -99,20 +97,4 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 	}
 
 	return nil
-}
-
-type CardsPrice struct {
-	Count int64
-	Data  []CardPrice
-}
-
-type CardPrice struct {
-	PackPrefix    string  `gorm:"column:pack_prefix"`
-	CardID        string  `gorm:"column:card_id"`
-	CardVersionID string  `gorm:"column:card_version_id"`
-	Serial        string  `gorm:"column:serial"`
-	ScName        string  `gorm:"column:sc_name"`
-	Rarity        string  `gorm:"column:rarity"`
-	MinPrice      float64 `gorm:"column:min_price"`
-	AvgPrice      float64 `gorm:"column:avg_price"`
 }

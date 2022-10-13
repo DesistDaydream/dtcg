@@ -11,10 +11,10 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 )
 
 // 这三个常量用于给每个 Metrics 名字添加前缀
@@ -41,7 +41,7 @@ type JihuansheClient struct {
 	Token  string
 	Opts   *JihuansheOpts
 
-	CardsPrice *CardsPrice
+	CardsPrice *models.CardsPrice
 }
 
 // 实例化 HTTP 客户端
@@ -76,29 +76,17 @@ func NewJihuansheClient(opts *JihuansheOpts) *JihuansheClient {
 	}
 	// ######## 配置 http.Client 的信息结束 ########
 
-	// 从数据库中获取卡片信息
-	db, err := gorm.Open(sqlite.Open(opts.dbPath), &gorm.Config{})
+	dbInfo := &database.DBInfo{
+		FilePath: "internal/database/my_dtcg.db",
+	}
+	database.InitDB(dbInfo)
+
+	cardsPrice, err := database.ListCardPrice()
 	if err != nil {
-		logrus.Fatalf("连接数据库失败: %v", err)
+		logrus.Fatalf("获取卡片价格信息失败: %v", err)
 	}
 
-	var cardsPrice []CardPrice
-	sql := `
-SELECT
-    set_id,set_prefix,
-    card.card_id_from_db,card_version_id,card.card_id_from_db - card_version_id AS chazhi,
-    serial,sc_name,rarity,
-    min_price,avg_price
-FROM
-    card_descs card
-    LEFT JOIN card_prices price ON price.card_id=card.card_id_from_db
-`
-	result := db.Raw(sql).Scan(&cardsPrice)
-	if result.Error != nil {
-		logrus.Fatalf("从数据库获取卡片信息失败: %v", result.Error)
-	}
-
-	logrus.Debugf("已获取 %v 条卡片信息", result.RowsAffected)
+	logrus.Debugf("已获取 %v 条卡片信息", cardsPrice.Count)
 
 	// 第一次启动程序时获取 Token，若无法获取 Token 则程序无法启动
 	// token, err := GetToken(opts)
@@ -110,12 +98,9 @@ FROM
 			Timeout:   opts.timeout,
 			Transport: transport,
 		},
-		Token: "",
-		Opts:  opts,
-		CardsPrice: &CardsPrice{
-			Count: result.RowsAffected,
-			Data:  cardsPrice,
-		},
+		Token:      "",
+		Opts:       opts,
+		CardsPrice: cardsPrice,
 	}
 }
 
