@@ -11,14 +11,13 @@ func UpdateCardPriceCommand() *cobra.Command {
 	UpdateCardPriceCmd := &cobra.Command{
 		Use:   "update",
 		Short: "更新卡片集合",
-		Run:   UpdateCardPriceA,
+		Run:   updateCardPrice,
 	}
 
 	return UpdateCardPriceCmd
 }
 
-func UpdateCardPriceA(cmd *cobra.Command, args []string) {
-	logrus.Debugln("测试命令")
+func updateCardPrice(cmd *cobra.Command, args []string) {
 	UpdateCardPrice([]string{})
 }
 

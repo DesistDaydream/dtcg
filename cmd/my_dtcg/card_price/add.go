@@ -16,17 +16,16 @@ func AddCardPriceCommand() *cobra.Command {
 	AddCardPriceCmd := &cobra.Command{
 		Use:   "add",
 		Short: "添加卡片集合",
-		Run:   AddCardPrice,
+		Run:   addCardPrice,
 	}
+
+	AddCardPriceCmd.Flags().Int("startAtCardID", 0, "从哪个卡牌开始添加")
 
 	return AddCardPriceCmd
 }
 
-func AddCardPrice(cmd *cobra.Command, args []string) {
-	addCardPrice("")
-}
-
-func addCardPrice(startAtForCardID string) {
+func addCardPrice(cmd *cobra.Command, args []string) {
+	startAtCardID, _ := cmd.Flags().GetInt("startAtCardID")
 	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
 		logrus.Errorf("%v", err)
@@ -34,9 +33,9 @@ func addCardPrice(startAtForCardID string) {
 
 	// 从 startAt 号卡之后开始添加价格信息
 	var startAt int
-	if startAtForCardID != "" {
+	if startAtCardID != 0 {
 		for i, cardDesc := range cardsDesc.Data {
-			if fmt.Sprint(cardDesc.CardIDFromDB) == startAtForCardID {
+			if cardDesc.CardIDFromDB == startAtCardID {
 				startAt = i
 			}
 		}
