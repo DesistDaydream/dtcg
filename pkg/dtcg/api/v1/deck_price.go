@@ -68,12 +68,12 @@ func PostDeckPrice(c *gin.Context) {
 		logrus.Fatalln(err)
 	}
 
-	// TODO: 这里怎么用泛型？
+	// TODO: 假设 Eggs 和 Main 最后是两种类型的话，怎么用泛型？
 	for _, card := range decks.Data.DeckInfo.Eggs {
 		genData(&card, &resp, c)
 	}
 
-	// TODO: 这里怎么用泛型？
+	// TODO: 假设 Eggs 和 Main 最后是两种类型的话，怎么用泛型？
 	for _, card := range decks.Data.DeckInfo.Main {
 		genData(&card, &resp, c)
 	}
