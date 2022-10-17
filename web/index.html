@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>获取卡组价格</title>
+</head>
+
+<body>
+    <form>
+        卡组：<input type="string" name="deck" />
+
+        <button name="commit">提交</button>
+
+    </form>
+
+    <div id="resp"></div>
+</body>
+
+<script>
+    let FormEle = document.querySelector("form")
+    let DeckEle = FormEle.querySelector("input[name=deck]")
+    let StockOutEle = FormEle.querySelector("button[name=commit]")
+    var respEle = document.getElementById("resp")
+
+    StockOutEle.onclick = function (e) {
+        e.preventDefault()
+
+        let Deck = DeckEle.value
+
+        let data = {
+            deck: Deck,
+            envir: "chs",
+        }
+
+        // 创建请求
+        let xhr = new XMLHttpRequest()
+        xhr.open("POST", "http://localhost:2205/api/v1/deck/price")
+        xhr.onload = function () {
+            let resp = JSON.parse(xhr.responseText)
+            console.log(resp)
+            respEle.innerText =
+                "最低价：" + resp.min_price + "\n" + "集换价：" + resp.avg_price
+        }
+        xhr.send(JSON.stringify(data))
+    }
+
+</script>
+
+</html>

@@ -49,6 +49,9 @@ func genData(card *m2.CardInfo, resp *models.PostDeckPriceResponse, c *gin.Conte
 }
 
 func PostDeckPrice(c *gin.Context) {
+	// 允许跨域
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
 	var (
 		req  models.PostDeckPriceRequest
 		resp models.PostDeckPriceResponse
@@ -65,7 +68,8 @@ func PostDeckPrice(c *gin.Context) {
 	client := community.NewCommunityClient(core.NewClient(""))
 	decks, err := client.PostConvertDeck(req.Deck)
 	if err != nil {
-		logrus.Fatalln(err)
+		logrus.Errorln(err)
+		return
 	}
 
 	// TODO: 假设 Eggs 和 Main 最后是两种类型的话，怎么用泛型？
