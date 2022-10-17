@@ -11,100 +11,53 @@ type Data struct {
 }
 
 type DeckInfo struct {
-	Eggs []Egg  `json:"eggs"`
-	Main []Main `json:"main"`
+	Main []CardInfo `json:"main"`
+	Eggs []CardInfo `json:"eggs"`
 }
 
-type Egg struct {
-	Card   EggCard `json:"card"`
-	Number int64   `json:"number"`
+type CardInfo struct {
+	Number int  `json:"number"`
+	Cards  Card `json:"card"`
 }
 
-type EggCard struct {
-	Attribute      string        `json:"attribute"`
-	CardID         int64         `json:"card_id"`
-	CardPack       int64         `json:"card_pack"`
-	Class          []string      `json:"class"`
-	Color          []string      `json:"color"`
-	Cost           string        `json:"cost"`
-	Cost1          string        `json:"cost_1"`
-	DP             string        `json:"DP"`
-	Effect         string        `json:"effect"`
-	EvoCond        string        `json:"evo_cond"`
-	EvoCoverEffect string        `json:"evo_cover_effect"`
-	Grade          string        `json:"grade"`
-	Illustrator    string        `json:"illustrator"`
-	Images         []PurpleImage `json:"images"`
-	IncludeInfo    string        `json:"include_info"`
-	JapName        string        `json:"japName"`
-	Level          string        `json:"level"`
-	Package        PurplePackage `json:"package"`
-	Rarity         string        `json:"rarity"`
-	RaritySC       string        `json:"rarity$SC"`
-	ScName         string        `json:"scName"`
-	SecurityEffect string        `json:"security_effect"`
-	Serial         string        `json:"serial"`
-	SubSerial      string        `json:"sub_serial"`
-	Type           string        `json:"type"`
+type Card struct {
+	CardID         int      `json:"card_id"`
+	CardPack       int      `json:"card_pack"`
+	Serial         string   `json:"serial"`
+	SubSerial      string   `json:"sub_serial"`
+	JapName        string   `json:"japName"`
+	ScName         string   `json:"scName"`
+	Rarity         string   `json:"rarity"`
+	Type           string   `json:"type"`
+	Color          []string `json:"color"`
+	Level          string   `json:"level"`
+	Cost           string   `json:"cost"`
+	Cost1          string   `json:"cost_1"`
+	EvoCond        string   `json:"evo_cond"`
+	DP             string   `json:"DP"`
+	Grade          string   `json:"grade"`
+	Attribute      string   `json:"attribute"`
+	Class          []string `json:"class"`
+	Illustrator    string   `json:"illustrator"`
+	Effect         string   `json:"effect"`
+	EvoCoverEffect string   `json:"evo_cover_effect"`
+	SecurityEffect string   `json:"security_effect"`
+	IncludeInfo    string   `json:"include_info"`
+	RaritySC       string   `json:"rarity$SC"`
+	Package        Package  `json:"package"`
+	Images         []Images `json:"images"`
 }
 
-type PurpleImage struct {
-	CardID    int64  `json:"card_id"`
-	ID        int64  `json:"id"`
-	ImgPath   string `json:"img_path"`
-	ThumbPath string `json:"thumb_path"`
-}
-
-type PurplePackage struct {
-	Language        string `json:"language"`
-	PackID          int64  `json:"pack_id"`
+type Package struct {
+	PackID          int    `json:"pack_id"`
 	PackPrefix      string `json:"pack_prefix"`
 	PackReleaseDate string `json:"pack_releaseDate"`
+	Language        string `json:"language"`
 }
 
-type Main struct {
-	Card   MainCard `json:"card"`
-	Number int64    `json:"number"`
-}
-
-type MainCard struct {
-	Attribute      string        `json:"attribute"`
-	CardID         int64         `json:"card_id"`
-	CardPack       int64         `json:"card_pack"`
-	Class          []string      `json:"class"`
-	Color          []string      `json:"color"`
-	Cost           string        `json:"cost"`
-	Cost1          string        `json:"cost_1"`
-	DP             string        `json:"DP"`
-	Effect         string        `json:"effect"`
-	EvoCond        string        `json:"evo_cond"`
-	EvoCoverEffect string        `json:"evo_cover_effect"`
-	Grade          string        `json:"grade"`
-	Illustrator    string        `json:"illustrator"`
-	Images         []FluffyImage `json:"images"`
-	IncludeInfo    string        `json:"include_info"`
-	JapName        string        `json:"japName"`
-	Level          string        `json:"level"`
-	Package        FluffyPackage `json:"package"`
-	Rarity         string        `json:"rarity"`
-	RaritySC       string        `json:"rarity$SC"`
-	ScName         string        `json:"scName"`
-	SecurityEffect string        `json:"security_effect"`
-	Serial         string        `json:"serial"`
-	SubSerial      string        `json:"sub_serial"`
-	Type           string        `json:"type"`
-}
-
-type FluffyImage struct {
-	CardID    int64  `json:"card_id"`
-	ID        int64  `json:"id"`
+type Images struct {
+	ID        int    `json:"id"`
+	CardID    int    `json:"card_id"`
 	ImgPath   string `json:"img_path"`
 	ThumbPath string `json:"thumb_path"`
-}
-
-type FluffyPackage struct {
-	Language        string `json:"language"`
-	PackID          int64  `json:"pack_id"`
-	PackPrefix      string `json:"pack_prefix"`
-	PackReleaseDate string `json:"pack_releaseDate"`
 }

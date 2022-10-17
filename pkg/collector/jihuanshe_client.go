@@ -81,7 +81,7 @@ func NewJihuansheClient(opts *JihuansheOpts) *JihuansheClient {
 	}
 	database.InitDB(dbInfo)
 
-	cardsPrice, err := database.ListCardPrice()
+	cardsPrice, err := database.ListCardsPrice()
 	if err != nil {
 		logrus.Fatalf("获取卡片价格信息失败: %v", err)
 	}

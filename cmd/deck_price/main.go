@@ -26,11 +26,11 @@ func main() {
 	var cardsID []string
 
 	for _, card := range decks.Data.DeckInfo.Eggs {
-		cardsID = append(cardsID, fmt.Sprint(card.Card.CardID))
+		cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
 	}
 
 	for _, card := range decks.Data.DeckInfo.Main {
-		cardsID = append(cardsID, fmt.Sprint(card.Card.CardID))
+		cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
 	}
 
 	clientSearch := services.NewSearchClient(core.NewClient(""))

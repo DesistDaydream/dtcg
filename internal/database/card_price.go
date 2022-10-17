@@ -25,7 +25,7 @@ func UpdateCardPrice(cardPrice *models.CardPrice, condition map[string]string) {
 	logrus.Debugf("已更新 %v 条数据", result.RowsAffected)
 }
 
-func ListCardPrice() (*models.CardsPrice, error) {
+func ListCardsPrice() (*models.CardsPrice, error) {
 	var cp []models.CardPrice
 	result := DB.Find(&cp)
 	if result.Error != nil {
@@ -39,4 +39,14 @@ func ListCardPrice() (*models.CardsPrice, error) {
 		PageTotal:   1,
 		Data:        cp,
 	}, nil
+}
+
+func GetCardPrice(cardIDFromDB string) (*models.CardPrice, error) {
+	var cardPrice models.CardPrice
+	result := DB.Where("card_id_from_db = ?", cardIDFromDB).First(&cardPrice)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &cardPrice, nil
 }
