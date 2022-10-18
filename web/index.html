@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="index.css" />
     <title>获取卡组价格</title>
 </head>
 
@@ -18,7 +19,17 @@
 
     <div id="resp"></div>
 
-    <table border="1" class="table table-bordered table-hover">
+    <table border="1" id="resp">
+        <thead>
+            <tr>
+                <th>最低价</th>
+                <th>集换价</th>
+            </tr>
+        </thead>
+        <tr id="resp_price"></tr>
+    </table>
+
+    <table border="1">
         <thead>
             <tr>
                 <th>名称</th>
@@ -37,13 +48,18 @@
     let DeckEle = FormEle.querySelector("input[name=deck]")
     let StockOutEle = FormEle.querySelector("button[name=commit]")
     let respEle = document.getElementById("resp")
-    let tbody = document.getElementById("cards_list")
+    let tbodyCardsList = document.getElementById("cards_list")
+    let trRespPrice = document.getElementById("resp_price")
 
     StockOutEle.onclick = function (event) {
         event.preventDefault()
 
-        while (tbody.hasChildNodes()) {
-            tbody.removeChild(tbody.lastChild)
+        while (tbodyCardsList.hasChildNodes()) {
+            tbodyCardsList.removeChild(tbodyCardsList.lastChild)
+        }
+
+        while (trRespPrice.hasChildNodes()) {
+            trRespPrice.removeChild(trRespPrice.lastChild)
         }
 
         let Deck = DeckEle.value
@@ -59,26 +75,34 @@
         xhr.onload = function () {
             let resp = JSON.parse(xhr.responseText)
             console.log(resp)
-            respEle.innerText =
-                "最低价：" + resp.min_price.toFixed(2) + "\n" + "集换价：" + resp.avg_price.toFixed(2)
+
+            // 生成第一张表
+            let minPrice = document.createElement("td")
+            let avgPrice = document.createElement("td")
+            minPrice.innerText = resp.min_price.toFixed(2)
+            avgPrice.innerText = resp.avg_price.toFixed(2)
+            trRespPrice.appendChild(minPrice)
+            trRespPrice.appendChild(avgPrice)
+
+            // 生成第二张表
             for (let i = 0; i < resp.data.length; i++) {
                 let tr = document.createElement("tr")
-                let td1 = document.createElement("td")
-                let td2 = document.createElement("td")
-                let td3 = document.createElement("td")
-                let td4 = document.createElement("td")
-                let td5 = document.createElement("td")
-                td1.innerText = resp.data[i].sc_name
-                td2.innerText = resp.data[i].count
-                td3.innerText = resp.data[i].serial
-                td4.innerText = resp.data[i].min_price.toFixed(2)
-                td5.innerText = resp.data[i].avg_price.toFixed(2)
-                tr.appendChild(td1)
-                tr.appendChild(td2)
-                tr.appendChild(td3)
-                tr.appendChild(td4)
-                tr.appendChild(td5)
-                tbody.appendChild(tr)
+                let tdScName = document.createElement("td")
+                let tdCount = document.createElement("td")
+                let tdSerial = document.createElement("td")
+                let tdMinPrice = document.createElement("td")
+                let tdAvgPrice = document.createElement("td")
+                tdScName.innerText = resp.data[i].sc_name
+                tdCount.innerText = resp.data[i].count
+                tdSerial.innerText = resp.data[i].serial
+                tdMinPrice.innerText = resp.data[i].min_price.toFixed(2)
+                tdAvgPrice.innerText = resp.data[i].avg_price.toFixed(2)
+                tr.appendChild(tdScName)
+                tr.appendChild(tdCount)
+                tr.appendChild(tdSerial)
+                tr.appendChild(tdMinPrice)
+                tr.appendChild(tdAvgPrice)
+                tbodyCardsList.appendChild(tr)
             }
         }
         xhr.send(JSON.stringify(data))
