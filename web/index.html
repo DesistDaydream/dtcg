@@ -28,19 +28,23 @@
                 <th>集换价</th>
             </tr>
         </thead>
-        <tbody id="refuge-tbody"></tbody>
+        <tbody id="cards_list"></tbody>
     </table>
 </body>
 
-<script>
+<script type="text/javascript">
     let FormEle = document.querySelector("form")
     let DeckEle = FormEle.querySelector("input[name=deck]")
     let StockOutEle = FormEle.querySelector("button[name=commit]")
     let respEle = document.getElementById("resp")
-    let tbody = document.getElementById("refuge-tbody")
+    let tbody = document.getElementById("cards_list")
 
-    StockOutEle.onclick = function (e) {
-        e.preventDefault()
+    StockOutEle.onclick = function (event) {
+        event.preventDefault()
+
+        while (tbody.hasChildNodes()) {
+            tbody.removeChild(tbody.lastChild)
+        }
 
         let Deck = DeckEle.value
 
