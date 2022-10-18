@@ -14,13 +14,27 @@
     </form>
 
     <div id="resp"></div>
+
+    <table border="1" class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>数量</th>
+                <th>编号</th>
+                <th>最低价</th>
+                <th>集换价</th>
+            </tr>
+        </thead>
+        <tbody id="refuge-tbody"></tbody>
+    </table>
 </body>
 
 <script>
     let FormEle = document.querySelector("form")
     let DeckEle = FormEle.querySelector("input[name=deck]")
     let StockOutEle = FormEle.querySelector("button[name=commit]")
-    var respEle = document.getElementById("resp")
+    let respEle = document.getElementById("resp")
+    let tbody = document.getElementById("refuge-tbody")
 
     StockOutEle.onclick = function (e) {
         e.preventDefault()
@@ -39,7 +53,26 @@
             let resp = JSON.parse(xhr.responseText)
             console.log(resp)
             respEle.innerText =
-                "最低价：" + resp.min_price + "\n" + "集换价：" + resp.avg_price
+                "最低价：" + resp.min_price.toFixed(2) + "\n" + "集换价：" + resp.avg_price.toFixed(2)
+            for (let i = 0; i < resp.data.length; i++) {
+                let tr = document.createElement("tr")
+                let td1 = document.createElement("td")
+                let td2 = document.createElement("td")
+                let td3 = document.createElement("td")
+                let td4 = document.createElement("td")
+                let td5 = document.createElement("td")
+                td1.innerText = resp.data[i].sc_name
+                td2.innerText = resp.data[i].count
+                td3.innerText = resp.data[i].serial
+                td4.innerText = resp.data[i].min_price.toFixed(2)
+                td5.innerText = resp.data[i].avg_price.toFixed(2)
+                tr.appendChild(td1)
+                tr.appendChild(td2)
+                tr.appendChild(td3)
+                tr.appendChild(td4)
+                tr.appendChild(td5)
+                tbody.appendChild(tr)
+            }
         }
         xhr.send(JSON.stringify(data))
     }

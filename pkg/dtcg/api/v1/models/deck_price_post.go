@@ -12,10 +12,10 @@ type PostDeckPriceResponse struct {
 }
 
 type MutCardPrice struct {
-	Count          int
-	Serial         string
-	ScName         string
-	AlternativeArt string
-	MinPrice       float64
-	AvgPrice       float64
+	Count          int     `json:"count"`
+	Serial         string  `json:"serial"`
+	ScName         string  `json:"sc_name"`
+	AlternativeArt string  `json:"alternative_art"`
+	MinPrice       float64 `json:"min_price"`
+	AvgPrice       float64 `json:"avg_price"`
 }
