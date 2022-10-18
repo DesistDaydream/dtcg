@@ -3,8 +3,6 @@ package cardprice
 import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -40,7 +38,7 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 		startAt = 0
 	}
 
-	client = services.NewSearchClient(core.NewClient(""))
+	// client = services.NewSearchClient(core.NewClient(""))
 
 	for i := startAt; i < len(cardsDesc.Data); i++ {
 		cardVersionID, minPrice, avgPrice := GetPrice(&cardsDesc.Data[i])

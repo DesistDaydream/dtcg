@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -12,9 +13,9 @@ import (
 
 func CreateCommand() *cobra.Command {
 	cardSetCmd := &cobra.Command{
-		Use:   "card-price",
-		Short: "控制卡片价格信息",
-		// PersistentPreRun: cardSetPersistentPreRun,
+		Use:              "card-price",
+		Short:            "控制卡片价格信息",
+		PersistentPreRun: cardSetPersistentPreRun,
 	}
 
 	cardSetCmd.AddCommand(
@@ -27,9 +28,14 @@ func CreateCommand() *cobra.Command {
 
 var client *services.SearchClient
 
-// func cardSetPersistentPreRun(cmd *cobra.Command, args []string) {
-// 	client = services.NewSearchClient(core.NewClient(""))
-// }
+func cardSetPersistentPreRun(cmd *cobra.Command, args []string) {
+	// 执行根命令的初始化操作
+	parent := cmd.Parent()
+	if parent.PersistentPreRun != nil {
+		parent.PersistentPreRun(parent, args)
+	}
+	client = services.NewSearchClient(core.NewClient(""))
+}
 
 func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 	cardPrice, err := client.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))

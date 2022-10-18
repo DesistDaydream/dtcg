@@ -3,8 +3,6 @@ package cardprice
 import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -35,7 +33,7 @@ func updateCardPrice(cmd *cobra.Command, args []string) {
 		logrus.Errorf("获取全部卡片描述失败: %v", err)
 	}
 
-	client = services.NewSearchClient(core.NewClient(""))
+	// client = services.NewSearchClient(core.NewClient(""))
 
 	if len(updateFlags.SetPrefix) != 0 {
 		for _, cardDesc := range cardsDesc.Data {
