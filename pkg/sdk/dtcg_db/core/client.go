@@ -102,7 +102,7 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 
 	// TODO: 限流重试逻辑
 	// 请求过多会被限流返回 429
-	time.Sleep(1000 * time.Millisecond)
+	time.Sleep(1200 * time.Millisecond)
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

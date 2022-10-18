@@ -13,6 +13,7 @@ func CreateCommand() *cobra.Command {
 
 	cardSetCmd.AddCommand(
 		AddCardSetCommand(),
+		ListCardSetsCommand(),
 	)
 
 	return cardSetCmd

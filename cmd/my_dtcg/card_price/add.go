@@ -1,9 +1,6 @@
 package cardprice
 
 import (
-	"fmt"
-	"strconv"
-
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
@@ -43,22 +40,10 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 		startAt = 0
 	}
 
+	client = services.NewSearchClient(core.NewClient(""))
+
 	for i := startAt; i < len(cardsDesc.Data); i++ {
-		client := services.NewSearchClient(core.NewClient(""))
-
-		cardPrice, err := client.GetCardPrice(fmt.Sprint(cardsDesc.Data[i].CardIDFromDB))
-		if err != nil {
-			logrus.Errorf("获取卡片价格失败: %v", err)
-		}
-
-		var f1 float64
-		if len(cardPrice.Data.Products) == 0 {
-			f1 = 0
-		} else {
-			f1, _ = strconv.ParseFloat(cardPrice.Data.Products[0].MinPrice, 64)
-		}
-
-		f2, _ := strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
+		cardVersionID, minPrice, avgPrice := GetPrice(&cardsDesc.Data[i])
 
 		database.AddCardPirce(&models.CardPrice{
 			CardIDFromDB:   cardsDesc.Data[i].CardIDFromDB,
@@ -68,9 +53,9 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 			ScName:         cardsDesc.Data[i].ScName,
 			AlternativeArt: cardsDesc.Data[i].AlternativeArt,
 			Rarity:         cardsDesc.Data[i].Rarity,
-			CardVersionID:  int(cardPrice.Data.Products[0].CardVersionID),
-			MinPrice:       f1,
-			AvgPrice:       f2,
+			CardVersionID:  cardVersionID,
+			MinPrice:       minPrice,
+			AvgPrice:       avgPrice,
 		})
 	}
 }
