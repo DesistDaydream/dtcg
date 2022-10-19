@@ -5,47 +5,28 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb/models"
 )
 
-type SearchClient struct {
+type CdbClient struct {
 	client *core.Client
 }
 
-func NewSearchClient(client *core.Client) *SearchClient {
-	return &SearchClient{
+func NewCdbClient(client *core.Client) *CdbClient {
+	return &CdbClient{
 		client: client,
 	}
 }
 
-// 搜索卡组
-func (s *SearchClient) PostDeckSearch(reqBody *models.DeckSearchRequestBody, reqQuery *models.SearchReqQuery) (*models.DeckSearchPostResponse, error) {
-	var deckSearchResp models.DeckSearchPostResponse
-	uri := "/api/community/deck/search"
-
-	reqOpts := &core.RequestOption{
-		Method:   "POST",
-		ReqQuery: core.StructToMapStr(reqQuery),
-		ReqBody:  reqBody,
-	}
-
-	err := s.client.Request(uri, &deckSearchResp, reqOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	return &deckSearchResp, nil
-}
-
 // 搜索卡片
-func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostResponse, error) {
-	var cardSearchResp models.CardSearchPostResponse
+func (s *CdbClient) PostCardSearch(cardPack int) (*models.CardSearchPostResp, error) {
+	var cardSearchResp models.CardSearchPostResp
 	uri := "/api/cdb/cards/search"
 
 	reqOpts := &core.RequestOption{
 		Method: "POST",
-		ReqQuery: core.StructToMapStr(&models.SearchReqQuery{
+		ReqQuery: core.StructToMapStr(&models.CardSearchReqQuery{
 			Limit: "300",
 			Page:  "1",
 		}),
-		ReqBody: &models.CardSearchRequestBody{
+		ReqBody: &models.CardSearchReqBody{
 			CardPack:   cardPack,
 			ClassInput: false,
 			Keyword:    "",
@@ -65,7 +46,7 @@ func (s *SearchClient) PostCardSearch(cardPack int) (*models.CardSearchPostRespo
 }
 
 // 获取卡包列表
-func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
+func (s *CdbClient) GetSeries() (*models.SeriesGetResp, error) {
 	var resp models.SeriesGetResp
 	uri := "/api/cdb/series"
 
@@ -80,13 +61,13 @@ func (s *SearchClient) GetSeries() (*models.SeriesGetResp, error) {
 }
 
 // 获取卡片价格
-func (s *SearchClient) GetCardPrice(cardID string) (*models.CardPriceGetResponse, error) {
-	var resp models.CardPriceGetResponse
+func (s *CdbClient) GetCardPrice(cardID string) (*models.CardPriceGetResp, error) {
+	var resp models.CardPriceGetResp
 	uri := "/api/cdb/jhs/price"
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.CardsPriceGetRequest{
+		ReqQuery: core.StructToMapStr(&models.CardsPriceGetReq{
 			CardID: cardID,
 		}),
 		ReqBody: nil,

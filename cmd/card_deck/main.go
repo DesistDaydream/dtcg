@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
 )
 
 func main() {
@@ -40,17 +40,17 @@ func main() {
 			cardColor = "混色"
 		}
 
-		reqBody := &models.DeckSearchRequestBody{
+		reqBody := &models.DeckSearchReqBody{
 			Tags:  []string{cardType, c},
 			Kw:    "",
 			Envir: gameEnv,
 		}
-		reqQuery := &models.SearchReqQuery{
+		reqQuery := &models.DeckSearchReqQuery{
 			Limit: "100",
 			Page:  "1",
 		}
 
-		client := cdb.NewSearchClient(core.NewClient(""))
+		client := community.NewCommunityClient(core.NewClient(""))
 
 		resp, err := client.PostDeckSearch(reqBody, reqQuery)
 		if err != nil {

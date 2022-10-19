@@ -3,9 +3,9 @@ package main
 import (
 	"os"
 
-	carddesc "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_desc"
-	cardprice "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_price"
-	cardset "github.com/DesistDaydream/dtcg/cmd/my_dtcg/card_set"
+	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_desc"
+	cardprice "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_price"
+	cardset "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_set"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"

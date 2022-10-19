@@ -66,7 +66,7 @@ func PostDeckPrice(c *gin.Context) {
 	}
 
 	client := community.NewCommunityClient(core.NewClient(""))
-	decks, err := client.PostConvertDeck(req.Deck)
+	decks, err := client.PostDeckConvert(req.Deck)
 	if err != nil {
 		logrus.Errorln(err)
 		return

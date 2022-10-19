@@ -1,12 +1,12 @@
 package models
 
 type SeriesGetResp struct {
-	Data    []SeriesData `json:"data"`
-	Message string       `json:"message"`
-	Success bool         `json:"success"`
+	Data    []SeriesGetData `json:"data"`
+	Message string          `json:"message"`
+	Success bool            `json:"success"`
 }
 
-type SeriesData struct {
+type SeriesGetData struct {
 	SeriesID    int64        `json:"series_id"`
 	SeriesIntro string       `json:"series_intro"`
 	SeriesName  string       `json:"series_name"`

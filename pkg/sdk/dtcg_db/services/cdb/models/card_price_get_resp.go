@@ -1,12 +1,12 @@
 package models
 
-type CardPriceGetResponse struct {
-	Data    CardPrice `json:"data"`
-	Message string    `json:"message"`
-	Success bool      `json:"success"`
+type CardPriceGetResp struct {
+	Data    CardPriceGetData `json:"data"`
+	Message string           `json:"message"`
+	Success bool             `json:"success"`
 }
 
-type CardPrice struct {
+type CardPriceGetData struct {
 	AvgPrice string    `json:"avg_price"`
 	CardID   string    `json:"card_id"`
 	Products []Product `json:"data"`

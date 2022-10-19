@@ -1,12 +1,12 @@
 package models
 
-type DecksConvertPostResponse struct {
-	Data    Data   `json:"data"`
-	Message string `json:"message"`
-	Success bool   `json:"success"`
+type DeckConvertPostResp struct {
+	Data    DeckConvertPostData `json:"data"`
+	Message string              `json:"message"`
+	Success bool                `json:"success"`
 }
 
-type Data struct {
+type DeckConvertPostData struct {
 	DeckInfo DeckInfo `json:"deck_info"`
 }
 
@@ -53,11 +53,4 @@ type Package struct {
 	PackPrefix      string `json:"pack_prefix"`
 	PackReleaseDate string `json:"pack_releaseDate"`
 	Language        string `json:"language"`
-}
-
-type Images struct {
-	ID        int    `json:"id"`
-	CardID    int    `json:"card_id"`
-	ImgPath   string `json:"img_path"`
-	ThumbPath string `json:"thumb_path"`
 }

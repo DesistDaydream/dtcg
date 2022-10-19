@@ -24,7 +24,7 @@ func AddCardSetCommand() *cobra.Command {
 func addCardSet(cmd *cobra.Command, args []string) {
 	var cardSets models.CardSets
 
-	client := cdb.NewSearchClient(core.NewClient(""))
+	client := cdb.NewCdbClient(core.NewClient(""))
 	series, err := client.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)

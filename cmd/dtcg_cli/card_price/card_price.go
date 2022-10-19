@@ -26,7 +26,7 @@ func CreateCommand() *cobra.Command {
 	return cardSetCmd
 }
 
-var client *cdb.SearchClient
+var client *cdb.CdbClient
 
 func cardSetPersistentPreRun(cmd *cobra.Command, args []string) {
 	// 执行根命令的初始化操作
@@ -34,7 +34,7 @@ func cardSetPersistentPreRun(cmd *cobra.Command, args []string) {
 	if parent.PersistentPreRun != nil {
 		parent.PersistentPreRun(parent, args)
 	}
-	client = cdb.NewSearchClient(core.NewClient(""))
+	client = cdb.NewCdbClient(core.NewClient(""))
 }
 
 func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {

@@ -38,7 +38,7 @@ func addCardDesc(cmd *cobra.Command, args []string) {
 	}
 
 	for _, cardSet := range wantCardSets {
-		client := cdb.NewSearchClient(core.NewClient(""))
+		client := cdb.NewCdbClient(core.NewClient(""))
 		resp, err := client.PostCardSearch(cardSet.PackID)
 		if err != nil {
 			logrus.Fatalln(err)

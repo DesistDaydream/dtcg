@@ -13,7 +13,7 @@ import (
 func TestCommunityClient_PostConvertDeck(t *testing.T) {
 	decksjson := `["Exported from http://digimon.card.moe","ST1-01","ST1-03","ST1-03","ST1-03","ST1-06","ST1-06","ST1-07","ST1-07","ST1-07","ST1-07","ST1-16","ST1-16","BT1-010","BT1-010","BT1-020","BT1-020","BT1-020","BT1-020","BT1-025","BT1-025","BT1-084","BT1-085","P-009","P-009","P-009","P-009","BT4-019","BT4-019","BT4-092","BT4-099","BT4-099","BT4-100","BT5-001","BT5-001","BT5-001","BT5-001","BT5-007","BT5-007","BT5-007","BT5-007","BT5-010","BT5-010","BT5-010","BT5-010","BT5-015","BT5-015","BT5-015","BT5-015","BT5-016","BT5-016","BT5-086","BT5-086","BT5-092","BT5-092","BT5-092"]`
 	client := NewCommunityClient(core.NewClient(""))
-	decks, err := client.PostConvertDeck(decksjson)
+	decks, err := client.PostDeckConvert(decksjson)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
@@ -33,7 +33,7 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 		cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
 	}
 
-	clientSearch := cdb.NewSearchClient(core.NewClient(""))
+	clientSearch := cdb.NewCdbClient(core.NewClient(""))
 	for _, cardID := range cardsID {
 		cardPrice, err := clientSearch.GetCardPrice(cardID)
 		if err != nil {

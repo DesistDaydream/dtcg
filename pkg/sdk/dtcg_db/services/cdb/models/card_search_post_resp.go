@@ -1,6 +1,6 @@
 package models
 
-type CardSearchPostResponse struct {
+type CardSearchPostResp struct {
 	Data    CardSearchPostData `json:"data"`
 	Message string             `json:"message"`
 	Success bool               `json:"success"`
