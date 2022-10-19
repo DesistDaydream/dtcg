@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler"
@@ -34,11 +35,16 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 
 	var allCardPackageInfo []*handler.CardPackageInfo
 
+	// 排序
+	sort.Slice(cardPackages.List, func(i, j int) bool {
+		return cardPackages.List[i].UpdateTime < cardPackages.List[j].UpdateTime
+	})
+
 	for _, cardPackage := range cardPackages.List {
 		logrus.WithFields(logrus.Fields{
 			"名称": cardPackage.Name,
 			"状态": cardPackage.State,
-		}).Infof("卡包信息")
+		}).Infof("创建于 %v 更新于 %v 的卡包信息", cardPackage.CreateTime, cardPackage.UpdateTime)
 
 		allCardPackageInfo = append(allCardPackageInfo, &handler.CardPackageInfo{
 			Name:  cardPackage.Name,
@@ -57,7 +63,7 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.FilterConditionReq{
 		Page:             "",
-		Limit:            "400",
+		Limit:            "300",
 		Name:             "",
 		State:            "0",
 		CardGroup:        "",

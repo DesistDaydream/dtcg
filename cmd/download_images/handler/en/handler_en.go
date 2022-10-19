@@ -3,6 +3,7 @@ package en
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler"
@@ -37,13 +38,19 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 
 	var allCardPackageInfo []*handler.CardPackageInfo
 
+	// 排序
+	sort.Slice(cardPackages.Success.CardSetList, func(i, j int) bool {
+		return cardPackages.Success.CardSetList[i].UpdatedAt.String() < cardPackages.Success.CardSetList[j].UpdatedAt.String()
+	})
+
 	for _, cardSet := range cardPackages.Success.CardSetList {
 		logrus.WithFields(logrus.Fields{
-			"名称":   cardSet.Name,
-			"ID":   cardSet.ID,
-			"编号":   cardSet.Number,
-			"创建时间": cardSet.CreatedAt,
-		}).Infof("卡包信息")
+			"名称": cardSet.Name,
+			"ID": cardSet.ID,
+			"编号": cardSet.Number,
+			// "创建时间": cardSet.CreatedAt.Format("2006-01-02 15:04:05"),
+			// "更新时间": cardSet.UpdatedAt.Format("2006-01-02 15:04:05"),
+		}).Infof("创建于 %v 更新于 %v 的卡包信息", cardSet.CreatedAt.Format("2006-01-02 15:04:05"), cardSet.UpdatedAt.Format("2006-01-02 15:04:05"))
 
 		// ID 转为 string
 		cardPackageID := fmt.Sprintf("%v", cardSet.ID)
