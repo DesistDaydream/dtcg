@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/DesistDaydream/dtcg/cmd/download/handler"
+	"github.com/DesistDaydream/dtcg/cmd/download_images/handler"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
