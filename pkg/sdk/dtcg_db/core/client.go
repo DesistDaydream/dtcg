@@ -58,9 +58,10 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 
 func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error) {
 	var (
-		req  *http.Request
-		resp *http.Response
-		err  error
+		originalBody []byte
+		req          *http.Request
+		resp         *http.Response
+		err          error
 	)
 
 	url := fmt.Sprintf("%s%s", BaseAPI, api)
@@ -94,22 +95,41 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 	}
 
 	client := &http.Client{}
-	resp, err = client.Do(req)
-	if err != nil {
-		return 0, nil, fmt.Errorf("获取HTTP响应异常：%v", err)
-	}
-	defer resp.Body.Close()
 
+	// HTTP 重试
 	// TODO: 限流重试逻辑
 	// 请求过多会被限流返回 429
-	time.Sleep(1200 * time.Millisecond)
+	// time.Sleep(1200 * time.Millisecond)
+	for i := 0; i < 10; i++ {
+		resp, err = client.Do(req)
+		if err != nil {
+			// return 0, nil, fmt.Errorf("获取HTTP响应异常：%v", err)
+			logrus.Errorf("获取HTTP响应异常：%v。准备重试", err)
+		}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return 0, nil, fmt.Errorf("读取响应体异常：%v", err)
+		if err == nil && resp.StatusCode != 429 {
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return 0, nil, fmt.Errorf("读取响应体异常：%v", err)
+			}
+
+			return resp.StatusCode, body, nil
+		}
+
+		logrus.Errorf("第 %v 次 HTTP 请求异常，响应码为 %v，等待 10 秒后重试", i+1, resp.StatusCode)
+
+		if resp != nil {
+			resp.Body.Close()
+		}
+
+		if req.Body != nil {
+			resetBody(req, originalBody)
+		}
+
+		time.Sleep(10 * time.Second)
 	}
 
-	return resp.StatusCode, body, nil
+	return 0, nil, req.Context().Err()
 }
 
 func StructToMapStr(obj interface{}) map[string]string {
@@ -130,4 +150,11 @@ func StructToMapStr(obj interface{}) map[string]string {
 	}
 
 	return data
+}
+
+func resetBody(request *http.Request, originalBody []byte) {
+	request.Body = io.NopCloser(bytes.NewBuffer(originalBody))
+	request.GetBody = func() (io.ReadCloser, error) {
+		return io.NopCloser(bytes.NewBuffer(originalBody)), nil
+	}
 }
