@@ -17,12 +17,12 @@ var updateFlags UpdateFlags
 func UpdateCardPriceCommand() *cobra.Command {
 	UpdateCardPriceCmd := &cobra.Command{
 		Use:   "update",
-		Short: "更新卡片集合",
+		Short: "更新卡牌价格",
 		Run:   updateCardPrice,
 	}
 
 	UpdateCardPriceCmd.Flags().StringSliceVar(&updateFlags.SetPrefix, "sets-name", []string{}, "更新哪些卡包的价格，使用 card-set list 子命令获取卡包名称。若不指定则更新所有")
-	UpdateCardPriceCmd.Flags().IntVar(&updateFlags.StartAt, "start-at", 0, "从哪个卡片开始更新")
+	UpdateCardPriceCmd.Flags().IntVar(&updateFlags.StartAt, "start-at", 0, "从哪张卡牌开始更新")
 
 	return UpdateCardPriceCmd
 }
@@ -30,7 +30,7 @@ func UpdateCardPriceCommand() *cobra.Command {
 func updateCardPrice(cmd *cobra.Command, args []string) {
 	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
-		logrus.Errorf("获取全部卡片描述失败: %v", err)
+		logrus.Errorf("获取全部卡牌描述失败: %v", err)
 	}
 
 	// client = services.NewSearchClient(core.NewClient(""))
