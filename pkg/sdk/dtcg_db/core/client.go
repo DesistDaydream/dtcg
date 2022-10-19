@@ -97,17 +97,14 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 	client := &http.Client{}
 
 	// HTTP 重试
-	// TODO: 限流重试逻辑
+	// TODO: 限流重试逻辑需要优化
 	// 请求过多会被限流返回 429
 	// time.Sleep(1200 * time.Millisecond)
 	for i := 0; i < 10; i++ {
 		resp, err = client.Do(req)
 		if err != nil {
-			// return 0, nil, fmt.Errorf("获取HTTP响应异常：%v", err)
-			logrus.Errorf("获取HTTP响应异常：%v。准备重试", err)
-		}
-
-		if err == nil && resp.StatusCode != 429 {
+			logrus.Errorf("获取 HTTP 响应异常：%v。准备重试", err)
+		} else if err == nil && resp.StatusCode != 429 && resp.StatusCode < 500 {
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return 0, nil, fmt.Errorf("读取响应体异常：%v", err)
@@ -116,7 +113,7 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 			return resp.StatusCode, body, nil
 		}
 
-		logrus.Errorf("第 %v 次 HTTP 请求异常，响应码为 %v，等待 10 秒后重试", i+1, resp.StatusCode)
+		logrus.Errorf("第 %v 次 HTTP 请求异常，等待 10 秒后重试", i+1)
 
 		if resp != nil {
 			resp.Body.Close()
