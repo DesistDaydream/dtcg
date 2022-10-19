@@ -1,4 +1,4 @@
-package services
+package cdb
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb/models"
 	"github.com/sirupsen/logrus"
 )
 

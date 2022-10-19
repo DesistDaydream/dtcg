@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb/models"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 			Page:  "1",
 		}
 
-		client := services.NewSearchClient(core.NewClient(""))
+		client := cdb.NewSearchClient(core.NewClient(""))
 
 		resp, err := client.PostDeckSearch(reqBody, reqQuery)
 		if err != nil {

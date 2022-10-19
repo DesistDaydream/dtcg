@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,7 +33,7 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 		cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
 	}
 
-	clientSearch := services.NewSearchClient(core.NewClient(""))
+	clientSearch := cdb.NewSearchClient(core.NewClient(""))
 	for _, cardID := range cardsID {
 		cardPrice, err := clientSearch.GetCardPrice(cardID)
 		if err != nil {

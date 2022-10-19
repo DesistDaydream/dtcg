@@ -6,7 +6,7 @@ import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -24,7 +24,7 @@ func AddCardSetCommand() *cobra.Command {
 func addCardSet(cmd *cobra.Command, args []string) {
 	var cardSets models.CardSets
 
-	client := services.NewSearchClient(core.NewClient(""))
+	client := cdb.NewSearchClient(core.NewClient(""))
 	series, err := client.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)

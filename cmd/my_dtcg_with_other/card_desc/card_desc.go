@@ -7,7 +7,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	services2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
+	services2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/sirupsen/logrus"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"

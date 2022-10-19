@@ -8,7 +8,7 @@ import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -38,7 +38,7 @@ func addCardDesc(cmd *cobra.Command, args []string) {
 	}
 
 	for _, cardSet := range wantCardSets {
-		client := services.NewSearchClient(core.NewClient(""))
+		client := cdb.NewSearchClient(core.NewClient(""))
 		resp, err := client.PostCardSearch(cardSet.PackID)
 		if err != nil {
 			logrus.Fatalln(err)
