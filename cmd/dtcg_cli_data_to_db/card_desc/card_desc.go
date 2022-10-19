@@ -36,7 +36,7 @@ func AddCardDescFromOfficial() {
 		}
 
 		for _, cardDesc := range cardDescs.Page.CardsDesc {
-			d := &database.CardDescOfficial{
+			d := &database.CardDescFromOfficial{
 				OfficialID:           cardDesc.ID,
 				CardGroup:            cardDesc.CardGroup,
 				Model:                cardDesc.Model,

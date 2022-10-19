@@ -6,15 +6,15 @@ import (
 	"path/filepath"
 	"sort"
 
-	"github.com/DesistDaydream/dtcg/pkg/database"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
+	databasepkg "github.com/DesistDaydream/dtcg/pkg/database"
+	serviceofficial "github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	services2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
+	servicesdb "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/sirupsen/logrus"
 )
 
 func AddCardGroupFromOfficial(wirteToJSON bool) {
-	cardPackageResp, err := services.GetCardGroups()
+	cardPackageResp, err := serviceofficial.GetCardGroups()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
@@ -31,7 +31,7 @@ func AddCardGroupFromOfficial(wirteToJSON bool) {
 	}
 
 	for _, cardGroup := range cardPackageResp.List {
-		g := &database.CardGroupOfficial{
+		g := &databasepkg.CardGroupFromOfficial{
 			OfficialID: cardGroup.ID,
 			Name:       cardGroup.Name,
 			Image:      cardGroup.Image,
@@ -40,14 +40,14 @@ func AddCardGroupFromOfficial(wirteToJSON bool) {
 			CreateTime: cardGroup.CreateTime,
 			UpdateTime: cardGroup.UpdateTime,
 		}
-		database.AddCardGroupFromOfficial(g)
+		databasepkg.AddCardGroupFromOfficial(g)
 	}
 }
 
 func AddCardGroupFromDtcgDB() {
-	var cardGroupsFromDtcgDB database.CardGroupsFromDtcgDB
+	var cardGroupsFromDtcgDB databasepkg.CardGroupsFromDtcgDB
 
-	client := services2.NewCdbClient(core.NewClient(""))
+	client := servicesdb.NewCdbClient(core.NewClient(""))
 	series, err := client.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)
@@ -56,7 +56,7 @@ func AddCardGroupFromDtcgDB() {
 	for _, serie := range series.Data {
 		for _, pack := range serie.SeriesPack {
 			if pack.Language == "chs" {
-				d := &database.CardGroupFromDtcgDB{
+				d := &databasepkg.CardGroupFromDtcgDB{
 					SeriesID:        int(serie.SeriesID),
 					SeriesName:      serie.SeriesName,
 					Language:        pack.Language,
@@ -87,6 +87,6 @@ func AddCardGroupFromDtcgDB() {
 			"发布时间":   pack.PackReleaseDate,
 		}).Infof("%v 中的卡包信息", pack.SeriesName)
 
-		database.AddCardGroupFromDtcgDB(&pack)
+		databasepkg.AddCardGroupFromDtcgDB(&pack)
 	}
 }

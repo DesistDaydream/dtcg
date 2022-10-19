@@ -3,11 +3,11 @@ package database
 import "github.com/sirupsen/logrus"
 
 type CardsDescOfficial struct {
-	Count int64              `json:"count"`
-	Data  []CardDescOfficial `json:"data"`
+	Count int64                  `json:"count"`
+	Data  []CardDescFromOfficial `json:"data"`
 }
 
-type CardDescOfficial struct {
+type CardDescFromOfficial struct {
 	ID                   int    `gorm:"primaryKey" json:"my_id"` // ID
 	OfficialID           int    `json:"id"`
 	CardGroup            string `json:"cardGroup"`              // 卡包
@@ -34,7 +34,7 @@ type CardDescOfficial struct {
 	KeyEffect            string `json:"key_effect"`             // 效果关键字
 }
 
-func AddCardDescOfficial(cardDesc *CardDescOfficial) {
+func AddCardDescOfficial(cardDesc *CardDescFromOfficial) {
 	// db.Create(cardDesc)
 	result := db.FirstOrCreate(cardDesc, cardDesc)
 	if result.Error != nil {
@@ -44,7 +44,7 @@ func AddCardDescOfficial(cardDesc *CardDescOfficial) {
 
 // 获取所有卡片描述
 func ListCardDescOfficial() (*CardsDescOfficial, error) {
-	var cd []CardDescOfficial
+	var cd []CardDescFromOfficial
 	result := db.Find(&cd)
 	if result.Error != nil {
 		return nil, result.Error
