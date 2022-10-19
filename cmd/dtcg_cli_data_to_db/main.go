@@ -1,8 +1,8 @@
 package main
 
 import (
-	carddesc "github.com/DesistDaydream/dtcg/cmd/my_dtcg_with_other/card_desc"
-	cardgroup "github.com/DesistDaydream/dtcg/cmd/my_dtcg_with_other/card_group"
+	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/card_desc"
+	cardgroup "github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/card_group"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
@@ -38,9 +38,9 @@ func main() {
 
 	switch flags.Add {
 	case "cardgroupofficial":
-		cardgroup.AddCardGroupOfficial(false)
+		cardgroup.AddCardGroupFromOfficial(false)
 	case "carddescofficial":
-		carddesc.AddCardDescOfficial()
+		carddesc.AddCardDescFromOfficial()
 	case "cardgroupdtcgdb":
 		cardgroup.AddCardGroupFromDtcgDB()
 	case "carddescdtcgdb":

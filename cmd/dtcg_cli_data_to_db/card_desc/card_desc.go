@@ -13,7 +13,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 )
 
-func AddCardDescOfficial() {
+func AddCardDescFromOfficial() {
 	cardGroups, err := database.ListCardGroupsFromOfficial()
 	if err != nil {
 		log.Fatalln(err)

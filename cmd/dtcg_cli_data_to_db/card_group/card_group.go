@@ -13,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func AddCardGroupOfficial(wirteToJSON bool) {
+func AddCardGroupFromOfficial(wirteToJSON bool) {
 	cardPackageResp, err := services.GetCardGroups()
 	if err != nil {
 		logrus.Fatalln(err)
