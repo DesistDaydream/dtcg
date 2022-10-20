@@ -20,11 +20,11 @@ func PostCardsDesc(c *gin.Context) {
 		return
 	}
 
-	cardsDesc, err := database.GetCardDesc(req.PageSize, req.PageNum)
+	resp, err := database.GetCardDesc(req.PageSize, req.PageNum)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
 
 	// 获取请求体
-	c.JSON(200, cardsDesc)
+	c.JSON(200, resp)
 }

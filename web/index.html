@@ -12,14 +12,13 @@
 <body>
     <form>
         卡组：<input type="string" name="deck" />
+        <!-- 卡组：<textarea name="deck" id="deck" cols="30" rows="10"></textarea> -->
 
         <button name="commit">提交</button>
 
     </form>
 
-    <div id="resp"></div>
-
-    <table border="1" id="resp">
+    <table border="1">
         <thead>
             <tr>
                 <th>最低价</th>
@@ -47,31 +46,27 @@
     let FormEle = document.querySelector("form")
     let DeckEle = FormEle.querySelector("input[name=deck]")
     let StockOutEle = FormEle.querySelector("button[name=commit]")
-    let respEle = document.getElementById("resp")
     let tbodyCardsList = document.getElementById("cards_list")
     let trRespPrice = document.getElementById("resp_price")
 
     StockOutEle.onclick = function (event) {
         event.preventDefault()
 
+        // 清理表格。防止上次的查询残留
         while (tbodyCardsList.hasChildNodes()) {
             tbodyCardsList.removeChild(tbodyCardsList.lastChild)
         }
-
         while (trRespPrice.hasChildNodes()) {
             trRespPrice.removeChild(trRespPrice.lastChild)
-        }
-
-        let Deck = DeckEle.value
-
-        let data = {
-            deck: Deck,
-            envir: "chs",
         }
 
         // 创建请求
         let xhr = new XMLHttpRequest()
         xhr.open("POST", "http://localhost:2205/api/v1/deck/price")
+        xhr.send(JSON.stringify(reqBody = {
+            deck: String(DeckEle.value),
+            envir: "chs",
+        }))
         xhr.onload = function () {
             let resp = JSON.parse(xhr.responseText)
             console.log(resp)
@@ -105,7 +100,6 @@
                 tbodyCardsList.appendChild(tr)
             }
         }
-        xhr.send(JSON.stringify(data))
     }
 
 </script>
