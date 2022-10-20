@@ -11,8 +11,8 @@
 
 <body>
     <form>
-        卡组：<input type="string" name="deck" />
-        <!-- 卡组：<textarea name="deck" id="deck" cols="30" rows="10"></textarea> -->
+        <!-- 卡组：<input type="string" name="deck" /> -->
+        卡组：<textarea name="deck" id="deck" cols="45" rows="5"></textarea>
 
         <button name="commit">提交</button>
 
@@ -44,7 +44,7 @@
 
 <script type="text/javascript">
     let FormEle = document.querySelector("form")
-    let DeckEle = FormEle.querySelector("input[name=deck]")
+    let DeckEle = FormEle.querySelector("textarea[name=deck]")
     let StockOutEle = FormEle.querySelector("button[name=commit]")
     let tbodyCardsList = document.getElementById("cards_list")
     let trRespPrice = document.getElementById("resp_price")
