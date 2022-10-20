@@ -133,16 +133,16 @@ func StructToMapStr(obj interface{}) map[string]string {
 	data := make(map[string]string)
 
 	v := reflect.ValueOf(obj).Elem()
-	typeOfType := v.Type()
+	t := v.Type()
 
 	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		tField := typeOfType.Field(i)
+		tField := t.Field(i)
+		vField := v.Field(i)
 		tFieldTag := string(tField.Tag.Get("query"))
 		if len(tFieldTag) > 0 {
-			data[tFieldTag] = field.String()
+			data[tFieldTag] = vField.String()
 		} else {
-			data[tField.Name] = field.String()
+			data[tField.Name] = vField.String()
 		}
 	}
 
