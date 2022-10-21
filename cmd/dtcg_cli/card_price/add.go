@@ -7,6 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type AddFlags struct {
+	StartAt int
+}
+
+var addFlags AddFlags
+
 func AddCardPriceCommand() *cobra.Command {
 	AddCardPriceCmd := &cobra.Command{
 		Use:   "add",
@@ -14,13 +20,12 @@ func AddCardPriceCommand() *cobra.Command {
 		Run:   addCardPrice,
 	}
 
-	AddCardPriceCmd.Flags().Int("startAt", 0, "从哪个卡牌开始添加，使用从 dtcg db 中获取到的卡片 ID。")
+	AddCardPriceCmd.Flags().IntVar(&addFlags.StartAt, "start-at", 0, "从哪个卡牌开始添加，使用从 dtcg db 中获取到的卡片 ID。")
 
 	return AddCardPriceCmd
 }
 
 func addCardPrice(cmd *cobra.Command, args []string) {
-	startAtCardIDFromDB, _ := cmd.Flags().GetInt("startAt")
 	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
 		logrus.Errorf("%v", err)
@@ -28,9 +33,9 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 
 	// startAt 是我自己的编号。
 	var startAt int
-	if startAtCardIDFromDB != 0 {
+	if addFlags.StartAt != 0 {
 		for i, cardDesc := range cardsDesc.Data {
-			if cardDesc.CardIDFromDB == startAtCardIDFromDB {
+			if cardDesc.CardIDFromDB == addFlags.StartAt {
 				startAt = i
 			}
 		}
