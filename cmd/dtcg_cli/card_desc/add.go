@@ -27,7 +27,7 @@ func addCardDesc(cmd *cobra.Command, args []string) {
 	wantCardSets := getWantAddCardDesc()
 
 	for _, cardSet := range wantCardSets {
-		logrus.WithField("卡包名称", cardSet.PackPrefix).Infof("待下载卡包名称")
+		logrus.WithField("卡包名称", cardSet.SetPrefix).Infof("待下载卡包名称")
 	}
 	fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
 	var confirm string
@@ -39,7 +39,7 @@ func addCardDesc(cmd *cobra.Command, args []string) {
 
 	for _, cardSet := range wantCardSets {
 		client := cdb.NewCdbClient(core.NewClient(""))
-		resp, err := client.PostCardSearch(cardSet.PackID)
+		resp, err := client.PostCardSearch(cardSet.SetID)
 		if err != nil {
 			logrus.Fatalln(err)
 		}
@@ -57,8 +57,8 @@ func addCardDesc(cmd *cobra.Command, args []string) {
 			database.AddCardDesc(&models.CardDesc{
 				CardIDFromDB:   l.CardID,
 				SetID:          l.CardPack,
-				SetName:        cardSet.PackName,
-				SetPrefix:      cardSet.PackPrefix,
+				SetName:        cardSet.SetName,
+				SetPrefix:      cardSet.SetPrefix,
 				Serial:         l.Serial,
 				SubSerial:      l.SubSerial,
 				JapName:        l.JapName,
@@ -96,7 +96,7 @@ func getWantAddCardDesc() []models.CardSet {
 
 	for _, cardSet := range allCardSets.Data {
 		logrus.WithFields(logrus.Fields{
-			"名称": cardSet.PackPrefix,
+			"名称": cardSet.SetPrefix,
 		}).Infof("卡包信息")
 	}
 
@@ -109,7 +109,7 @@ func getWantAddCardDesc() []models.CardSet {
 	userInputCardSets := strings.Split(userInput, ",")
 	for _, name := range userInputCardSets {
 		for _, cardInfo := range allCardSets.Data {
-			if cardInfo.PackPrefix == name {
+			if cardInfo.SetPrefix == name {
 				wantCardSets = append(wantCardSets, cardInfo)
 			}
 		}

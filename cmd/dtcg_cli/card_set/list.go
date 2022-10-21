@@ -24,8 +24,8 @@ func listCardSets(cmd *cobra.Command, args []string) {
 
 	for _, cardSet := range allCardSets.Data {
 		logrus.WithFields(logrus.Fields{
-			"名称": cardSet.PackPrefix,
-			"编号": cardSet.PackID,
+			"名称": cardSet.SetPrefix,
+			"编号": cardSet.SetID,
 		}).Infof("卡包信息")
 	}
 }

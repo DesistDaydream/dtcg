@@ -34,17 +34,17 @@ func addCardSet(cmd *cobra.Command, args []string) {
 		for _, pack := range serie.SeriesPack {
 			if pack.Language == "chs" {
 				d := &models.CardSet{
-					SeriesID:        int(serie.SeriesID),
-					SeriesName:      serie.SeriesName,
-					Language:        pack.Language,
-					PackCover:       pack.PackCover,
-					PackEnName:      pack.PackEnName,
-					PackID:          pack.PackID,
-					PackJapName:     pack.PackJapName,
-					PackName:        pack.PackName,
-					PackPrefix:      pack.PackPrefix,
-					PackReleaseDate: pack.PackReleaseDate,
-					PackRemark:      pack.PackRemark,
+					SeriesID:       int(serie.SeriesID),
+					SeriesName:     serie.SeriesName,
+					Language:       pack.Language,
+					SetCover:       pack.PackCover,
+					SetEnName:      pack.PackEnName,
+					SetID:          pack.PackID,
+					SetJapName:     pack.PackJapName,
+					SetName:        pack.PackName,
+					SetPrefix:      pack.PackPrefix,
+					SetReleaseDate: pack.PackReleaseDate,
+					SetRemark:      pack.PackRemark,
 				}
 
 				cardSets.Data = append(cardSets.Data, *d)
@@ -53,15 +53,15 @@ func addCardSet(cmd *cobra.Command, args []string) {
 		}
 	}
 	sort.Slice(cardSets.Data, func(i, j int) bool {
-		return cardSets.Data[i].PackID < cardSets.Data[j].PackID
+		return cardSets.Data[i].SetID < cardSets.Data[j].SetID
 	})
 
 	for _, pack := range cardSets.Data {
 		logrus.WithFields(logrus.Fields{
-			"前缀":     pack.PackPrefix,
-			"名称":     pack.PackName,
-			"PackID": pack.PackID,
-			"发布时间":   pack.PackReleaseDate,
+			"前缀":     pack.SetPrefix,
+			"名称":     pack.SetName,
+			"PackID": pack.SetID,
+			"发布时间":   pack.SetReleaseDate,
 		}).Infof("%v 中的卡包信息", pack.SeriesName)
 
 		database.AddCardSet(&pack)

@@ -38,19 +38,26 @@ func cardSetPersistentPreRun(cmd *cobra.Command, args []string) {
 }
 
 func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
+	var (
+		minPrice      float64
+		avgPrice      float64
+		cardVersionID int
+	)
+
 	cardPrice, err := client.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
 	if err != nil {
 		logrus.Fatalf("获取卡片价格失败: %v", err)
 	}
 
-	var minPrice float64
-	if len(cardPrice.Data.Products) == 0 {
+	avgPrice, _ = strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
+
+	if cardPrice.Data.Total == 0 {
 		minPrice = 0
+		cardVersionID = 0
 	} else {
 		minPrice, _ = strconv.ParseFloat(cardPrice.Data.Products[0].MinPrice, 64)
+		cardVersionID = int(cardPrice.Data.Products[0].CardVersionID)
 	}
 
-	avgPrice, _ := strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
-
-	return int(cardPrice.Data.Products[0].CardVersionID), minPrice, avgPrice
+	return cardVersionID, minPrice, avgPrice
 }

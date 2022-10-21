@@ -6,16 +6,16 @@ type CardSets struct {
 }
 
 type CardSet struct {
-	ID              int    `json:"id" gorm:"primaryKey"`
-	SeriesID        int    `json:"series_id"`
-	SeriesName      string `json:"series_name"`
-	Language        string `json:"language"`
-	PackCover       string `json:"pack_cover"`
-	PackEnName      string `json:"pack_enName"`
-	PackID          int    `json:"pack_id"`
-	PackJapName     string `json:"pack_japName"`
-	PackName        string `json:"pack_name"`
-	PackPrefix      string `json:"pack_prefix"`
-	PackReleaseDate string `json:"pack_releaseDate"`
-	PackRemark      string `json:"pack_remark"`
+	ID             int    `json:"id" gorm:"primaryKey"`
+	SeriesID       int    `json:"series_id"`
+	SeriesName     string `json:"series_name"`
+	Language       string `json:"language"`
+	SetCover       string `json:"set_cover"`
+	SetEnName      string `json:"set_enName"`
+	SetID          int    `json:"set_id"`
+	SetJapName     string `json:"set_japName"`
+	SetName        string `json:"set_name"`
+	SetPrefix      string `json:"set_prefix"`
+	SetReleaseDate string `json:"set_releaseDate"`
+	SetRemark      string `json:"set_remark"`
 }
