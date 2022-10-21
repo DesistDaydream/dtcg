@@ -57,6 +57,8 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 	}
 
 	req.Header.Add("content-type", "application/json")
+	req.Header.Add("Accept", "*/*")
+	req.Header.Add("Host", "api.jihuanshe.com")
 
 	// 如果有 URL 的 Query 则逐一添加
 	if len(reqOpts.ReqQuery) > 0 {
@@ -75,6 +77,8 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 
 	defer resp.Body.Close()
 
+	fmt.Println("输出响应体：", resp.Body)
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -86,18 +90,17 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 func StructToMapStr(obj interface{}) map[string]string {
 	data := make(map[string]string)
 
-	objV := reflect.ValueOf(obj)
-	v := objV.Elem()
-	typeOfType := v.Type()
+	v := reflect.ValueOf(obj).Elem()
+	t := v.Type()
 
 	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		tField := typeOfType.Field(i)
+		tField := t.Field(i)
+		vField := v.Field(i)
 		tFieldTag := string(tField.Tag.Get("query"))
 		if len(tFieldTag) > 0 {
-			data[tFieldTag] = field.String()
+			data[tFieldTag] = vField.String()
 		} else {
-			data[tField.Name] = field.String()
+			data[tField.Name] = vField.String()
 		}
 	}
 
