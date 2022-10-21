@@ -3,6 +3,8 @@ package cardprice
 import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
+	jhscore "github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -44,9 +46,12 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 	}
 
 	// client = services.NewSearchClient(core.NewClient(""))
+	jhsClient := market.NewMarketClient(jhscore.NewClient(""))
 
 	for i := startAt; i < len(cardsDesc.Data); i++ {
 		cardVersionID, minPrice, avgPrice := GetPrice(&cardsDesc.Data[i])
+
+		imageUrl := GetImageURL(jhsClient, cardVersionID)
 
 		database.AddCardPirce(&models.CardPrice{
 			CardIDFromDB:   cardsDesc.Data[i].CardIDFromDB,
@@ -59,6 +64,7 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 			CardVersionID:  cardVersionID,
 			MinPrice:       minPrice,
 			AvgPrice:       avgPrice,
+			ImageUrl:       imageUrl,
 		})
 	}
 }

@@ -3,13 +3,16 @@ package cardprice
 import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
+	jhscore "github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 type UpdateFlags struct {
-	SetPrefix []string
-	StartAt   int
+	SetPrefix      []string
+	StartAt        int
+	UpdateImageURL bool
 }
 
 var updateFlags UpdateFlags
@@ -23,6 +26,7 @@ func UpdateCardPriceCommand() *cobra.Command {
 
 	UpdateCardPriceCmd.Flags().StringSliceVar(&updateFlags.SetPrefix, "sets-name", []string{}, "更新哪些卡包的价格，使用 card-set list 子命令获取卡包名称。若不指定则更新所有")
 	UpdateCardPriceCmd.Flags().IntVar(&updateFlags.StartAt, "start-at", 0, "从哪张卡牌开始更新")
+	UpdateCardPriceCmd.Flags().BoolVar(&updateFlags.UpdateImageURL, "update-image", false, "是否更新卡牌的图片URL")
 
 	return UpdateCardPriceCmd
 }
@@ -70,11 +74,23 @@ func updateCardPriceBaseonCardSet(cardDesc models.CardDesc, setsPrefix []string)
 }
 
 func updateRun(cardDesc *models.CardDesc) {
-	_, minPrice, avgPrice := GetPrice(cardDesc)
+	cardVersionID, minPrice, avgPrice := GetPrice(cardDesc)
+
+	jhsClient := market.NewMarketClient(jhscore.NewClient(""))
 
 	database.UpdateCardPrice(&models.CardPrice{
 		CardIDFromDB: cardDesc.CardIDFromDB,
 		MinPrice:     minPrice,
 		AvgPrice:     avgPrice,
 	}, map[string]string{})
+
+	if updateFlags.UpdateImageURL {
+		imageUrl := GetImageURL(jhsClient, cardVersionID)
+		database.UpdateCardPrice(&models.CardPrice{
+			CardIDFromDB: cardDesc.CardIDFromDB,
+			MinPrice:     minPrice,
+			AvgPrice:     avgPrice,
+			ImageUrl:     imageUrl,
+		}, map[string]string{})
+	}
 }

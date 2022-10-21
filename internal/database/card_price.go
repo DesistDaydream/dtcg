@@ -15,8 +15,10 @@ func AddCardPirce(cardPrice *models.CardPrice) {
 func UpdateCardPrice(cardPrice *models.CardPrice, condition map[string]string) {
 	// TODO: 如何在 condition 中添加多个条件，然后根据不同情况执行 WHERE
 	result := DB.Model(cardPrice).Where("card_id_from_db = ?", cardPrice.CardIDFromDB).Updates(models.CardPrice{
-		MinPrice: cardPrice.MinPrice,
-		AvgPrice: cardPrice.AvgPrice,
+		CardVersionID: cardPrice.CardVersionID,
+		MinPrice:      cardPrice.MinPrice,
+		AvgPrice:      cardPrice.AvgPrice,
+		ImageUrl:      cardPrice.ImageUrl,
 	})
 	if result.Error != nil {
 		logrus.Errorf("更新 %v %v 价格异常: %v", cardPrice.CardIDFromDB, cardPrice.ScName, result.Error)

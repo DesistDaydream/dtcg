@@ -77,8 +77,6 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 
 	defer resp.Body.Close()
 
-	fmt.Println("输出响应体：", resp.Body)
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err

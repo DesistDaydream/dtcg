@@ -3,10 +3,12 @@ package cardprice
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -60,4 +62,23 @@ func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 	}
 
 	return cardVersionID, minPrice, avgPrice
+}
+
+func GetImageURL(jhsClient *market.MarketClient, cardVersionID int) string {
+	var imageUrl string
+	productSellers, err := jhsClient.GetProductSellers(fmt.Sprint(cardVersionID))
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+
+	for _, d := range productSellers.Data {
+		if strings.Contains(d.CardVersionImage, "cdn-client") {
+			imageUrl = d.CardVersionImage
+			break
+		}
+	}
+
+	// i, _ := url.QueryUnescape(imageUrl)
+
+	return imageUrl
 }

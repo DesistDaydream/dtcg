@@ -24,4 +24,5 @@ type CardPrice struct {
 	AvgPrice       float64   `json:"avg_price"`
 	CreatedAt      time.Time `json:"create_at"`
 	UpdatedAt      time.Time `json:"update_at"`
+	ImageUrl       string    `json:"image_url"`
 }
