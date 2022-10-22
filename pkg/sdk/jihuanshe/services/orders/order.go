@@ -17,6 +17,7 @@ func NewOrdersClient(client *core.Client) *OrdersClient {
 	}
 }
 
+// 获取用户订单列表(买入)
 func (o *OrdersClient) GetBuyerOrders(page string) (*models.BuyerOrdersResponse, error) {
 	var buyerOrders models.BuyerOrdersResponse
 
@@ -38,6 +39,7 @@ func (o *OrdersClient) GetBuyerOrders(page string) (*models.BuyerOrdersResponse,
 	return &buyerOrders, nil
 }
 
+// 获取用户订单详情(买入)
 func (o *OrdersClient) GetBuyerOrderProducts(orderID int) (*models.BuyerOrderProductsResponse, error) {
 	var orderProducts models.BuyerOrderProductsResponse
 
@@ -58,6 +60,7 @@ func (o *OrdersClient) GetBuyerOrderProducts(orderID int) (*models.BuyerOrderPro
 	return &orderProducts, nil
 }
 
+// 获取用户订单列表（卖出）
 func (o *OrdersClient) GetSellerOrders(page string) (*models.SellerOrdersResponse, error) {
 	var sellerOrders models.SellerOrdersResponse
 
@@ -80,6 +83,7 @@ func (o *OrdersClient) GetSellerOrders(page string) (*models.SellerOrdersRespons
 	return &sellerOrders, nil
 }
 
+// 获取用户订单详情（卖出）
 func (o *OrdersClient) GetSellerOrderProducts(orderID int) (*models.SellerOrderProductsResponse, error) {
 	var orderProducts models.SellerOrderProductsResponse
 
