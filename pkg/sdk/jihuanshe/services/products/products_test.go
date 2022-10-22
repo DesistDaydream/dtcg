@@ -16,7 +16,7 @@ var token string = ""
 var cardVersionID string = "2544"
 
 func getToken() {
-	file, err := os.ReadFile("token.txt")
+	file, err := os.ReadFile("../token.txt")
 	if err != nil {
 		logrus.Fatal(err)
 	}

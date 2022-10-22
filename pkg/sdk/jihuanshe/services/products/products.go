@@ -1,9 +1,6 @@
 package products
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 )
@@ -18,8 +15,9 @@ func NewProductsClient(client *core.Client) *ProductsClient {
 	}
 }
 
+// 获取我在卖的商品列表
 func (p *ProductsClient) List(page string) (*models.ProductsListResponse, error) {
-	var products models.ProductsListResponse
+	var productsResp models.ProductsListResponse
 
 	uri := "/api/market/sellers/products"
 
@@ -34,18 +32,17 @@ func (p *ProductsClient) List(page string) (*models.ProductsListResponse, error)
 		}),
 	}
 
-	body, err := p.client.Request(uri, reqOpts)
+	err := p.client.Request(uri, &productsResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	json.Unmarshal(body, &products)
-
-	return &products, nil
+	return &productsResp, nil
 }
 
+// 获取我在卖的商品详情。注意：这也是整个集换社获取一个商品详情的接口
 func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse, error) {
-	var productsGetresp models.ProductsGetResponse
+	var productsGetResp models.ProductsGetResponse
 	uri := "/api/market/products/bySellerCardVersionId"
 
 	reqOpts := &core.RequestOption{
@@ -58,21 +55,17 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 		}),
 	}
 
-	body, err := p.client.Request(uri, reqOpts)
+	err := p.client.Request(uri, &productsGetResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(body, &productsGetresp)
-	if err != nil {
-		return nil, err
-	}
-
-	return &productsGetresp, nil
+	return &productsGetResp, nil
 }
 
+// 添加我在买的商品
 func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddRequestBody) (*models.ProductsAddResponse, error) {
-	var productsAddResponse models.ProductsAddResponse
+	var productsAddResp models.ProductsAddResponse
 	uri := "/api/market/sellers/products"
 
 	reqOpts := &core.RequestOption{
@@ -80,24 +73,20 @@ func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddRequestBo
 		ReqQuery: core.StructToMapStr(&models.ProductsAddRequestQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: core.StructToMapStr(productsAddRequestBody),
+		ReqBody: productsAddRequestBody,
 	}
 
-	body, err := p.client.Request(uri, reqOpts)
+	err := p.client.Request(uri, &productsAddResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(body, &productsAddResponse)
-	if err != nil {
-		return nil, err
-	}
-
-	return &productsAddResponse, nil
+	return &productsAddResp, nil
 }
 
+// 删除我在卖的商品
 func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, error) {
-	var productsDelResponse models.ProductsDelResponse
+	var productsDelResp models.ProductsDelResponse
 
 	uri := "/api/market/sellers/products/" + productID
 
@@ -106,24 +95,20 @@ func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, err
 		ReqQuery: core.StructToMapStr(&models.ProductsDelRequestQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: core.StructToMapStr(&models.ProductsDelRequestBody{}),
+		ReqBody: &models.ProductsDelRequestBody{},
 	}
 
-	body, err := p.client.Request(uri, reqOpts)
+	err := p.client.Request(uri, &productsDelResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(body, &productsDelResponse)
-	if err != nil {
-		return nil, err
-	}
-
-	return &productsDelResponse, nil
+	return &productsDelResp, nil
 }
 
+// 更新我在卖的商品
 func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdateRequestBody, productID string) (*models.ProductsUpdateResponse, error) {
-	var productsUpdateResponse models.ProductsUpdateResponse
+	var productsUpdateResp models.ProductsUpdateResponse
 	uri := "/api/market/sellers/products/" + productID
 
 	reqOpts := &core.RequestOption{
@@ -131,18 +116,13 @@ func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdate
 		ReqQuery: core.StructToMapStr(&models.ProductsUpdateRequestQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: core.StructToMapStr(productsUpdateRequestBody),
+		ReqBody: productsUpdateRequestBody,
 	}
 
-	body, err := p.client.Request(uri, reqOpts)
+	err := p.client.Request(uri, &productsUpdateResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	err = json.Unmarshal(body, &productsUpdateResponse)
-	if err != nil {
-		return nil, fmt.Errorf("解析异常: %v", err)
-	}
-
-	return &productsUpdateResponse, nil
+	return &productsUpdateResp, nil
 }

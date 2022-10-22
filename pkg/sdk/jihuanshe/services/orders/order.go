@@ -1,8 +1,6 @@
 package orders
 
 import (
-	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
@@ -32,14 +30,9 @@ func (o *OrdersClient) GetBuyerOrders(page string) (*models.BuyerOrdersResponse,
 		}),
 	}
 
-	body, err := o.client.Request(uri, reqOpts)
+	err := o.client.Request(uri, &buyerOrders, reqOpts)
 	if err != nil {
 		return nil, err
-	}
-
-	err = json.Unmarshal(body, &buyerOrders)
-	if err != nil {
-		return nil, fmt.Errorf("解析异常：%v", err)
 	}
 
 	return &buyerOrders, nil
@@ -57,12 +50,7 @@ func (o *OrdersClient) GetBuyerOrderProducts(orderID int) (*models.BuyerOrderPro
 		}),
 	}
 
-	body, err := o.client.Request(uri, reqOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(body, &orderProducts)
+	err := o.client.Request(uri, &orderProducts, reqOpts)
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +72,9 @@ func (o *OrdersClient) GetSellerOrders(page string) (*models.SellerOrdersRespons
 		}),
 	}
 
-	body, err := o.client.Request(uri, reqOpts)
+	err := o.client.Request(uri, &sellerOrders, reqOpts)
 	if err != nil {
 		return nil, err
-	}
-
-	err = json.Unmarshal(body, &sellerOrders)
-	if err != nil {
-		return nil, fmt.Errorf("解析异常：%v", err)
 	}
 
 	return &sellerOrders, nil
@@ -109,12 +92,7 @@ func (o *OrdersClient) GetSellerOrderProducts(orderID int) (*models.SellerOrderP
 		}),
 	}
 
-	body, err := o.client.Request(uri, reqOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(body, &orderProducts)
+	err := o.client.Request(uri, &orderProducts, reqOpts)
 	if err != nil {
 		return nil, err
 	}

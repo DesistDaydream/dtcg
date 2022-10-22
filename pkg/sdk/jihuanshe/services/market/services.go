@@ -1,8 +1,6 @@
 package market
 
 import (
-	"encoding/json"
-
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 )
@@ -31,12 +29,7 @@ func (p *MarketClient) GetProductSellers(cardVersionID string) (*models.ProductS
 		}),
 	}
 
-	body, err := p.client.Request(uri, reqOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(body, &productSellers)
+	err := p.client.Request(uri, &productSellers, reqOpts)
 	if err != nil {
 		return nil, err
 	}

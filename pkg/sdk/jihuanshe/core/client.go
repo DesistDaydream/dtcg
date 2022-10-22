@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -26,34 +28,58 @@ func NewClient(token string) *Client {
 type RequestOption struct {
 	Method   string
 	ReqQuery map[string]string
-	ReqBody  map[string]string
+	ReqBody  interface{}
 }
 
-func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
+func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOption) error {
+	logrus.WithFields(logrus.Fields{
+		"uri":   uri,
+		"请求体":   reqOpts.ReqBody,
+		"url参数": reqOpts.ReqQuery,
+	}).Debugf("检查请求")
+
+	statusCode, body, err := c.request(uri, reqOpts)
+	if err != nil {
+		return err
+	}
+
+	if statusCode != 200 {
+		return fmt.Errorf("响应异常，响应码：%v", statusCode)
+	}
+
+	err = json.Unmarshal(body, wantResp)
+	if err != nil {
+		return fmt.Errorf("解析 %v 异常: %v", string(body), err)
+	}
+
+	return nil
+}
+
+func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error) {
 	var (
-		rb  *bytes.Buffer
-		req *http.Request
-		err error
+		// originalBody []byte
+		req  *http.Request
+		resp *http.Response
+		err  error
 	)
 
 	url := fmt.Sprintf("%s%s", BaseAPI, api)
 
 	//  如果有请求体则添加
-	if len(reqOpts.ReqBody) > 0 {
-		requestBody, err := json.Marshal(reqOpts.ReqBody)
+	if reqOpts.ReqBody != nil {
+		rb, err := json.Marshal(reqOpts.ReqBody)
 		if err != nil {
-			return nil, err
+			return 0, nil, fmt.Errorf("解析请求体失败：%v", err)
 		}
-		rb = bytes.NewBuffer(requestBody)
-	}
-
-	if rb != nil {
-		req, err = http.NewRequest(reqOpts.Method, url, rb)
+		req, err = http.NewRequest(reqOpts.Method, url, bytes.NewBuffer(rb))
+		if err != nil {
+			return 0, nil, fmt.Errorf("构建请求失败：%v", err)
+		}
 	} else {
 		req, err = http.NewRequest(reqOpts.Method, url, nil)
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return 0, nil, fmt.Errorf("构建请求失败：%v", err)
+		}
 	}
 
 	req.Header.Add("content-type", "application/json")
@@ -70,19 +96,19 @@ func (c *Client) Request(api string, reqOpts *RequestOption) ([]byte, error) {
 	}
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err = client.Do(req)
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return 0, nil, err
 	}
 
-	return body, nil
+	return resp.StatusCode, body, nil
 }
 
 func StructToMapStr(obj interface{}) map[string]string {
