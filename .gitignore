@@ -4,3 +4,4 @@ images.bak/*
 *.xlsx
 .vscode/sftp.json
 *.txt
+config_file/my_dtcg.yaml

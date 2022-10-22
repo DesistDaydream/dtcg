@@ -77,7 +77,9 @@ func NewJihuansheClient(opts *JihuansheOpts) *JihuansheClient {
 	// ######## 配置 http.Client 的信息结束 ########
 
 	dbInfo := &database.DBInfo{
-		FilePath: "internal/database/my_dtcg.db",
+		FilePath: opts.dbPath,
+		Server:   opts.MySQLServer,
+		Password: opts.MySQLPassword,
 	}
 	database.InitDB(dbInfo)
 
@@ -184,9 +186,13 @@ type JihuansheOpts struct {
 	timeout  time.Duration
 	insecure bool
 
-	// 存储卡片详情的文件
+	// 可以用 SQLite 或 MySQL 获取卡片详情
+	// SQLite 信息
 	dbPath string
-	// File string
+	// MySQL 信息
+	MySQLServer   string
+	MySQLPassword string
+
 	// 是否进行测试，若不进行测试，则获取所有卡盒的信息
 	test bool
 	// 要采集集换价大于多少的卡的信息
@@ -201,6 +207,8 @@ func (o *JihuansheOpts) AddFlag() {
 	pflag.DurationVar(&o.timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
 	pflag.BoolVar(&o.insecure, "insecure", true, "是否禁用 TLS 验证。")
 	pflag.StringVar(&o.dbPath, "dbpath", "internal/database/my_dtcg.db", "是否进行测试。")
+	pflag.StringVar(&o.MySQLServer, "server", "", "数据库连接地址")
+	pflag.StringVar(&o.MySQLPassword, "password", "", "数据库连接密码")
 	pflag.BoolVar(&o.test, "test", false, "是否进行测试。")
 	pflag.Float64Var(&o.price, "price", 1, "要采集集换价大于多少的卡，单位：元")
 }

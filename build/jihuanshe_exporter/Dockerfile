@@ -1,14 +1,16 @@
 FROM golang:1.18-alpine as builder
 WORKDIR /dtcg
 
+# 添加 cgo 环境
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add build-base
+
 ENV CGO_ENABLED=1 \
     GO111MODULE=on \
     GOPROXY=https://goproxy.cn,https://goproxy.io,direct
 COPY go.mod go.mod
 COPY go.sum go.sum
 RUN go mod download
-# 添加 cgo 环境
-RUN apk add build-base
 
 COPY ./ /dtcg
 RUN go build -o jihuanshe-exporter ./cmd/jihuanshe_exporter/*.go

@@ -1,9 +1,11 @@
 package database
 
 import (
+	"fmt"
+
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -13,11 +15,15 @@ var (
 
 type DBInfo struct {
 	FilePath string
+	Server   string
+	Password string
 }
 
 func InitDB(dbInfo *DBInfo) {
 	var err error
-	DB, err = gorm.Open(sqlite.Open(dbInfo.FilePath), &gorm.Config{})
+	// DB, err = gorm.Open(sqlite.Open(dbInfo.FilePath), &gorm.Config{})
+	dsn := fmt.Sprintf("root:%v@tcp(%v)/my_dtcg?charset=utf8mb4&parseTime=True&loc=Local", dbInfo.Password, dbInfo.Server)
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		logrus.Fatalf("连接数据库失败: %v", err)
 	}

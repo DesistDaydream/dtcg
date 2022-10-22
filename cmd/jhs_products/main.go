@@ -27,10 +27,6 @@ func getToken() {
 func UpdateImage() {
 	getToken()
 	client := products.NewProductsClient(core.NewClient(token))
-	dbInfo := &database.DBInfo{
-		FilePath: "internal/database/my_dtcg.db",
-	}
-	database.InitDB(dbInfo)
 
 	page := 1 // 从获取到的数据的第一页开始
 	for {
@@ -74,6 +70,17 @@ func UpdateImage() {
 	}
 }
 
+// 添加商品
+func AddProducts() {
+
+}
+
 func main() {
+	dbInfo := &database.DBInfo{
+		FilePath: "internal/database/my_dtcg.db",
+	}
+	database.InitDB(dbInfo)
+
+	AddProducts()
 	UpdateImage()
 }

@@ -14,11 +14,13 @@ import (
 )
 
 type Flags struct {
-	Add string
+	MySQLServer   string
+	MySQLPassword string
 }
 
 func AddFlsgs(f *Flags) {
-	pflag.StringVarP(&f.Add, "add", "a", "", "向数据库添加数据的内容")
+	pflag.StringVar(&f.MySQLServer, "server", "", "数据库连接地址")
+	pflag.StringVar(&f.MySQLPassword, "password", "", "数据库连接密码")
 
 }
 
@@ -71,6 +73,8 @@ func rootPersistentPreRun(cmd *cobra.Command, args []string) {
 
 	dbInfo := &database.DBInfo{
 		FilePath: "internal/database/my_dtcg.db",
+		Server:   flags.MySQLServer,
+		Password: flags.MySQLPassword,
 	}
 
 	database.InitDB(dbInfo)
