@@ -24,7 +24,7 @@ func getToken() {
 }
 
 func TestStructToMapStr(t *testing.T) {
-	obj := models.ProductsGetRequestQuery{
+	obj := models.ProductsGetReqQuery{
 		GameKey:       "dgm",
 		SellerUserID:  "609077",
 		CardVersionID: cardVersionID,
@@ -81,7 +81,7 @@ func TestProductsClientAdd(t *testing.T) {
 		logrus.Infof("%v 的集换社 ID 为 %v", rows[i][0], cardModelToCardVersionID[rows[i][0]])
 
 		// 开始上架
-		resp, err := client.Add(&models.ProductsAddRequestBody{
+		resp, err := client.Add(&models.ProductsAddReqBody{
 			CardVersionID:        cardModelToCardVersionID[rows[i][0]],
 			Price:                rows[i][1],
 			Quantity:             rows[i][2],
@@ -119,43 +119,20 @@ func TestProductsClientDel(t *testing.T) {
 func TestProductsClientUpdate(t *testing.T) {
 	getToken()
 	client := NewProductsClient(core.NewClient(token))
-	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/我在卖.xlsx"
-	f, err := excelize.OpenFile(file)
+	resp, err := client.Update(&models.ProductsUpdateReqBody{
+		Condition:            "1",
+		OnSale:               "1",
+		Price:                "2.50",
+		Quantity:             "9",
+		Remark:               "",
+		UserCardVersionImage: "http://cdn-client.jihuanshe.com/product/2022-10-18-20-26-22-juYeujlzhTF7guekk7wA2QI4xlpc50fW8QKjyPGv.jpg?imageslim%7CimageMogr2%2Fauto-orient%2Fthumbnail%2F900x%2Fblur%2F1x0%2F%7CimageMogr2%2Fauto-orient%2Fgravity%2FCenter%2Fcrop%2F900x1312%2Fblur%2F1x0%7CimageMogr2%2Fformat%2Fjpg%7Cwatermark%2F2%2Ftext%2F6ZuG5o2i56S-IFVJRDo3MDA1Mw%3D%3D%2Ffont%2F6buR5L2T%2Ffontsize%2F600%2Ffill%2FI0ZGRkZGRg%3D%3D%2Fdissolve%2F90%2Fgravity%2FSouthEast%2Fdx%2F30%2Fdy%2F10",
+	}, "11833957")
+
 	if err != nil {
-		logrus.Fatalln(err)
-	}
-	defer func() {
-		// Close the spreadsheet.
-		if err := f.Close(); err != nil {
-			logrus.Errorln(err)
-			return
-		}
-	}()
-	sheet := "Sheet1"
-	rows, err := f.GetRows(sheet)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"file":  file,
-			"sheet": sheet,
-		}).Fatalf("读取中sheet页异常: %v", err)
+		logrus.Errorln(err)
 	}
 
-	// for i := 1; i < len(rows); i++ {
-	for i := 1; i < 3; i++ {
-		resp, err := client.Update(&models.ProductsUpdateRequestBody{
-			Condition:            "1",
-			OnSale:               "1",
-			Price:                rows[i][1],
-			Quantity:             rows[i][2],
-			Remark:               "",
-			UserCardVersionImage: rows[i][13],
-		}, rows[i][0])
-		if err != nil {
-			logrus.Errorf("商品 %v %v 修改失败：%v", rows[i][10], rows[i][8], err)
-		} else {
-			logrus.Infof("商品 %v %v 修改成功：%v", rows[i][10], rows[i][8], resp)
-		}
-	}
+	logrus.Infoln(resp)
 }
 
 func TestProductsClientGet(t *testing.T) {

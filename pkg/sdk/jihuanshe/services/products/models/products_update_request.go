@@ -1,14 +1,14 @@
 package models
 
-type ProductsUpdateRequestBody struct {
-	Condition            string `query:"condition"`
-	OnSale               string `query:"on_sale"`
-	Price                string `query:"price"`
-	Quantity             string `query:"quantity"`
-	Remark               string `query:"remark"`
-	UserCardVersionImage string `query:"user_card_version_image"`
+type ProductsUpdateReqBody struct {
+	Condition            string `json:"condition"`
+	OnSale               string `json:"on_sale"`
+	Price                string `json:"price"`
+	Quantity             string `json:"quantity"`
+	Remark               string `json:"remark"`
+	UserCardVersionImage string `json:"user_card_version_image"`
 }
 
-type ProductsUpdateRequestQuery struct {
+type ProductsUpdateReqQuery struct {
 	Token string `query:"token"`
 }

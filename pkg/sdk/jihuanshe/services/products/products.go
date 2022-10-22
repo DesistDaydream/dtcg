@@ -16,14 +16,14 @@ func NewProductsClient(client *core.Client) *ProductsClient {
 }
 
 // 获取我在卖的商品列表
-func (p *ProductsClient) List(page string) (*models.ProductsListResponse, error) {
-	var productsResp models.ProductsListResponse
+func (p *ProductsClient) List(page string) (*models.ProductsListResp, error) {
+	var productsResp models.ProductsListResp
 
 	uri := "/api/market/sellers/products"
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.ProductsListRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsListReqQuery{
 			GameKey:    "dgm",
 			GameSubKey: "sc",
 			OnSale:     "1",
@@ -41,13 +41,13 @@ func (p *ProductsClient) List(page string) (*models.ProductsListResponse, error)
 }
 
 // 获取我在卖的商品详情。注意：这也是整个集换社获取一个商品详情的接口
-func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse, error) {
-	var productsGetResp models.ProductsGetResponse
+func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResp, error) {
+	var productsGetResp models.ProductsGetResp
 	uri := "/api/market/products/bySellerCardVersionId"
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.ProductsGetRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsGetReqQuery{
 			GameKey:       "dgm",
 			SellerUserID:  "609077",
 			CardVersionID: cardVersionID,
@@ -64,13 +64,13 @@ func (p *ProductsClient) Get(cardVersionID string) (*models.ProductsGetResponse,
 }
 
 // 添加我在买的商品
-func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddRequestBody) (*models.ProductsAddResponse, error) {
-	var productsAddResp models.ProductsAddResponse
+func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddReqBody) (*models.ProductsAddResp, error) {
+	var productsAddResp models.ProductsAddResp
 	uri := "/api/market/sellers/products"
 
 	reqOpts := &core.RequestOption{
 		Method: "POST",
-		ReqQuery: core.StructToMapStr(&models.ProductsAddRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsAddReqQuery{
 			Token: p.client.Token,
 		}),
 		ReqBody: productsAddRequestBody,
@@ -85,17 +85,17 @@ func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddRequestBo
 }
 
 // 删除我在卖的商品
-func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, error) {
-	var productsDelResp models.ProductsDelResponse
+func (p *ProductsClient) Del(productID string) (*models.ProductsDelResp, error) {
+	var productsDelResp models.ProductsDelResp
 
 	uri := "/api/market/sellers/products/" + productID
 
 	reqOpts := &core.RequestOption{
 		Method: "DELETE",
-		ReqQuery: core.StructToMapStr(&models.ProductsDelRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsDelReqQuery{
 			Token: p.client.Token,
 		}),
-		ReqBody: &models.ProductsDelRequestBody{},
+		ReqBody: &models.ProductsDelReqBody{},
 	}
 
 	err := p.client.Request(uri, &productsDelResp, reqOpts)
@@ -107,13 +107,13 @@ func (p *ProductsClient) Del(productID string) (*models.ProductsDelResponse, err
 }
 
 // 更新我在卖的商品
-func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdateRequestBody, productID string) (*models.ProductsUpdateResponse, error) {
-	var productsUpdateResp models.ProductsUpdateResponse
+func (p *ProductsClient) Update(productsUpdateRequestBody *models.ProductsUpdateReqBody, productID string) (*models.ProductsUpdateResp, error) {
+	var productsUpdateResp models.ProductsUpdateResp
 	uri := "/api/market/sellers/products/" + productID
 
 	reqOpts := &core.RequestOption{
 		Method: "PUT",
-		ReqQuery: core.StructToMapStr(&models.ProductsUpdateRequestQuery{
+		ReqQuery: core.StructToMapStr(&models.ProductsUpdateReqQuery{
 			Token: p.client.Token,
 		}),
 		ReqBody: productsUpdateRequestBody,

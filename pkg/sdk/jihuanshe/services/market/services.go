@@ -15,6 +15,7 @@ func NewMarketClient(client *core.Client) *MarketClient {
 	}
 }
 
+// 获取商品的“在售”列表
 func (p *MarketClient) GetProductSellers(cardVersionID string) (*models.ProductSellersGetResp, error) {
 	var productSellers models.ProductSellersGetResp
 	uri := "/api/market/card-versions/products"

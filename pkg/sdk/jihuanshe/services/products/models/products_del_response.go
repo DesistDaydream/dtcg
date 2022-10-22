@@ -1,5 +1,5 @@
 package models
 
-type ProductsDelResponse struct {
+type ProductsDelResp struct {
 	Message string `json:"message"`
 }

@@ -1,6 +1,6 @@
 package models
 
-type ProductsListRequestQuery struct {
+type ProductsListReqQuery struct {
 	GameKey    string `query:"game_key"`
 	GameSubKey string `query:"game_sub_key"`
 	OnSale     string `query:"on_sale"`

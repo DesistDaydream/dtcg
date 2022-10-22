@@ -64,7 +64,7 @@ func main() {
 
 	// 写入第一行数据，设置列名
 	var colNames []string
-	desc := &models.ProductList{}
+	desc := &models.ProductListData{}
 	s := reflect.TypeOf(desc).Elem()
 	for i := 0; i < s.NumField(); i++ {
 		colNames = append(colNames, s.Field(i).Name)

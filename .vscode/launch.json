@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "common",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": "${workspaceRoot}",
+      "program": "cmd/????/main.go",
+    },
+    {
       "name": "jihuanshe_exporter",
       "type": "go",
       "request": "launch",

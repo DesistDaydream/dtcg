@@ -1,5 +1,5 @@
 package models
 
-type ProductsAddResponse struct {
+type ProductsAddResp struct {
 	Message string `json:"message"`
 }

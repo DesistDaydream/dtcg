@@ -1,6 +1,6 @@
 package models
 
-type ProductsAddRequestBody struct {
+type ProductsAddReqBody struct {
 	CardVersionID        string `query:"card_version_id"`
 	Price                string `query:"price"`
 	Quantity             string `query:"quantity"`
@@ -10,6 +10,6 @@ type ProductsAddRequestBody struct {
 	UserCardVersionImage string `query:"user_card_version_image"`
 }
 
-type ProductsAddRequestQuery struct {
+type ProductsAddReqQuery struct {
 	Token string `query:"token"`
 }

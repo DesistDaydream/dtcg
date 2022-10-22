@@ -1,8 +1,8 @@
 package models
 
-type ProductsDelRequestBody struct {
+type ProductsDelReqBody struct {
 }
 
-type ProductsDelRequestQuery struct {
+type ProductsDelReqQuery struct {
 	Token string `query:"token"`
 }
