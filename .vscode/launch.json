@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "auto",
       "cwd": "${workspaceRoot}",
-      "program": "cmd/????/main.go",
+      "program": "cmd/jhs_cli/main.go",
     },
     {
       "name": "jihuanshe_exporter",

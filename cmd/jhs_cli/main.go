@@ -24,13 +24,10 @@ func getToken() {
 }
 
 // 更新我在卖卡片的卡图
-func UpdateImage() {
-	getToken()
-	client := products.NewProductsClient(core.NewClient(token))
-
+func UpdateImage(productsClient *products.ProductsClient) {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := client.List(strconv.Itoa(page))
+		products, err := productsClient.List(strconv.Itoa(page))
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
@@ -42,7 +39,7 @@ func UpdateImage() {
 					logrus.Errorln("获取卡牌价格详情失败", err)
 				}
 
-				resp, err := client.Update(&models.ProductsUpdateReqBody{
+				resp, err := productsClient.Update(&models.ProductsUpdateReqBody{
 					Condition:            fmt.Sprint(product.Condition),
 					OnSale:               fmt.Sprint(product.OnSale),
 					Price:                product.Price,
@@ -71,16 +68,54 @@ func UpdateImage() {
 }
 
 // 添加商品
-func AddProducts() {
+func AddProducts(productsClient *products.ProductsClient) {
+	cards := []string{"2954", "2955", "2956", "2957"}
 
+	for _, cardVersionID := range cards {
+		var price string
+
+		cardPrice, err := database.GetCardPriceWhereCardVersionID(cardVersionID)
+		if err != nil {
+			logrus.Errorln("获取卡牌价格详情失败", err)
+		}
+
+		if cardPrice.AvgPrice == 0 {
+			price = "10"
+		} else {
+			price = fmt.Sprint(cardPrice.AvgPrice + float64(2))
+		}
+
+		// 开始上架
+		resp, err := productsClient.Add(&models.ProductsAddReqBody{
+			CardVersionID:        cardVersionID,
+			Price:                price,
+			Quantity:             "4",
+			Condition:            "1",
+			Remark:               "",
+			GameKey:              "dgm",
+			UserCardVersionImage: cardPrice.ImageUrl,
+		})
+
+		// resp, err := client.Add(cardModelToCardVersionID[rows[i][0]], rows[i][1], rows[i][2])
+		if err != nil {
+			logrus.Errorf("%v 上架失败：%v", cardPrice.ScName, err)
+		} else {
+			logrus.Infof("%v 上架成功：%v", cardPrice.ScName, resp)
+		}
+	}
 }
 
 func main() {
 	dbInfo := &database.DBInfo{
 		FilePath: "internal/database/my_dtcg.db",
+		Server:   "122.9.154.106:3306",
+		Password: "lch1382121",
 	}
 	database.InitDB(dbInfo)
 
-	AddProducts()
-	UpdateImage()
+	getToken()
+	productsClient := products.NewProductsClient(core.NewClient(token))
+
+	AddProducts(productsClient)
+	// UpdateImage(productsClient)
 }
