@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/products"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -70,4 +71,7 @@ func rootPersistentPreRun(cmd *cobra.Command, args []string) {
 	}
 
 	database.InitDB(dbInfo)
+
+	// 实例化一个处理器，包括各种 SDK 的服务能力
+	handler.H = handler.NewHandler()
 }

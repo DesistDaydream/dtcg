@@ -3,6 +3,7 @@ package products
 import (
 	"fmt"
 
+	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
@@ -38,7 +39,7 @@ func addProducts(cmd *cobra.Command, args []string) {
 		}
 
 		// 开始上架
-		resp, err := productsClient.Add(&models.ProductsAddReqBody{
+		resp, err := handler.H.JhsServices.Products.Add(&models.ProductsAddReqBody{
 			CardVersionID:        cardVersionID,
 			Price:                price,
 			Quantity:             "4",

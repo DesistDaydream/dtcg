@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
@@ -25,7 +26,7 @@ func UpdateImageCommand() *cobra.Command {
 func updateImage(cmd *cobra.Command, args []string) {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := productsClient.List(strconv.Itoa(page))
+		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page))
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
@@ -37,7 +38,7 @@ func updateImage(cmd *cobra.Command, args []string) {
 					logrus.Errorln("获取卡牌价格详情失败", err)
 				}
 
-				resp, err := productsClient.Update(&models.ProductsUpdateReqBody{
+				resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
 					Condition:            fmt.Sprint(product.Condition),
 					OnSale:               fmt.Sprint(product.OnSale),
 					Price:                product.Price,
