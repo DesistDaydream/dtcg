@@ -6,21 +6,17 @@ import (
 	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_desc"
 	cardprice "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_price"
 	cardset "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_set"
+	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 type Flags struct {
-	MySQLServer   string
-	MySQLPassword string
 }
 
-func AddFlsgs(f *Flags) {
-	pflag.StringVar(&f.MySQLServer, "server", "", "数据库连接地址")
-	pflag.StringVar(&f.MySQLPassword, "password", "", "数据库连接密码")
+func AddFlags(f *Flags) {
 
 }
 
@@ -52,7 +48,7 @@ func newApp() *cobra.Command {
 		PersistentPreRun: rootPersistentPreRun,
 	}
 
-	AddFlsgs(&flags)
+	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
 
 	// 添加子命令
@@ -71,10 +67,12 @@ func rootPersistentPreRun(cmd *cobra.Command, args []string) {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
+	c := config.NewConfig()
+
 	dbInfo := &database.DBInfo{
-		FilePath: "internal/database/my_dtcg.db",
-		Server:   flags.MySQLServer,
-		Password: flags.MySQLPassword,
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
 	}
 
 	database.InitDB(dbInfo)

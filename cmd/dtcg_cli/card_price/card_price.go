@@ -14,29 +14,31 @@ import (
 )
 
 func CreateCommand() *cobra.Command {
-	cardSetCmd := &cobra.Command{
+	cardPriceCmd := &cobra.Command{
 		Use:              "card-price",
 		Short:            "控制卡片价格信息",
-		PersistentPreRun: cardSetPersistentPreRun,
+		PersistentPreRun: cardPricePersistentPreRun,
 	}
 
-	cardSetCmd.AddCommand(
+	cardPriceCmd.AddCommand(
 		AddCardPriceCommand(),
 		UpdateCardPriceCommand(),
 	)
 
-	return cardSetCmd
+	return cardPriceCmd
 }
 
-var client *cdb.CdbClient
+var cdbClient *cdb.CdbClient
 
-func cardSetPersistentPreRun(cmd *cobra.Command, args []string) {
+func cardPricePersistentPreRun(cmd *cobra.Command, args []string) {
 	// 执行根命令的初始化操作
 	parent := cmd.Parent()
 	if parent.PersistentPreRun != nil {
 		parent.PersistentPreRun(parent, args)
 	}
-	client = cdb.NewCdbClient(core.NewClient(""))
+
+	// 自身执行前操作
+	cdbClient = cdb.NewCdbClient(core.NewClient(""))
 }
 
 func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
@@ -46,7 +48,7 @@ func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 		cardVersionID int
 	)
 
-	cardPrice, err := client.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
+	cardPrice, err := cdbClient.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
 	if err != nil {
 		logrus.Fatalf("获取卡片价格失败: %v", err)
 	}

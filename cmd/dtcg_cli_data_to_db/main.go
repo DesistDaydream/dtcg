@@ -3,7 +3,8 @@ package main
 import (
 	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/card_desc"
 	cardgroup "github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/card_group"
-	databasepkg "github.com/DesistDaydream/dtcg/pkg/database"
+	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
@@ -31,10 +32,16 @@ func main() {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	i := &databasepkg.DBInfo{
-		FilePath: "internal/database/my_dtcg.db",
+	c := config.NewConfig()
+
+	// 连接数据库
+	dbInfo := &database.DBInfo{
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
 	}
-	databasepkg.InitDB(i)
+
+	database.InitDB(dbInfo)
 
 	switch flags.Add {
 	case "cardgroupofficial":

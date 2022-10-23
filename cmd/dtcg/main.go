@@ -1,28 +1,14 @@
 package main
 
 import (
+	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/router"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
 )
-
-type Config struct {
-	Listen string `yaml:"listen"`
-	Mysql  MySQL  `yaml:"mysql"`
-	SQLite SQLite `yaml:"sqlite"`
-}
-type MySQL struct {
-	Server   string `yaml:"server"`
-	Password string `yaml:"password"`
-}
-
-type SQLite struct {
-	FilePath string `yaml:"file_path"`
-}
 
 type Flags struct {
 	Debug bool
@@ -34,7 +20,6 @@ func AddFlags(f *Flags) {
 
 func main() {
 	var (
-		config   Config
 		flags    Flags
 		logFlags logging.LoggingFlags
 	)
@@ -46,21 +31,13 @@ func main() {
 	}
 
 	// 初始化配置文件
-	viper.AddConfigPath("/etc/dtcg")
-	viper.AddConfigPath("./config_file")
-	viper.SetConfigName("my_dtcg.yaml")
-	viper.SetConfigType("yaml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		logrus.Fatalf("读取配置文件失败: %v", err)
-	}
-	viper.Unmarshal(&config)
+	c := config.NewConfig()
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{
-		FilePath: config.SQLite.FilePath,
-		Server:   config.Mysql.Server,
-		Password: config.Mysql.Password,
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
 	}
 	database.InitDB(dbInfo)
 
@@ -69,5 +46,5 @@ func main() {
 	}
 
 	r := router.InitRouter()
-	r.Run(config.Listen)
+	r.Run(c.Listen)
 }
