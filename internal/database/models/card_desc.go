@@ -36,4 +36,5 @@ type CardDesc struct {
 	SecurityEffect string `json:"security_effect"`
 	IncludeInfo    string `json:"include_info"`
 	RaritySC       string `json:"rarity_sc"`
+	Image          string `json:"image"`
 }

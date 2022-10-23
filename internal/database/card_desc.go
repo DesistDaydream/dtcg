@@ -5,11 +5,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// 添加卡牌描述
 func AddCardDesc(cardDesc *models.CardDesc) {
 	result := DB.FirstOrCreate(cardDesc, cardDesc)
 	if result.Error != nil {
 		logrus.Errorf("插入数据失败: %v", result.Error)
 	}
+}
+
+// 更新卡牌描述
+func UpdateCardDesc(cardDesc *models.CardDesc, condition map[string]string) {
+	// TODO: 如何在 condition 中添加多个条件，然后根据不同情况执行 WHERE
+	result := DB.Model(cardDesc).Where("card_id_from_db = ?", cardDesc.CardIDFromDB).Updates(cardDesc)
+	if result.Error != nil {
+		logrus.Errorf("更新 %v %v 价格异常: %v", cardDesc.CardIDFromDB, cardDesc.ScName, result.Error)
+	}
+
+	logrus.Debugf("已更新 %v 条数据", result.RowsAffected)
 }
 
 // 获取所有卡片描述
