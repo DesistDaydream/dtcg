@@ -7,31 +7,34 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Mysql MySQL `json:"mysql"`
+	Listen string `yaml:"listen"`
+	Mysql  MySQL  `yaml:"mysql"`
+	SQLite SQLite `yaml:"sqlite"`
 }
 type MySQL struct {
-	Server   string `json:"server"`
-	Password string `json:"password"`
+	Server   string `yaml:"server"`
+	Password string `yaml:"password"`
+}
+
+type SQLite struct {
+	FilePath string `yaml:"file_path"`
 }
 
 type Flags struct {
-	Debug      bool
-	ListenAddr string
-	MySQL      MySQL
+	Debug bool
 }
 
 func AddFlags(f *Flags) {
 	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 debug 模式")
-	pflag.StringVarP(&f.ListenAddr, "listen", "l", ":2205", "程序监听地址")
-	pflag.StringVar(&f.MySQL.Server, "server", "", "数据库连接地址")
-	pflag.StringVar(&f.MySQL.Password, "password", "", "数据库连接密码")
 }
 
 func main() {
 	var (
+		config   Config
 		flags    Flags
 		logFlags logging.LoggingFlags
 	)
@@ -43,20 +46,21 @@ func main() {
 	}
 
 	// 初始化配置文件
-	// viper.SetConfigName("my_dtcg.yaml")
-	// viper.SetConfigType("yaml")
-	// viper.AddConfigPath("./config_file")
-	// err := viper.ReadInConfig()
-	// if err != nil {
-	// 	logrus.Fatalf("读取配置文件失败: %v", err)
-	// }
+	viper.AddConfigPath("/etc/dtcg")
+	viper.AddConfigPath("./config_file")
+	viper.SetConfigName("my_dtcg.yaml")
+	viper.SetConfigType("yaml")
+	err := viper.ReadInConfig()
+	if err != nil {
+		logrus.Fatalf("读取配置文件失败: %v", err)
+	}
+	viper.Unmarshal(&config)
 
+	// 连接数据库
 	dbInfo := &database.DBInfo{
-		FilePath: "internal/database/my_dtcg.db",
-		// Server:   viper.GetString("mysql.server"),
-		// Password: viper.GetString("mysql.password"),
-		Server:   flags.MySQL.Server,
-		Password: flags.MySQL.Password,
+		FilePath: config.SQLite.FilePath,
+		Server:   config.Mysql.Server,
+		Password: config.Mysql.Password,
 	}
 	database.InitDB(dbInfo)
 
@@ -65,5 +69,5 @@ func main() {
 	}
 
 	r := router.InitRouter()
-	r.Run(flags.ListenAddr)
+	r.Run(config.Listen)
 }

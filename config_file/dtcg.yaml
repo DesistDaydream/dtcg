@@ -1,3 +1,6 @@
+listen: ":2205"
 mysql:
   server: ""
   password: ""
+sqlite:
+  file_path: "internal/database/my_dtcg.db"
