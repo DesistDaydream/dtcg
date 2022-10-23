@@ -6,9 +6,11 @@ import (
 	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_desc"
 	cardprice "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_price"
 	cardset "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_set"
+	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -63,12 +65,15 @@ func newApp() *cobra.Command {
 
 // 执行每个 root 下的子命令时，都需要执行的函数
 func rootPersistentPreRun(cmd *cobra.Command, args []string) {
+	// 初始化日志
 	if err := logging.LogInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
+	// 初始化配置文件
 	c := config.NewConfig()
 
+	// 初始化数据库
 	dbInfo := &database.DBInfo{
 		FilePath: c.SQLite.FilePath,
 		Server:   c.Mysql.Server,
@@ -76,4 +81,7 @@ func rootPersistentPreRun(cmd *cobra.Command, args []string) {
 	}
 
 	database.InitDB(dbInfo)
+
+	// 实例化一个处理器，包括各种 SDK 的服务能力
+	handler.H = handler.NewHandler()
 }

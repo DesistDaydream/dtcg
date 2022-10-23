@@ -3,8 +3,6 @@ package cardprice
 import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
-	jhscore "github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -76,8 +74,6 @@ func updateCardPriceBaseonCardSet(cardDesc models.CardDesc, setsPrefix []string)
 func updateRun(cardDesc *models.CardDesc) {
 	cardVersionID, minPrice, avgPrice := GetPrice(cardDesc)
 
-	jhsClient := market.NewMarketClient(jhscore.NewClient(""))
-
 	database.UpdateCardPrice(&models.CardPrice{
 		CardIDFromDB: cardDesc.CardIDFromDB,
 		MinPrice:     minPrice,
@@ -85,7 +81,7 @@ func updateRun(cardDesc *models.CardDesc) {
 	}, map[string]string{})
 
 	if updateFlags.UpdateImageURL {
-		imageUrl := GetImageURL(jhsClient, cardVersionID)
+		imageUrl := GetImageURL(cardVersionID)
 		database.UpdateCardPrice(&models.CardPrice{
 			CardIDFromDB: cardDesc.CardIDFromDB,
 			MinPrice:     minPrice,

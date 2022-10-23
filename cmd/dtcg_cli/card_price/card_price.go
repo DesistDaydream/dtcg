@@ -5,10 +5,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -28,17 +26,12 @@ func CreateCommand() *cobra.Command {
 	return cardPriceCmd
 }
 
-var cdbClient *cdb.CdbClient
-
 func cardPricePersistentPreRun(cmd *cobra.Command, args []string) {
 	// 执行根命令的初始化操作
 	parent := cmd.Parent()
 	if parent.PersistentPreRun != nil {
 		parent.PersistentPreRun(parent, args)
 	}
-
-	// 自身执行前操作
-	cdbClient = cdb.NewCdbClient(core.NewClient(""))
 }
 
 func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
@@ -48,7 +41,7 @@ func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 		cardVersionID int
 	)
 
-	cardPrice, err := cdbClient.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
+	cardPrice, err := handler.H.DtcgDBServices.Cdb.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
 	if err != nil {
 		logrus.Fatalf("获取卡片价格失败: %v", err)
 	}
@@ -66,9 +59,9 @@ func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 	return cardVersionID, minPrice, avgPrice
 }
 
-func GetImageURL(jhsClient *market.MarketClient, cardVersionID int) string {
+func GetImageURL(cardVersionID int) string {
 	var imageUrl string
-	productSellers, err := jhsClient.GetProductSellers(fmt.Sprint(cardVersionID))
+	productSellers, err := handler.H.JhsServices.Market.GetProductSellers(fmt.Sprint(cardVersionID))
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
@@ -79,8 +72,6 @@ func GetImageURL(jhsClient *market.MarketClient, cardVersionID int) string {
 			break
 		}
 	}
-
-	// i, _ := url.QueryUnescape(imageUrl)
 
 	return imageUrl
 }

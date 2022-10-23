@@ -10,7 +10,11 @@
       "request": "launch",
       "mode": "auto",
       "cwd": "${workspaceRoot}",
-      "program": "cmd/jhs_cli/main.go",
+      "program": "cmd/dtcg_cli/main.go",
+      "args": [
+        "card-price",
+        "add"
+      ]
     },
     {
       "name": "jihuanshe_exporter",

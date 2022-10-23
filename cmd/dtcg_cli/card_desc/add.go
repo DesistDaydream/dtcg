@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -38,8 +37,7 @@ func addCardDesc(cmd *cobra.Command, args []string) {
 	}
 
 	for _, cardSet := range wantCardSets {
-		client := cdb.NewCdbClient(core.NewClient(""))
-		resp, err := client.PostCardSearch(cardSet.SetID)
+		resp, err := handler.H.DtcgDBServices.Cdb.PostCardSearch(cardSet.SetID)
 		if err != nil {
 			logrus.Fatalln(err)
 		}

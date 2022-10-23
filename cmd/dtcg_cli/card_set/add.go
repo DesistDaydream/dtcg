@@ -3,10 +3,9 @@ package cardset
 import (
 	"sort"
 
+	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -24,8 +23,7 @@ func AddCardSetCommand() *cobra.Command {
 func addCardSet(cmd *cobra.Command, args []string) {
 	var cardSets models.CardSets
 
-	client := cdb.NewCdbClient(core.NewClient(""))
-	series, err := client.GetSeries()
+	series, err := handler.H.DtcgDBServices.Cdb.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
