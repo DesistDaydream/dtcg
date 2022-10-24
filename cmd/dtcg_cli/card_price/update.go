@@ -83,10 +83,11 @@ func updateRun(cardDesc *models.CardDesc) {
 	if updateFlags.UpdateImageURL {
 		imageUrl := GetImageURL(cardVersionID)
 		database.UpdateCardPrice(&models.CardPrice{
-			CardIDFromDB: cardDesc.CardIDFromDB,
-			MinPrice:     minPrice,
-			AvgPrice:     avgPrice,
-			ImageUrl:     imageUrl,
+			CardIDFromDB:  cardDesc.CardIDFromDB,
+			CardVersionID: cardVersionID,
+			MinPrice:      minPrice,
+			AvgPrice:      avgPrice,
+			ImageUrl:      imageUrl,
 		}, map[string]string{})
 	}
 }
