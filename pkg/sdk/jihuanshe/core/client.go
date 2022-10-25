@@ -33,9 +33,9 @@ type RequestOption struct {
 
 func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOption) error {
 	logrus.WithFields(logrus.Fields{
-		"uri":   uri,
+		"URI":   uri,
 		"请求体":   reqOpts.ReqBody,
-		"url参数": reqOpts.ReqQuery,
+		"URL参数": reqOpts.ReqQuery,
 	}).Debugf("检查请求")
 
 	statusCode, body, err := c.request(uri, reqOpts)

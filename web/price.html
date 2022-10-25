@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="price.css" />
+    <title>获取卡组价格</title>
+</head>
+
+<body>
+    <form>
+        <!-- 卡组：<input type="string" name="deck" /> -->
+        卡组：<textarea name="deck" id="deck" cols="45" rows="5"></textarea>
+
+        <button name="commit">提交</button>
+
+    </form>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>最低价</th>
+                <th>集换价</th>
+            </tr>
+        </thead>
+        <tr id="resp_price"></tr>
+    </table>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>数量</th>
+                <th>编号</th>
+                <th>最低价</th>
+                <th>集换价</th>
+            </tr>
+        </thead>
+        <tbody id="cards_list"></tbody>
+    </table>
+</body>
+
+<script type="text/javascript" src="price.js">
+</script>
+
+</html>

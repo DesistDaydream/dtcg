@@ -1,15 +1,15 @@
 package models
 
 type ProductSellersGetResp struct {
-	CurrentPage int64            `json:"current_page"`
+	CurrentPage int              `json:"current_page"`
 	Data        []ProductSellers `json:"data"`
-	From        int64            `json:"from"`
-	LastPage    int64            `json:"last_page"`
+	From        int              `json:"from"`
+	LastPage    int              `json:"last_page"`
 	NextPageURL string           `json:"next_page_url"`
-	PerPage     int64            `json:"per_page"`
+	PerPage     int              `json:"per_page"`
 	PrevPageURL string           `json:"prev_page_url"`
-	To          int64            `json:"to"`
-	Total       int64            `json:"total"`
+	To          int              `json:"to"`
+	Total       int              `json:"total"`
 }
 
 type ProductSellers struct {

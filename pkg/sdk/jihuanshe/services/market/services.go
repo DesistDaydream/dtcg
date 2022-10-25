@@ -16,7 +16,7 @@ func NewMarketClient(client *core.Client) *MarketClient {
 }
 
 // 获取商品的“在售”列表
-func (p *MarketClient) GetProductSellers(cardVersionID string) (*models.ProductSellersGetResp, error) {
+func (p *MarketClient) GetProductSellers(cardVersionID string, page string) (*models.ProductSellersGetResp, error) {
 	var productSellers models.ProductSellersGetResp
 	uri := "/api/market/card-versions/products"
 
@@ -26,7 +26,7 @@ func (p *MarketClient) GetProductSellers(cardVersionID string) (*models.ProductS
 			CardVersionID: cardVersionID,
 			Condition:     "1",
 			GameKey:       "dgm",
-			Page:          "1",
+			Page:          page,
 		}),
 	}
 

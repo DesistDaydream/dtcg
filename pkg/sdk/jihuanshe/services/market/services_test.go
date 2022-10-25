@@ -10,7 +10,7 @@ import (
 
 func TestMarketClient_GetProductSellers(t *testing.T) {
 	client := NewMarketClient(core.NewClient(""))
-	got, err := client.GetProductSellers("2676")
+	got, err := client.GetProductSellers("2676", "1")
 	if err != nil {
 		logrus.Errorln(err)
 	}

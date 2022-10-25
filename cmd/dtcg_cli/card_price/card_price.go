@@ -34,6 +34,7 @@ func cardPricePersistentPreRun(cmd *cobra.Command, args []string) {
 	}
 }
 
+// 通过 DtcgDB 获取卡牌价格
 func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 	var (
 		minPrice      float64
@@ -59,19 +60,30 @@ func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 	return cardVersionID, minPrice, avgPrice
 }
 
+// 获取集换社卡牌的图片
 func GetImageURL(cardVersionID int) string {
-	var imageUrl string
-	productSellers, err := handler.H.JhsServices.Market.GetProductSellers(fmt.Sprint(cardVersionID))
-	if err != nil {
-		logrus.Errorf("%v", err)
-	}
-
-	for _, d := range productSellers.Data {
-		if strings.Contains(d.CardVersionImage, "cdn-client") {
-			imageUrl = d.CardVersionImage
-			break
+	page := 1
+	// 分页
+	for {
+		productSellers, err := handler.H.JhsServices.Market.GetProductSellers(fmt.Sprint(cardVersionID), fmt.Sprint(page))
+		if err != nil || productSellers.Total < 1 {
+			logrus.Errorf("获取商品 %v 在售清单异常: %v", cardVersionID, err)
+			return ""
 		}
-	}
 
-	return imageUrl
+		for _, d := range productSellers.Data {
+			if strings.Contains(d.CardVersionImage, "cdn-client") {
+				logrus.Debugf("获取卡图成功")
+				return d.CardVersionImage
+			}
+		}
+
+		logrus.Debugf("商品在售清单共 %v 页，已处理完第 %v 页", productSellers.LastPage, productSellers.CurrentPage)
+		if productSellers.CurrentPage == productSellers.LastPage {
+			logrus.Debugln("%v/%v 已处理完成，退出循环", productSellers.CurrentPage, productSellers.LastPage)
+			return ""
+		}
+
+		page = productSellers.CurrentPage + 1
+	}
 }

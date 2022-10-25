@@ -35,8 +35,6 @@ func updateCardPrice(cmd *cobra.Command, args []string) {
 		logrus.Errorf("获取全部卡牌描述失败: %v", err)
 	}
 
-	// client = services.NewSearchClient(core.NewClient(""))
-
 	if len(updateFlags.SetPrefix) != 0 {
 		for _, cardDesc := range cardsDesc.Data {
 			updateCardPriceBaseonCardSet(cardDesc, updateFlags.SetPrefix)
@@ -74,12 +72,6 @@ func updateCardPriceBaseonCardSet(cardDesc models.CardDesc, setsPrefix []string)
 func updateRun(cardDesc *models.CardDesc) {
 	cardVersionID, minPrice, avgPrice := GetPrice(cardDesc)
 
-	database.UpdateCardPrice(&models.CardPrice{
-		CardIDFromDB: cardDesc.CardIDFromDB,
-		MinPrice:     minPrice,
-		AvgPrice:     avgPrice,
-	}, map[string]string{})
-
 	if updateFlags.UpdateImageURL {
 		imageUrl := GetImageURL(cardVersionID)
 		database.UpdateCardPrice(&models.CardPrice{
@@ -88,6 +80,12 @@ func updateRun(cardDesc *models.CardDesc) {
 			MinPrice:      minPrice,
 			AvgPrice:      avgPrice,
 			ImageUrl:      imageUrl,
+		}, map[string]string{})
+	} else {
+		database.UpdateCardPrice(&models.CardPrice{
+			CardIDFromDB: cardDesc.CardIDFromDB,
+			MinPrice:     minPrice,
+			AvgPrice:     avgPrice,
 		}, map[string]string{})
 	}
 }
