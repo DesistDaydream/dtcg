@@ -3,18 +3,17 @@
 <script setup>
 import { ref } from 'vue'
 
-// 初始化表单中的变量，设为空
-let message = ref('')
+let deck = ref('')
 let resp = ref({})
 
 function commit(params) {
-    console.log(message)
+    console.log(params)
     let xhr = new XMLHttpRequest()
     xhr.open("POST", "http://localhost:2205/api/v1/deck/price")
     xhr.send(
         JSON.stringify(
             ({
-                deck: message.value,
+                deck: params,
                 envir: "chs",
             })
         )
@@ -29,11 +28,8 @@ function commit(params) {
 </script>
 
 <template>
-    <DirectivesRoute />
-
-    卡组：<textarea v-model="message" placeholder="输入内容" cols="45" rows="5"></textarea>
-    <button @click="commit">提交</button>
-    <p>卡组：{{ message }}</p>
+    卡组：<textarea v-model="deck" placeholder="输入内容" cols="45" rows="5"></textarea>
+    <button @click="commit(deck)">提交</button>
 
     <table border="1">
         <thead>
