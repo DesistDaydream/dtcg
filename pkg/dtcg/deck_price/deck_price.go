@@ -42,7 +42,11 @@ import (
 // }
 
 func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, error) {
-	var resp models.PostDeckPriceResponse
+	var (
+		resp        models.PostDeckPriceResponse
+		allMinPrice float64
+		allAvgPrice float64
+	)
 
 	client := community.NewCommunityClient(core.NewClient(""))
 	decks, err := client.PostDeckConvert(req.Deck)
@@ -65,12 +69,12 @@ func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, e
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,
 			AlternativeArt: cardPrice.AlternativeArt,
-			MinPrice:       minPrice,
-			AvgPrice:       avgPrice,
+			MinPrice:       fmt.Sprintf("%.2f", minPrice),
+			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
 		})
 
-		resp.MinPrice = resp.MinPrice + minPrice
-		resp.AvgPrice = resp.AvgPrice + avgPrice
+		allMinPrice = allMinPrice + minPrice
+		allAvgPrice = allAvgPrice + avgPrice
 	}
 
 	// TODO: 假设 Eggs 和 Main 是两种类型的话，怎么用泛型？
@@ -88,13 +92,16 @@ func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, e
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,
 			AlternativeArt: cardPrice.AlternativeArt,
-			MinPrice:       minPrice,
-			AvgPrice:       avgPrice,
+			MinPrice:       fmt.Sprintf("%.2f", minPrice),
+			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
 		})
 
-		resp.MinPrice = resp.MinPrice + minPrice
-		resp.AvgPrice = resp.AvgPrice + avgPrice
+		allMinPrice = allMinPrice + minPrice
+		allAvgPrice = allAvgPrice + avgPrice
 	}
+
+	resp.MinPrice = fmt.Sprintf("%.2f", allMinPrice)
+	resp.AvgPrice = fmt.Sprintf("%.2f", allAvgPrice)
 
 	return &resp, nil
 }
