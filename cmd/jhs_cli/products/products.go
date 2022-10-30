@@ -7,7 +7,7 @@ import (
 func CreateCommand() *cobra.Command {
 	productsCmd := &cobra.Command{
 		Use:              "products",
-		Short:            "控制卡片集合信息",
+		Short:            "管理我在卖的商品信息",
 		PersistentPreRun: productsPersistentPreRun,
 	}
 

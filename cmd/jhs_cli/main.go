@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
+	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/orders"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/products"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -50,6 +51,7 @@ func newApp() *cobra.Command {
 	// 添加子命令
 	RootCmd.AddCommand(
 		products.CreateCommand(),
+		orders.CreateCommand(),
 	)
 
 	return RootCmd

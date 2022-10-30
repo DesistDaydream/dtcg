@@ -13,7 +13,7 @@ import (
 func AddCommand() *cobra.Command {
 	AddCardSetCmd := &cobra.Command{
 		Use:   "add",
-		Short: "添加卡片集合",
+		Short: "添加商品",
 		Run:   addProducts,
 	}
 
