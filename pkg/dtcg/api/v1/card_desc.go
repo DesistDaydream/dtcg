@@ -10,6 +10,9 @@ import (
 )
 
 func PostCardsDesc(c *gin.Context) {
+	// 允许跨域
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
 	var req models.PostCardsDescRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
