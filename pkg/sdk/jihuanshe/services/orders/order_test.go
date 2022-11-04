@@ -21,6 +21,7 @@ func getToken() {
 	token = string(file)
 }
 
+// 获取用户订单列表（买入）
 func TestOrdersClient_GetBuyerOrders(t *testing.T) {
 	getToken()
 	client := NewOrdersClient(core.NewClient(token))
@@ -44,6 +45,7 @@ func TestOrdersClient_GetBuyerOrderProducts(t *testing.T) {
 	fmt.Println(resp)
 }
 
+// 获取用户订单列表（卖出）
 func TestOrdersClient_GetSellerOrders(t *testing.T) {
 	getToken()
 	client := NewOrdersClient(core.NewClient(token))

@@ -7,7 +7,9 @@ import (
 	"io"
 	"net/http"
 	"reflect"
+	"strings"
 
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -32,6 +34,8 @@ type RequestOption struct {
 }
 
 func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOption) error {
+	var errorResp models.ErrorResp
+
 	logrus.WithFields(logrus.Fields{
 		"URI":   uri,
 		"请求体":   reqOpts.ReqBody,
@@ -45,6 +49,15 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 
 	if statusCode != 200 {
 		return fmt.Errorf("响应异常，响应码：%v", statusCode)
+	}
+
+	// 如果响应体中包含 "error" 这些字符串，则返回错误信息
+	if strings.Contains(string(body), "\"error\"") {
+		err = json.Unmarshal(body, &errorResp)
+		if err != nil {
+			return fmt.Errorf("解析 %v 异常: %v", string(body), err)
+		}
+		return fmt.Errorf("请求失败，错误码：%v，错误信息：%v", errorResp.Code, errorResp.Msg)
 	}
 
 	err = json.Unmarshal(body, wantResp)
