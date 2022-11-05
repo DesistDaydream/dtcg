@@ -71,7 +71,7 @@ func rootPersistentPreRun(cmd *cobra.Command, args []string) {
 	}
 
 	// 初始化配置文件
-	c := config.NewConfig()
+	c := config.NewConfig("", "")
 
 	// 初始化数据库
 	dbInfo := &database.DBInfo{

@@ -20,9 +20,32 @@ func AddCommand() *cobra.Command {
 	return AddCardSetCmd
 }
 
+// 根据 ser_prefix 获取 card_version_id
+func getCardVersionIDBySerPrefix(serPrefix string) ([]string, error) {
+	var cardVersionIDs []string
+
+	cardsPrice, err := database.GetCardPriceWhereSetPrefix(serPrefix)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cardPrice := range cardsPrice.Data {
+		cardVersionIDs = append(cardVersionIDs, fmt.Sprintf("%d", cardPrice.CardVersionID))
+	}
+
+	return cardVersionIDs, nil
+}
+
 // 添加商品
 func addProducts(cmd *cobra.Command, args []string) {
-	cards := []string{"2954", "2955", "2956", "2957"}
+	var cards []string
+	// cards := []string{"2954", "2955", "2956", "2957"}
+	cards, err := getCardVersionIDBySerPrefix("STC-08")
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+
+	fmt.Println(cards)
 
 	for _, cardVersionID := range cards {
 		var price string
@@ -33,7 +56,7 @@ func addProducts(cmd *cobra.Command, args []string) {
 		}
 
 		if cardPrice.AvgPrice == 0 {
-			price = "10"
+			price = fmt.Sprint(cardPrice.MinPrice + float64(2))
 		} else {
 			price = fmt.Sprint(cardPrice.AvgPrice + float64(2))
 		}

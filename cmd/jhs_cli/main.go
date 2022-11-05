@@ -63,7 +63,7 @@ func rootPersistentPreRun(cmd *cobra.Command, args []string) {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	c := config.NewConfig()
+	c := config.NewConfig("", "")
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{

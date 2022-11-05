@@ -23,7 +23,7 @@ func TestGetCardPrice(t *testing.T) {
 
 func TestUpdateCardPrice(t *testing.T) {
 	// 初始化配置文件
-	c := config.NewConfig()
+	c := config.NewConfig("", "")
 
 	// 初始化数据库
 	dbInfo := &DBInfo{
@@ -47,4 +47,28 @@ func TestUpdateCardPrice(t *testing.T) {
 			UpdateCardPrice(&cardPrice, map[string]string{})
 		}
 	}
+}
+
+func TestGetCardPriceWhereSetPrefix(t *testing.T) {
+
+	// 初始化配置文件
+	c := config.NewConfig("../../config", "")
+
+	// 初始化数据库
+	dbInfo := &DBInfo{
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
+	}
+
+	InitDB(dbInfo)
+
+	// 实例化一个处理器，包括各种 SDK 的服务能力
+	// handler.H = handler.NewHandler()
+
+	got, err := GetCardPriceWhereSetPrefix("STC-07")
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+	logrus.Infof("%v", got)
 }

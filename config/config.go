@@ -20,10 +20,12 @@ type SQLite struct {
 	FilePath string `yaml:"file_path"`
 }
 
-func NewConfig() *Config {
+func NewConfig(path, name string) *Config {
 	var config Config
+	viper.AddConfigPath(path)
 	viper.AddConfigPath("/etc/dtcg")
 	viper.AddConfigPath("./config")
+	viper.SetConfigName(name)
 	viper.SetConfigName("my_dtcg.yaml")
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()

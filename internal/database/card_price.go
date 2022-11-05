@@ -67,3 +67,20 @@ func GetCardPriceWhereCardVersionID(cardVersionID string) (*models.CardPrice, er
 
 	return &cardPrice, nil
 }
+
+// 根据卡片集合前缀获取卡牌价格详情
+func GetCardPriceWhereSetPrefix(setPrefix string) (*models.CardsPrice, error) {
+	var cp []models.CardPrice
+	result := DB.Where("set_prefix = ?", setPrefix).Find(&cp)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &models.CardsPrice{
+		Count:       result.RowsAffected,
+		PageSize:    -1,
+		PageCurrent: 1,
+		PageTotal:   1,
+		Data:        cp,
+	}, nil
+}
