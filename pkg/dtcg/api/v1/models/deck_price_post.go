@@ -24,6 +24,8 @@ type PostDeckPriceWithIDReq struct {
 	IDs string `json:"ids"`
 }
 
+// 通过 PostDeckPriceWithIDReq 中的 IDs 字段获取卡牌信息
+// 就是将数组字符串转换一下，然后再获取卡牌信息
 type PostDeckPriceWithIDReqTransform struct {
 	CardsInfo []CardInfo `json:"cards_info"`
 }
@@ -34,5 +36,3 @@ type CardInfo struct {
 	ScName       string `json:"sc_name"`
 	Serial       string `json:"serial"`
 }
-
-type PostDeckPriceWithIDResp struct{}

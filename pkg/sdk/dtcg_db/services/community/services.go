@@ -57,7 +57,25 @@ func (c *CommunityClient) PostDeckConvert(decks string) (*models.DeckConvertPost
 	return &decksConvertPostResponse, nil
 }
 
-// 获取云卡组详情
+// 获取卡组广场中的卡组
+func (c *CommunityClient) GetDeck(deckHID string) (*models.DeckGetResp, error) {
+	var deckGetResp models.DeckGetResp
+
+	uri := fmt.Sprintf("/api/community/decks/%s", deckHID)
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+	}
+
+	err := c.client.Request(uri, &deckGetResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &deckGetResp, nil
+}
+
+// 获取云卡组详情(云卡组是个人页面中创建的卡组)
 func (c *CommunityClient) GetDeckCloud(deckID string) (*models.CloudDeckGetResp, error) {
 	var cloudDeckGetResp models.CloudDeckGetResp
 	uri := fmt.Sprintf("/api/community/cloud_deck/%s", deckID)

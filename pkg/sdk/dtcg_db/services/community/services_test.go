@@ -1,6 +1,7 @@
 package community
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -90,6 +91,7 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 
 }
 
+// 从自己的卡组中获取卡组详情
 func TestCommunityClient_GetDeckCloud(t *testing.T) {
 	getToken()
 	client := NewCommunityClient(core.NewClient(token))
@@ -134,4 +136,33 @@ func TestCommunityClient_GetDeckCloud(t *testing.T) {
 		"集换价": avgPrice,
 	}).Infof("卡组价格")
 
+}
+
+// 从卡组广场的卡组中获取卡组详情
+func TestCommunityClient_GetDeck(t *testing.T) {
+	client := NewCommunityClient(core.NewClient(token))
+	decks, err := client.GetDeck("6cea907f6a001007281eaa8f52feb517a811a5bd")
+	if err != nil {
+		logrus.Errorln(err)
+	}
+
+	var cardsID []string
+
+	for _, card := range decks.Data.DeckInfo.Eggs {
+		for i := 0; i < card.Number; i++ {
+			cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
+		}
+	}
+
+	for _, card := range decks.Data.DeckInfo.Main {
+		for i := 0; i < card.Number; i++ {
+			cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
+		}
+	}
+
+	logrus.Infoln(len(cardsID), cardsID)
+
+	cardsIDString, _ := json.Marshal(&cardsID)
+
+	logrus.Infoln(string(cardsIDString))
 }
