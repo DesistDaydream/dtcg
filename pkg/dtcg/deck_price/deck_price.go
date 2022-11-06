@@ -105,3 +105,13 @@ func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, e
 
 	return &resp, nil
 }
+
+func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceResponse, error) {
+	var (
+		resp models.PostDeckPriceResponse
+		// allMinPrice float64
+		// allAvgPrice float64
+	)
+
+	return &resp, nil
+}

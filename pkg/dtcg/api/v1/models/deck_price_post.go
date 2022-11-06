@@ -19,3 +19,7 @@ type MutCardPrice struct {
 	MinPrice       string `json:"min_price"`
 	AvgPrice       string `json:"avg_price"`
 }
+
+type PostDeckPriceWithIDReq struct {
+	CardsIDFromDB []string `json:"cards_id_from_db"`
+}

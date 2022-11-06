@@ -46,7 +46,7 @@ func ListCardsPrice() (*models.CardsPrice, error) {
 	}, nil
 }
 
-// 获取卡牌价格详情
+// 根据 card_id_from_db 获取卡牌价格详情
 func GetCardPrice(cardIDFromDB string) (*models.CardPrice, error) {
 	var cardPrice models.CardPrice
 	result := DB.Where("card_id_from_db = ?", cardIDFromDB).First(&cardPrice)

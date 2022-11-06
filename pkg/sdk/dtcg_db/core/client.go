@@ -84,6 +84,9 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authority", "dtcg-api.moecard.cn")
+	if c.Token != "" {
+		req.Header.Add("authorization", fmt.Sprintf("Bearer %v", c.Token))
+	}
 
 	// 如果有 URL 的 Query 则逐一添加
 	if len(reqOpts.ReqQuery) > 0 {

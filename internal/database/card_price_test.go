@@ -8,22 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func TestGetCardPrice(t *testing.T) {
-	dbInfo := &DBInfo{
-		FilePath: "my_dtcg.db",
-	}
-	InitDB(dbInfo)
-	got, err := GetCardPrice("2210")
-	if err != nil {
-		logrus.Fatalln(err)
-	}
-
-	logrus.Info(got)
-}
-
-func TestUpdateCardPrice(t *testing.T) {
+func initDB() {
 	// 初始化配置文件
-	c := config.NewConfig("", "")
+	c := config.NewConfig("../../config", "")
 
 	// 初始化数据库
 	dbInfo := &DBInfo{
@@ -33,6 +20,21 @@ func TestUpdateCardPrice(t *testing.T) {
 	}
 
 	InitDB(dbInfo)
+}
+
+func TestGetCardPrice(t *testing.T) {
+	initDB()
+
+	got, err := GetCardPrice("2210")
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	logrus.Info(got)
+}
+
+func TestUpdateCardPrice(t *testing.T) {
+	initDB()
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
 	handler.H = handler.NewHandler()
@@ -50,18 +52,7 @@ func TestUpdateCardPrice(t *testing.T) {
 }
 
 func TestGetCardPriceWhereSetPrefix(t *testing.T) {
-
-	// 初始化配置文件
-	c := config.NewConfig("../../config", "")
-
-	// 初始化数据库
-	dbInfo := &DBInfo{
-		FilePath: c.SQLite.FilePath,
-		Server:   c.Mysql.Server,
-		Password: c.Mysql.Password,
-	}
-
-	InitDB(dbInfo)
+	initDB()
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
 	// handler.H = handler.NewHandler()

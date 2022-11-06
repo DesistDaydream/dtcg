@@ -1,6 +1,8 @@
 package community
 
 import (
+	"fmt"
+
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
 )
@@ -53,4 +55,21 @@ func (c *CommunityClient) PostDeckConvert(decks string) (*models.DeckConvertPost
 	}
 
 	return &decksConvertPostResponse, nil
+}
+
+// 获取云卡组详情
+func (c *CommunityClient) GetDeckCloud(deckID string) (*models.CloudDeckGetResp, error) {
+	var cloudDeckGetResp models.CloudDeckGetResp
+	uri := fmt.Sprintf("/api/community/cloud_deck/%s", deckID)
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+	}
+
+	err := c.client.Request(uri, &cloudDeckGetResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cloudDeckGetResp, nil
 }
