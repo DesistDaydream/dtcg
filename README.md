@@ -44,3 +44,12 @@ nerdctl build . -t lchdzh/dtcg:v1.3.0 -f build/dtcg/Dockerfile
 nerdctl run -it --rm --name jihuanshe-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.1.0
 
 nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.3.0
+
+# ChangeLog
+
+## 1.3.0
+
+添加数个逻辑
+
+1. 根据 DTCG DB 卡组广场中卡组的 URL 中最后的 HID，获取纯字符串格式的卡组所有卡牌的 ID
+2. 根据 DTCG DB 卡组广场中卡组的 URL 中最后的 HID，直接获取卡组价格
