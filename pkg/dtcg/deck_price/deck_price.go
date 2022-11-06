@@ -142,8 +142,6 @@ func transform(ids string) (*models.PostDeckPriceWithIDReqTransform, error) {
 			count++
 			cards.CardsInfo[cardsIndex].Count = count
 		}
-
-		fmt.Println(cards, cardsIndex)
 	}
 
 	return &cards, nil
@@ -179,6 +177,9 @@ func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceRes
 		allMinPrice = allMinPrice + minPrice
 		allAvgPrice = allAvgPrice + avgPrice
 	}
+
+	resp.MinPrice = fmt.Sprintf("%.2f", allMinPrice)
+	resp.AvgPrice = fmt.Sprintf("%.2f", allAvgPrice)
 
 	return &resp, nil
 }
