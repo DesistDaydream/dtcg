@@ -14,6 +14,7 @@ func InitRouter() *gin.Engine {
 	rr := r.Group("/api/v1")
 	rr.POST("/card/desc", v1.PostCardsDesc)
 	rr.POST("/deck/price", v1.PostDeckPrice)
+	rr.POST("/deck/pricewithid", v1.PostDeckPriceWithID)
 
 	return r
 }

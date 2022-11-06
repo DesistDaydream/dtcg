@@ -21,5 +21,18 @@ type MutCardPrice struct {
 }
 
 type PostDeckPriceWithIDReq struct {
-	CardsIDFromDB []string `json:"cards_id_from_db"`
+	IDs string `json:"ids"`
 }
+
+type PostDeckPriceWithIDReqTransform struct {
+	CardsInfo []CardInfo `json:"cards_info"`
+}
+
+type CardInfo struct {
+	Count        int    `json:"count"`
+	CardIDFromDB string `json:"card_id_from_db"`
+	ScName       string `json:"sc_name"`
+	Serial       string `json:"serial"`
+}
+
+type PostDeckPriceWithIDResp struct{}

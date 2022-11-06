@@ -1,6 +1,7 @@
 package deckprice
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -106,12 +107,78 @@ func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, e
 	return &resp, nil
 }
 
+func transform(ids string) (*models.PostDeckPriceWithIDReqTransform, error) {
+	var (
+		cards      models.PostDeckPriceWithIDReqTransform
+		cardsID    []string
+		cardsIndex int
+		count      int
+	)
+
+	json.Unmarshal([]byte(ids), &cardsID)
+
+	for i := 0; i < len(cardsID); i++ {
+		// 第一条数据不需要判断
+		if i == 0 {
+			count = 1
+			cardDesc, _ := database.GetCardDescByCardIDFromDB(cardsID[i])
+			cards.CardsInfo = append(cards.CardsInfo, models.CardInfo{
+				Count:        count,
+				CardIDFromDB: cardsID[i],
+				ScName:       cardDesc.ScName,
+				Serial:       cardDesc.Serial,
+			})
+		} else if cardsID[i] != cardsID[i-1] {
+			count = 1
+			cardDesc, _ := database.GetCardDescByCardIDFromDB(cardsID[i])
+			cards.CardsInfo = append(cards.CardsInfo, models.CardInfo{
+				Count:        count,
+				CardIDFromDB: cardsID[i],
+				ScName:       cardDesc.ScName,
+				Serial:       cardDesc.Serial,
+			})
+			cardsIndex++
+		} else {
+			count++
+			cards.CardsInfo[cardsIndex].Count = count
+		}
+
+		fmt.Println(cards, cardsIndex)
+	}
+
+	return &cards, nil
+}
+
 func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceResponse, error) {
 	var (
-		resp models.PostDeckPriceResponse
-		// allMinPrice float64
-		// allAvgPrice float64
+		resp        models.PostDeckPriceResponse
+		allMinPrice float64
+		allAvgPrice float64
 	)
+
+	cardsInfo, _ := transform(req.IDs)
+
+	for _, card := range cardsInfo.CardsInfo {
+		cardPrice, err := database.GetCardPrice(fmt.Sprint(card.CardIDFromDB))
+		if err != nil {
+			return nil, fmt.Errorf("获取价格失败")
+		}
+
+		minPrice := cardPrice.MinPrice * float64(card.Count)
+		avgPrice := cardPrice.AvgPrice * float64(card.Count)
+
+		resp.Data = append(resp.Data, models.MutCardPrice{
+			Count:          int(card.Count),
+			Serial:         cardPrice.Serial,
+			ScName:         cardPrice.ScName,
+			AlternativeArt: cardPrice.AlternativeArt,
+			MinPrice:       fmt.Sprintf("%.2f", minPrice),
+			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
+		})
+
+		allMinPrice = allMinPrice + minPrice
+		allAvgPrice = allAvgPrice + avgPrice
+	}
 
 	return &resp, nil
 }
