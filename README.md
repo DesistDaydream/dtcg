@@ -37,13 +37,13 @@ keyEffect=
 
 nerdctl build . -t lchdzh/jihuanshe-exporter:v1.1.0 -f build/jihuanshe_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v1.3.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v1.4.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jihuanshe-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.1.0
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.3.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.4.0
 
 # ChangeLog
 
@@ -53,3 +53,7 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 
 1. 根据 DTCG DB 卡组广场中卡组的 URL 中最后的 HID，获取纯字符串格式的卡组所有卡牌的 ID
 2. 根据 DTCG DB 卡组广场中卡组的 URL 中最后的 HID，直接获取卡组价格
+
+## 1.4.0
+
+1. 添加 /card/price 接口，对应的数据库操作添加获取卡牌价格带分页逻辑。
