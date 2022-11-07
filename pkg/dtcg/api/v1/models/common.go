@@ -1,6 +1,6 @@
 package models
 
-type ReqBodyErrorReponse struct {
+type ReqBodyErrorResp struct {
 	Message string `json:"message"`
 	Data    string `json:"data"`
 }

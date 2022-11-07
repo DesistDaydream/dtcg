@@ -46,6 +46,30 @@ func ListCardsPrice() (*models.CardsPrice, error) {
 	}, nil
 }
 
+// 根据条件获取卡牌价格详情
+func GetCardsPrice(pageSize int, pageNum int) (*models.CardsPrice, error) {
+	var (
+		CardCount int64
+		cp        []models.CardPrice
+	)
+
+	DB.Model(&models.CardPrice{}).Count(&CardCount)
+
+	// result := DB.Find(&cp)
+	result := DB.Limit(pageSize).Offset(pageSize * (pageNum - 1)).Find(&cp)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &models.CardsPrice{
+		Count:       CardCount,
+		PageSize:    pageSize,
+		PageCurrent: pageNum,
+		PageTotal:   (int(CardCount) / pageSize) + 1,
+		Data:        cp,
+	}, nil
+}
+
 // 根据 card_id_from_db 获取卡牌价格详情
 func GetCardPrice(cardIDFromDB string) (*models.CardPrice, error) {
 	var cardPrice models.CardPrice

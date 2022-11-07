@@ -42,9 +42,9 @@ import (
 // 	return nil
 // }
 
-func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, error) {
+func GetResp(req *models.PostDeckPriceReq) (*models.PostDeckPriceResp, error) {
 	var (
-		resp        models.PostDeckPriceResponse
+		resp        models.PostDeckPriceResp
 		allMinPrice float64
 		allAvgPrice float64
 	)
@@ -65,7 +65,7 @@ func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, e
 		minPrice := cardPrice.MinPrice * float64(card.Number)
 		avgPrice := cardPrice.AvgPrice * float64(card.Number)
 
-		resp.Data = append(resp.Data, models.MutCardPrice{
+		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
 			Count:          int(card.Number),
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,
@@ -88,7 +88,7 @@ func GetResp(req *models.PostDeckPriceRequest) (*models.PostDeckPriceResponse, e
 		minPrice := cardPrice.MinPrice * float64(card.Number)
 		avgPrice := cardPrice.AvgPrice * float64(card.Number)
 
-		resp.Data = append(resp.Data, models.MutCardPrice{
+		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
 			Count:          int(card.Number),
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,
@@ -147,9 +147,9 @@ func transform(ids string) (*models.PostDeckPriceWithIDReqTransform, error) {
 	return &cards, nil
 }
 
-func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceResponse, error) {
+func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceResp, error) {
 	var (
-		resp        models.PostDeckPriceResponse
+		resp        models.PostDeckPriceResp
 		allMinPrice float64
 		allAvgPrice float64
 	)
@@ -165,7 +165,7 @@ func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceRes
 		minPrice := cardPrice.MinPrice * float64(card.Count)
 		avgPrice := cardPrice.AvgPrice * float64(card.Count)
 
-		resp.Data = append(resp.Data, models.MutCardPrice{
+		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
 			Count:          int(card.Count),
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,

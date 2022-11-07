@@ -41,17 +41,6 @@ func ListCardDesc() (*models.CardsDesc, error) {
 	}, nil
 }
 
-// 根据 card_id_from_db 获取卡片描述
-func GetCardDescByCardIDFromDB(cardIDFromDB string) (*models.CardDesc, error) {
-	var cardDesc models.CardDesc
-	result := DB.Where("card_id_from_db = ?", cardIDFromDB).First(&cardDesc)
-	if condition := result.Error; condition != nil {
-		return nil, condition
-	}
-
-	return &cardDesc, nil
-}
-
 // 根据条件获取卡片描述
 func GetCardDesc(pageSize int, pageNum int) (*models.CardsDesc, error) {
 	var (
@@ -73,4 +62,15 @@ func GetCardDesc(pageSize int, pageNum int) (*models.CardsDesc, error) {
 		PageTotal:   (int(CardCount) / pageSize) + 1,
 		Data:        cd,
 	}, nil
+}
+
+// 根据 card_id_from_db 获取卡片描述
+func GetCardDescByCardIDFromDB(cardIDFromDB string) (*models.CardDesc, error) {
+	var cardDesc models.CardDesc
+	result := DB.Where("card_id_from_db = ?", cardIDFromDB).First(&cardDesc)
+	if condition := result.Error; condition != nil {
+		return nil, condition
+	}
+
+	return &cardDesc, nil
 }

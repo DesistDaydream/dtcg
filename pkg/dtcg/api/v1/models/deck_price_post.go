@@ -1,17 +1,17 @@
 package models
 
-type PostDeckPriceRequest struct {
+type PostDeckPriceReq struct {
 	Deck  string `json:"deck"`
 	Envir string `json:"envir"`
 }
 
-type PostDeckPriceResponse struct {
-	MinPrice string         `json:"min_price"`
-	AvgPrice string         `json:"avg_price"`
-	Data     []MutCardPrice `json:"data"`
+type PostDeckPriceResp struct {
+	MinPrice string                  `json:"min_price"`
+	AvgPrice string                  `json:"avg_price"`
+	Data     []PostDeckPriceRespData `json:"data"`
 }
 
-type MutCardPrice struct {
+type PostDeckPriceRespData struct {
 	Count          int    `json:"count"`
 	Serial         string `json:"serial"`
 	ScName         string `json:"sc_name"`

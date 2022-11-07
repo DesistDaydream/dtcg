@@ -18,10 +18,10 @@ func PostDeckPrice(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var req models.PostDeckPriceRequest
+	var req models.PostDeckPriceReq
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorReponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "解析请求体异常",
 			Data:    fmt.Sprintf("%v", err),
 		})
@@ -30,7 +30,7 @@ func PostDeckPrice(c *gin.Context) {
 
 	resp, err := deckprice.GetResp(&req)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorReponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
 			Data:    fmt.Sprintf("%v", err),
 		})
@@ -53,7 +53,7 @@ func PostDeckPriceWithID(c *gin.Context) {
 	var req models.PostDeckPriceWithIDReq
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorReponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "解析请求体异常",
 			Data:    fmt.Sprintf("%v", err),
 		})
@@ -62,7 +62,7 @@ func PostDeckPriceWithID(c *gin.Context) {
 
 	resp, err := deckprice.GetRespWithID(&req)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorReponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
 			Data:    fmt.Sprintf("%v", err),
 		})
@@ -112,7 +112,7 @@ func GetDeckPriceWithHID(c *gin.Context) {
 
 	resp, err := deckprice.GetRespWithID(&req)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorReponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
 			Data:    fmt.Sprintf("%v", err),
 		})

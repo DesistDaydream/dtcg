@@ -9,11 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func PostCardsDesc(c *gin.Context) {
+func PostCardsPrice(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var req models.PostCardsDescReq
+	var req models.PostCardsPriceReq
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
@@ -23,7 +23,7 @@ func PostCardsDesc(c *gin.Context) {
 		return
 	}
 
-	resp, err := database.GetCardDesc(req.PageSize, req.PageNum)
+	resp, err := database.GetCardsPrice(req.PageSize, req.PageNum)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}

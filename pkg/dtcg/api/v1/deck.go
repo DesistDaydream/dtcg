@@ -20,7 +20,7 @@ func GetDeckConverter(c *gin.Context) {
 
 	resp, err := deck.GetResp(hid)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorReponse{
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
 			Data:    fmt.Sprintf("%v", err),
 		})
