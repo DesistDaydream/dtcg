@@ -44,7 +44,7 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 	}
 
 	for i := startAt; i < len(cardsDesc.Data); i++ {
-		cardVersionID, minPrice, avgPrice := GetPrice(&cardsDesc.Data[i])
+		cardVersionID, minPrice, avgPrice := GetPriceFromDtcgdb(&cardsDesc.Data[i])
 
 		imageUrl := GetImageURL(cardVersionID)
 

@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
+	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -34,8 +36,8 @@ func cardPricePersistentPreRun(cmd *cobra.Command, args []string) {
 	}
 }
 
-// 通过 DtcgDB 获取卡牌价格
-func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
+// 从 DtcgDB 获取卡牌价格
+func GetPriceFromDtcgdb(cardDesc *models.CardDesc) (int, float64, float64) {
 	var (
 		minPrice      float64
 		avgPrice      float64
@@ -48,14 +50,43 @@ func GetPrice(cardDesc *models.CardDesc) (int, float64, float64) {
 	}
 
 	avgPrice, _ = strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
+	cardVersionID = cardPrice.Data.CardVersionID
 
 	if cardPrice.Data.Total == 0 {
 		minPrice = 0
-		cardVersionID = 0
 	} else {
 		minPrice, _ = strconv.ParseFloat(cardPrice.Data.Products[0].MinPrice, 64)
-		cardVersionID = int(cardPrice.Data.Products[0].CardVersionID)
 	}
+
+	return cardVersionID, minPrice, avgPrice
+}
+
+// 从 集换社 获取卡牌价格
+func GetPriceFromJhs(cardDesc *models.CardDesc) (int, float64, float64) {
+	var (
+		minPrice      float64
+		avgPrice      float64
+		cardVersionID int
+	)
+
+	// 获取 cardVersionID
+	cardPrice, err := database.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
+	if err != nil {
+		logrus.Fatalf("获取 card_version_id 失败: %v", err)
+	}
+
+	cardVersionID = cardPrice.CardVersionID
+
+	productInfo, err := handler.H.JhsServices.Products.Get(fmt.Sprint(cardPrice.CardVersionID))
+	if err != nil {
+		logrus.Fatalf("获取卡片价格失败: %v", err)
+	}
+
+	minPrice, _ = strconv.ParseFloat(productInfo.MinPrice, 64)
+	avgPrice, _ = strconv.ParseFloat(productInfo.AvgPrice, 64)
+
+	// 防止请求太快，等待 0.5 秒
+	time.Sleep(time.Millisecond * 500)
 
 	return cardVersionID, minPrice, avgPrice
 }

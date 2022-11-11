@@ -12,6 +12,9 @@ type CardPriceGetData struct {
 	Products []Product `json:"data"`
 	Enabled  bool      `json:"enabled"`
 	Total    int64     `json:"total"`
+	// 新增了两个字段
+	CardVersionID int    `json:"cv_id"`
+	Link          string `json:"link"`
 }
 
 type Product struct {
@@ -23,5 +26,5 @@ type Product struct {
 	SellerUserAvatar string `json:"seller_user_avatar"`
 	SellerUserID     int64  `json:"seller_user_id"`
 	SellerUsername   string `json:"seller_username"`
-	VerifyStatus     *int64 `json:"verify_status"`
+	VerifyStatus     int64  `json:"verify_status"`
 }
