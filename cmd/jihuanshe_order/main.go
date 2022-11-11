@@ -49,7 +49,7 @@ func GetBuyerOrderList(client *orders.OrdersClient) ([]int64, error) {
 
 		logrus.Infof("买入订单共 %v 页，已处理完第 %v 页", buyerOrders.LastPage, buyerOrders.CurrentPage)
 		if buyerOrders.CurrentPage == buyerOrders.LastPage {
-			logrus.Debugln("%v/%v 已处理完成，退出循环", buyerOrders.CurrentPage, buyerOrders.LastPage)
+			logrus.Debugf("%v/%v 已处理完成，退出循环", buyerOrders.CurrentPage, buyerOrders.LastPage)
 			break
 		}
 
@@ -76,7 +76,7 @@ func GetSellerOrderList(client *orders.OrdersClient) ([]int64, error) {
 
 		logrus.Infof("卖出订单共 %v 页，已处理完第 %v 页", sellerOrders.LastPage, sellerOrders.CurrentPage)
 		if sellerOrders.CurrentPage == sellerOrders.LastPage {
-			logrus.Debugln("%v/%v 已处理完成，退出循环", sellerOrders.CurrentPage, sellerOrders.LastPage)
+			logrus.Debugf("%v/%v 已处理完成，退出循环", sellerOrders.CurrentPage, sellerOrders.LastPage)
 			break
 		}
 

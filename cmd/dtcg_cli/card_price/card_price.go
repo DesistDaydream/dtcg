@@ -111,7 +111,7 @@ func GetImageURL(cardVersionID int) string {
 
 		logrus.Debugf("商品在售清单共 %v 页，已处理完第 %v 页", productSellers.LastPage, productSellers.CurrentPage)
 		if productSellers.CurrentPage == productSellers.LastPage {
-			logrus.Debugln("%v/%v 已处理完成，退出循环", productSellers.CurrentPage, productSellers.LastPage)
+			logrus.Debugf("%v/%v 已处理完成，退出循环", productSellers.CurrentPage, productSellers.LastPage)
 			return ""
 		}
 
