@@ -4,10 +4,10 @@
 
 还可以通过 CLI 从数据库获取数据。(其实还是写在 dtcg 项目里更好，通过 web 操作；当然，还可以在 Grafana 中实现展示数据库信息功能)
 
+# card-set 控制卡片集合信息
+
 # card-desc 控制卡片描述信息
 
 # card-price 控制卡片价格信息
 
-我们在向数据库中添加卡牌价格时，会从 DTCG DB 网站中获取到集换社中卡牌的唯一标识符 card_version_id
-
-# card-set 控制卡片集合信息
+我们在向数据库中添加卡牌价格时，会从 DTCG DB 网站中获取到集换社中卡牌的唯一标识符: card_version_id

@@ -41,7 +41,7 @@ func ListCardDesc() (*models.CardsDesc, error) {
 	}, nil
 }
 
-// 根据条件获取卡片描述
+// 分页获取卡牌描述
 func GetCardDesc(pageSize int, pageNum int) (*models.CardsDesc, error) {
 	var (
 		CardCount int64

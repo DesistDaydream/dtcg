@@ -1,8 +1,11 @@
 package models
 
 type CardSets struct {
-	Count int64     `json:"count"`
-	Data  []CardSet `json:"data"`
+	Count       int64     `json:"count"`
+	PageSize    int       `json:"page_size"`
+	PageCurrent int       `json:"page_current"`
+	PageTotal   int       `json:"page_total"`
+	Data        []CardSet `json:"data"`
 }
 
 type CardSet struct {

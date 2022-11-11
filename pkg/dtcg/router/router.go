@@ -12,6 +12,7 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	rr := r.Group("/api/v1")
+	rr.POST("/set/desc", v1.PostCardSets)
 	rr.POST("/card/desc", v1.PostCardsDesc)
 	rr.POST("/card/price", v1.PostCardsPrice)
 	rr.POST("/deck/price", v1.PostDeckPrice)

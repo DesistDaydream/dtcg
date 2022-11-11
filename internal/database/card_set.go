@@ -12,7 +12,7 @@ func AddCardSet(cardGroup *models.CardSet) {
 	}
 }
 
-// 获取所有卡包
+// 获取所有卡牌集合
 func ListCardSets() (*models.CardSets, error) {
 	var cg []models.CardSet
 	result := DB.Find(&cg)
@@ -23,5 +23,28 @@ func ListCardSets() (*models.CardSets, error) {
 	return &models.CardSets{
 		Count: result.RowsAffected,
 		Data:  cg,
+	}, nil
+}
+
+// 分页获取卡牌集合
+func GetCardSets(pageSize int, pageNum int) (*models.CardSets, error) {
+	var (
+		SetCount int64
+		cs       []models.CardSet
+	)
+
+	DB.Model(&models.CardSet{}).Count(&SetCount)
+
+	result := DB.Limit(pageSize).Offset(pageSize * (pageNum - 1)).Find(&cs)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &models.CardSets{
+		Count:       SetCount,
+		PageSize:    pageSize,
+		PageCurrent: pageNum,
+		PageTotal:   (int(SetCount) / pageSize) + 1,
+		Data:        cs,
 	}, nil
 }
