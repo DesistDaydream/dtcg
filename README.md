@@ -37,13 +37,13 @@ keyEffect=
 
 nerdctl build . -t lchdzh/jihuanshe-exporter:v1.1.0 -f build/jihuanshe_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v1.4.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v1.5.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jihuanshe-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.1.0
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.4.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.5.0
 
 # ChangeLog
 
@@ -57,3 +57,7 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 ## 1.4.0
 
 1. 添加 /card/price 接口，对应的数据库操作添加获取卡牌价格带分页逻辑。
+
+## 1.5.0
+
+1. 添加 /set/desc 接口，对应的数据库操作添加获取卡牌集合描述带分页逻辑。
