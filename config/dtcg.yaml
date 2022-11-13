@@ -3,4 +3,6 @@ mysql:
   server: ""
   password: ""
 sqlite:
-  file_path: "internal/database/my_dtcg.db"
+  filePath: "internal/database/my_dtcg.db"
+dtcgDB:
+  token: ""

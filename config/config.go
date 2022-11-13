@@ -9,6 +9,7 @@ type Config struct {
 	Listen string `yaml:"listen"`
 	Mysql  MySQL  `yaml:"mysql"`
 	SQLite SQLite `yaml:"sqlite"`
+	DtcgDB DtcgDB `yaml:"dtcgDB"`
 }
 
 type MySQL struct {
@@ -17,7 +18,11 @@ type MySQL struct {
 }
 
 type SQLite struct {
-	FilePath string `yaml:"file_path"`
+	FilePath string `yaml:"filePath"`
+}
+
+type DtcgDB struct {
+	Token string `yaml:"token"`
 }
 
 func NewConfig(path, name string) *Config {
@@ -32,7 +37,10 @@ func NewConfig(path, name string) *Config {
 	if err != nil {
 		logrus.Fatalf("读取配置文件失败: %v", err)
 	}
-	viper.Unmarshal(&config)
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		logrus.Fatalf("解析配置文件失败: %v", err)
+	}
 
 	return &config
 }
