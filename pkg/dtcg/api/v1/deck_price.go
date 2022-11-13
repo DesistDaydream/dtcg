@@ -14,11 +14,11 @@ import (
 )
 
 // 根据 DTCG_DB 导出的 JSON 格式卡组信息获取卡组价格
-func PostDeckPrice(c *gin.Context) {
+func PostDeckPriceWithJSON(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var req models.PostDeckPriceReq
+	var req models.PostDeckPriceWithJSONReq
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
@@ -45,8 +45,8 @@ func PostDeckPrice(c *gin.Context) {
 	c.JSON(200, &resp)
 }
 
-// 根据所有卡牌的 card_id_from_db 获取卡组价格。这里的 card_id_from_db 是通过 GetDeckConverter() 接口获取的
-func PostDeckPriceWithID(c *gin.Context) {
+// 根据所有卡牌的 card_id_from_db 获取卡组价格。这里的 card_id_from_db 是通过 GetDeckConverter() 函数获取的，也就是 /deck/converter/:hid 接口
+func PostDeckPriceWithIDS(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
