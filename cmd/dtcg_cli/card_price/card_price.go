@@ -58,6 +58,10 @@ func GetPriceFromDtcgdb(cardDesc *models.CardDesc) (int, float64, float64) {
 		minPrice, _ = strconv.ParseFloat(cardPrice.Data.Products[0].MinPrice, 64)
 	}
 
+	if avgPrice == 0 {
+		avgPrice = minPrice
+	}
+
 	return cardVersionID, minPrice, avgPrice
 }
 
@@ -84,6 +88,10 @@ func GetPriceFromJhs(cardDesc *models.CardDesc) (int, float64, float64) {
 
 	minPrice, _ = strconv.ParseFloat(productInfo.MinPrice, 64)
 	avgPrice, _ = strconv.ParseFloat(productInfo.AvgPrice, 64)
+
+	if avgPrice == 0 {
+		avgPrice = minPrice
+	}
 
 	// 防止请求太快，等待 0.5 秒
 	time.Sleep(time.Millisecond * 500)
