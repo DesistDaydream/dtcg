@@ -3,19 +3,61 @@ package v1
 import (
 	"net/http"
 
+	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
+
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
+func GetCardsPrice(c *gin.Context) {
+	// 允许跨域
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
+	// 绑定 url query
+	var req models.GetCardsPriceReqQuery
+
+	if err := c.ShouldBindQuery(&req); err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if req.PageSize == 0 || req.PageNum == 0 {
+		req.PageSize = 10
+		req.PageNum = 1
+	}
+
+	resp, err := database.GetCardsPrice(req.PageSize, req.PageNum)
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+
+	c.JSON(200, resp)
+}
+
 func PostCardsPrice(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var req models.PostCardsPriceReq
+	// 绑定 url query
+	var reqQuery models.GetCardsPriceReqQuery
 
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindQuery(&reqQuery); err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if reqQuery.PageSize == 0 || reqQuery.PageNum == 0 {
+		reqQuery.PageSize = 10
+		reqQuery.PageNum = 1
+	}
+
+	var reqBody dbmodels.QueryCardPrice
+
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "请求体错误",
 			Data:    "",
@@ -23,7 +65,7 @@ func PostCardsPrice(c *gin.Context) {
 		return
 	}
 
-	resp, err := database.GetCardsPrice(req.PageSize, req.PageNum)
+	resp, err := database.GetCardPriceByCondition(reqQuery.PageSize, reqQuery.PageNum, &reqBody)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}

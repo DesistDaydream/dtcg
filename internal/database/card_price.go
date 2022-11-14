@@ -108,3 +108,46 @@ func GetCardPriceWhereSetPrefix(setPrefix string) (*models.CardsPrice, error) {
 		Data:        cp,
 	}, nil
 }
+
+// 根据条件获取卡牌价格详情
+func GetCardPriceByCondition(pageSize int, pageNum int, queryCardPrice *models.QueryCardPrice) (*models.CardsPrice, error) {
+	var (
+		CardCount int64
+		cp        []models.CardPrice
+	)
+
+	result := DB.Model(&models.CardPrice{})
+
+	// 多列模糊查询
+	if queryCardPrice.Keyword != "" {
+		// QField 不为空时，只查询 QField 中的列
+		if len(queryCardPrice.QField) > 0 {
+			for _, qf := range queryCardPrice.QField {
+				result = result.Or(qf+" LIKE ?", "%"+queryCardPrice.Keyword+"%")
+			}
+		} else {
+			result = result.Where("sc_name LIKE ?",
+				"%"+queryCardPrice.Keyword+"%",
+			)
+		}
+	}
+
+	// 查询最终结果
+	result = result.Where(&models.CardPrice{
+		AlternativeArt: queryCardPrice.Type,
+	})
+
+	// 分页、计数
+	result = result.Offset(pageSize * (pageNum - 1)).Limit(pageSize).Find(&cp).Offset(-1).Limit(-1).Count(&CardCount)
+	if condition := result.Error; condition != nil {
+		return nil, condition
+	}
+
+	return &models.CardsPrice{
+		Count:       CardCount,
+		PageSize:    pageSize,
+		PageCurrent: pageNum,
+		PageTotal:   (int(CardCount) / pageSize) + 1,
+		Data:        cp,
+	}, nil
+}

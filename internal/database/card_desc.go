@@ -24,7 +24,7 @@ func UpdateCardDesc(cardDesc *models.CardDesc, condition map[string]string) {
 	logrus.Debugf("已更新 %v 条数据", result.RowsAffected)
 }
 
-// 获取所有卡片描述
+// 列出所有卡牌描述
 func ListCardDesc() (*models.CardsDesc, error) {
 	var cd []models.CardDesc
 	result := DB.Find(&cd)
@@ -42,7 +42,7 @@ func ListCardDesc() (*models.CardsDesc, error) {
 }
 
 // 分页获取卡牌描述
-func GetCardDesc(pageSize int, pageNum int) (*models.CardsDesc, error) {
+func GetCardsDesc(pageSize int, pageNum int) (*models.CardsDesc, error) {
 	var (
 		CardCount int64
 		cd        []models.CardDesc

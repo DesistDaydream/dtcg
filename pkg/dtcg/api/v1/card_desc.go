@@ -29,7 +29,7 @@ func GetCardsDesc(c *gin.Context) {
 		req.PageNum = 1
 	}
 
-	resp, err := database.GetCardDesc(req.PageSize, req.PageNum)
+	resp, err := database.GetCardsDesc(req.PageSize, req.PageNum)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}

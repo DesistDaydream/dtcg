@@ -37,13 +37,13 @@ keyEffect=
 
 nerdctl build . -t lchdzh/jihuanshe-exporter:v1.1.0 -f build/jihuanshe_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v1.6.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v1.7.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jihuanshe-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.1.0
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.6.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.7.0
 
 # ChangeLog
 
@@ -65,3 +65,8 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 ## 1.6.0
 
 1. 添加 /deck/price/cdid/:cdid 接口，通过云卡组 ID 获取卡组价格
+
+## 1.7.0
+
+1. 添加 /card/price GET 接口
+2. 将 /card/price POST 接口改为可以通过条件筛选结果的逻辑
