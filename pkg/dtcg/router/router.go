@@ -13,7 +13,7 @@ func InitRouter() *gin.Engine {
 
 	rr := r.Group("/api/v1")
 	rr.POST("/set/desc", v1.PostCardSets)
-	rr.POST("/card/desc", v1.PostCardsDesc)
+	rr.GET("/card/desc", v1.GetCardsDesc)
 	rr.POST("/card/price", v1.PostCardsPrice)
 	rr.POST("/deck/price/json", v1.PostDeckPriceWithJSON)
 	rr.GET("/deck/price/hid/:hid", v1.GetDeckPriceWithHID)
@@ -23,6 +23,10 @@ func InitRouter() *gin.Engine {
 	rr.GET("/deck/converter/:hid", v1.GetDeckConverter)
 	// 根据上面转换后的字符串格式的卡组信息，获取卡组价格。
 	rr.POST("/deck/price/ids", v1.PostDeckPriceWithIDS)
+
+	// 待废弃的
+	// 被 /card/desc GET 请求替代
+	rr.POST("/card/desc", v1.PostCardsDesc)
 
 	return r
 }

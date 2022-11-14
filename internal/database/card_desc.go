@@ -74,3 +74,49 @@ func GetCardDescByCardIDFromDB(cardIDFromDB string) (*models.CardDesc, error) {
 
 	return &cardDesc, nil
 }
+
+// 根据条件获取卡牌描述
+func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.QueryCardDesc) (*models.CardsDesc, error) {
+	var (
+		CardCount int64
+		cd        []models.CardDesc
+	)
+
+	result := DB.Model(&models.CardDesc{})
+
+	// 多列模糊查询
+	if queryCardDesc.Keyword != "" {
+		// QField 不为空时，只查询 QField 中的列
+		if len(queryCardDesc.QField) > 0 {
+			for _, qf := range queryCardDesc.QField {
+				result = result.Or(qf+" LIKE ?", "%"+queryCardDesc.Keyword+"%")
+			}
+		} else {
+			result = result.Where("sc_name LIKE ? OR effect LIKE ? OR evo_cover_effect LIKE ? OR security_effect LIKE ?",
+				"%"+queryCardDesc.Keyword+"%",
+				"%"+queryCardDesc.Keyword+"%",
+				"%"+queryCardDesc.Keyword+"%",
+				"%"+queryCardDesc.Keyword+"%",
+			)
+		}
+	}
+
+	// 查询最终结果
+	result = result.Where(&models.CardDesc{
+		Type: queryCardDesc.Type,
+	})
+
+	// 分页、计数
+	result = result.Offset(pageSize * (pageNum - 1)).Limit(pageSize).Find(&cd).Offset(-1).Limit(-1).Count(&CardCount)
+	if condition := result.Error; condition != nil {
+		return nil, condition
+	}
+
+	return &models.CardsDesc{
+		Count:       CardCount,
+		PageSize:    pageSize,
+		PageCurrent: pageNum,
+		PageTotal:   (int(CardCount) / pageSize) + 1,
+		Data:        cd,
+	}, nil
+}

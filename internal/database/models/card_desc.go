@@ -38,3 +38,40 @@ type CardDesc struct {
 	RaritySC       string `json:"rarity_sc"`
 	Image          string `json:"image"`
 }
+
+// 用于查询的 CardDesc
+type QueryCardDesc struct {
+	CardPack   int64     `json:"card_pack"`
+	ClassInput bool      `json:"class_input"`
+	Color      []string  `json:"color"`
+	EvoCond    []EvoCond `json:"evo_cond"`
+	Keyword    string    `json:"keyword"`
+	Language   string    `json:"language"`
+	OrderType  string    `json:"order_type"`
+	QField     []string  `json:"qField"` // 通过 Keyword 进行查询的字段
+	Rarity     []string  `json:"rarity"`
+	Tags       []string  `json:"tags"` // 特征
+	TagsLogic  string    `json:"tags__logic"`
+	Type       string    `json:"type"`
+}
+
+// type QueryCardDesc struct {
+// 	CardPack   int64     `json:"card_pack"`
+// 	ClassInput bool      `json:"class_input"`
+// 	Color      []string  `json:"color"`
+// 	EvoCond    []EvoCond `json:"evo_cond"`
+// 	Keyword    string    `json:"keyword"`
+// 	Language   string    `json:"language"`
+// 	OrderType  string    `json:"order_type"`
+// 	QField     []string  `json:"qField"`
+// 	Rarity     []string  `json:"rarity"`
+// 	Tags       []string  `json:"tags"` // 特征
+// 	TagsLogic  string    `json:"tags__logic"`
+// 	Type       string    `json:"type"`
+// }
+
+type EvoCond struct {
+	Color string `json:"color,omitempty"`
+	Cost  string `json:"cost,omitempty"`
+	Level string `json:"level,omitempty"`
+}
