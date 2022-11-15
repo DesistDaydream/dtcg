@@ -3,6 +3,7 @@ package database
 import (
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // 添加卡牌描述
@@ -88,11 +89,25 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 	if queryCardDesc.Keyword != "" {
 		// QField 不为空时，只查询 QField 中的列
 		if len(queryCardDesc.QField) > 0 {
+			// result.Session(&gorm.Session{NewDB: true})
 			// TODO: 每次循环都会生成一个 SQL 片段，导致查询结果异常。并且 Or 会导致后面所有的查询条件都会使用 Or()，导致查询结果异常。
 			// 这么做无法通过 Group 功能，将这些 Or 放到一个括号中，然后再与其他查询条件进行 And
-			for _, field := range queryCardDesc.QField {
-				result = result.Or(field+" LIKE ?", "%"+queryCardDesc.Keyword+"%")
-			}
+			// for _, field := range queryCardDesc.QField {
+			// 	result = result.Or(field+" LIKE ?", "%"+queryCardDesc.Keyword+"%")
+			// }
+
+			// 通过这种方式解决了？参考：https://github.com/go-gorm/gorm/issues/5052
+			f := func(queryCardDesc *models.QueryCardDesc, result *gorm.DB) *gorm.DB {
+				// 通过 Session() 创建一个新的 DB 实例，避免影响原来的 DB 实例。用以实现为多个 Or 分组的功能
+				newResult := result.Session(&gorm.Session{NewDB: true})
+				for _, field := range queryCardDesc.QField {
+					newResult = newResult.Or(field+" LIKE ?", "%"+queryCardDesc.Keyword+"%")
+				}
+				return newResult
+			}(queryCardDesc, result)
+
+			// 通过 Group Conditions(组条件) 功能将查询分组
+			result = result.Where(f)
 		} else {
 			result = result.Where("sc_name LIKE ? OR serial LIKE ? OR effect LIKE ? OR evo_cover_effect LIKE ? OR security_effect LIKE ?",
 				"%"+queryCardDesc.Keyword+"%",
@@ -101,20 +116,22 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 				"%"+queryCardDesc.Keyword+"%",
 				"%"+queryCardDesc.Keyword+"%",
 			)
-			// 检查查询语句
-			logrus.Debugf("检查关键字多列模糊查询SQL: %v", result.Statement.SQL.String())
 		}
 	}
 
 	// 颜色多匹配查询
 	if len(queryCardDesc.Color) > 0 {
-		for _, color := range queryCardDesc.Color {
-			// TODO: 这里不能用 Where，否则所有的颜色匹配都会是 AND 逻辑
-			result = result.Where("color LIKE ?", "%"+color+"%")
-			// TODO: 这里如果使用 Or 会与上面的关键字查询产生相同的问题，无法通过 Group 功能，将这些 Or 放到一个括号中，然后再与其他查询条件进行 And
-			// 每次循环都会生成一个 SQL 片段，导致查询结果异常。并且 Or 会导致后面所有的查询条件都会使用 Or()，导致查询结果异常
-			// result = result.Or("color LIKE ?", "%"+color+"%")
-		}
+		f := func(queryCardDesc *models.QueryCardDesc, result *gorm.DB) *gorm.DB {
+			// 通过 Session() 创建一个新的 DB 实例，避免影响原来的 DB 实例。用以实现为多个 Or 分组的功能
+			newResult := result.Session(&gorm.Session{NewDB: true})
+			for _, color := range queryCardDesc.Color {
+				newResult = newResult.Or("color LIKE ?", "%"+color+"%")
+			}
+			return newResult
+		}(queryCardDesc, result)
+
+		// 通过 Group Conditions(组条件) 功能将查询分组
+		result = result.Where(f)
 	}
 
 	// 稀有度多匹配查询

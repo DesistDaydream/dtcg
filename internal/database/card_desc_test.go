@@ -12,15 +12,15 @@ func TestGetCardDescByCondition(t *testing.T) {
 	got, err := GetCardDescByCondition(5, 1, &models.QueryCardDesc{
 		CardPack:   0,
 		ClassInput: false,
-		Color:      []string{"红"},
+		Color:      []string{"红", "白"},
 		EvoCond:    []models.EvoCond{},
 		Keyword:    "奥米加",
 		Language:   "",
 		OrderType:  "",
-		QField:     []string{
-			// "effect",
-			// "sc_name",
-			// "evo_cover_effect",
+		QField: []string{
+			"effect",
+			"sc_name",
+			"evo_cover_effect",
 		},
 		Rarity:    []string{},
 		Tags:      []string{},
