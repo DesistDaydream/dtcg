@@ -126,7 +126,8 @@ func GetCardPriceByCondition(pageSize int, pageNum int, queryCardPrice *models.Q
 				result = result.Or(qf+" LIKE ?", "%"+queryCardPrice.Keyword+"%")
 			}
 		} else {
-			result = result.Where("sc_name LIKE ?",
+			result = result.Where("sc_name LIKE ? OR serial LIKE ?",
+				"%"+queryCardPrice.Keyword+"%",
 				"%"+queryCardPrice.Keyword+"%",
 			)
 		}

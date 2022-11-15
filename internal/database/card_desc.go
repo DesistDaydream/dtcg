@@ -92,7 +92,8 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 				result = result.Or(qf+" LIKE ?", "%"+queryCardDesc.Keyword+"%")
 			}
 		} else {
-			result = result.Where("sc_name LIKE ? OR effect LIKE ? OR evo_cover_effect LIKE ? OR security_effect LIKE ?",
+			result = result.Where("sc_name LIKE ? OR serial LIKE ? OR effect LIKE ? OR evo_cover_effect LIKE ? OR security_effect LIKE ?",
+				"%"+queryCardDesc.Keyword+"%",
 				"%"+queryCardDesc.Keyword+"%",
 				"%"+queryCardDesc.Keyword+"%",
 				"%"+queryCardDesc.Keyword+"%",
