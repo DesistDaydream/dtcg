@@ -84,12 +84,14 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 
 	result := DB.Model(&models.CardDesc{})
 
-	// 多列模糊查询
+	// TODO: 多条件查询时，如果其中有一种查询使用 Or()，则会导致查询结果异常。需要解决
+
+	// 通过关键字在多列模糊查询
 	if queryCardDesc.Keyword != "" {
 		// QField 不为空时，只查询 QField 中的列
 		if len(queryCardDesc.QField) > 0 {
-			for _, qf := range queryCardDesc.QField {
-				result = result.Or(qf+" LIKE ?", "%"+queryCardDesc.Keyword+"%")
+			for _, field := range queryCardDesc.QField {
+				result = result.Or(field+" LIKE ?", "%"+queryCardDesc.Keyword+"%")
 			}
 		} else {
 			result = result.Where("sc_name LIKE ? OR serial LIKE ? OR effect LIKE ? OR evo_cover_effect LIKE ? OR security_effect LIKE ?",
@@ -99,7 +101,21 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 				"%"+queryCardDesc.Keyword+"%",
 				"%"+queryCardDesc.Keyword+"%",
 			)
+			// 检查查询语句
+			logrus.Debugf("检查关键字多列模糊查询SQL: %v", result.Statement.SQL.String())
 		}
+	}
+
+	// 颜色多匹配查询
+	if len(queryCardDesc.Color) > 0 {
+		for _, color := range queryCardDesc.Color {
+			result = result.Where("color LIKE ?", "%"+color+"%")
+		}
+	}
+
+	// 稀有度多匹配查询
+	if len(queryCardDesc.Rarity) > 0 {
+		result = result.Where("rarity IN ?", queryCardDesc.Rarity)
 	}
 
 	// 查询最终结果

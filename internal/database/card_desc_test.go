@@ -9,10 +9,10 @@ import (
 
 func TestGetCardDescByCondition(t *testing.T) {
 	initDB()
-	got, err := GetCardDescByCondition(5, 2, &models.QueryCardDesc{
+	got, err := GetCardDescByCondition(5, 1, &models.QueryCardDesc{
 		CardPack:   0,
 		ClassInput: false,
-		Color:      []string{},
+		Color:      []string{"红"},
 		EvoCond:    []models.EvoCond{},
 		Keyword:    "奥米加",
 		Language:   "",
@@ -20,6 +20,7 @@ func TestGetCardDescByCondition(t *testing.T) {
 		QField: []string{
 			"effect",
 			"sc_name",
+			"evo_cover_effect",
 		},
 		Rarity:    []string{},
 		Tags:      []string{},
