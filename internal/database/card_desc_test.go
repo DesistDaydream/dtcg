@@ -17,10 +17,10 @@ func TestGetCardDescByCondition(t *testing.T) {
 		Keyword:    "奥米加",
 		Language:   "",
 		OrderType:  "",
-		QField: []string{
-			"effect",
-			"sc_name",
-			"evo_cover_effect",
+		QField:     []string{
+			// "effect",
+			// "sc_name",
+			// "evo_cover_effect",
 		},
 		Rarity:    []string{},
 		Tags:      []string{},
