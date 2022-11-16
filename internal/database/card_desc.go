@@ -89,7 +89,6 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 	if queryCardDesc.Keyword != "" {
 		// QField 不为空时，只查询 QField 中的列
 		if len(queryCardDesc.QField) > 0 {
-			// result.Session(&gorm.Session{NewDB: true})
 			// TODO: 每次循环都会生成一个 SQL 片段，导致查询结果异常。并且 Or 会导致后面所有的查询条件都会使用 Or()，导致查询结果异常。
 			// 这么做无法通过 Group 功能，将这些 Or 放到一个括号中，然后再与其他查询条件进行 And
 			// for _, field := range queryCardDesc.QField {
