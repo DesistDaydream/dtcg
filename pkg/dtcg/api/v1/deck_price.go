@@ -19,8 +19,8 @@ func PostDeckPriceWithJSON(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
-	var req models.PostDeckPriceWithJSONReq
-
+	// 绑定请求体
+	var req models.PostDeckPriceWithJSONReqBody
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "解析请求体异常",
@@ -30,38 +30,6 @@ func PostDeckPriceWithJSON(c *gin.Context) {
 	}
 
 	resp, err := deckprice.GetResp(&req)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
-			Message: "获取响应失败",
-			Data:    fmt.Sprintf("%v", err),
-		})
-		return
-	}
-
-	logrus.WithFields(logrus.Fields{
-		"最低价": resp.MinPrice,
-		"集换价": resp.AvgPrice,
-	}).Debugf("卡组价格")
-
-	c.JSON(200, &resp)
-}
-
-// 根据所有卡牌的 card_id_from_db 获取卡组价格。这里的 card_id_from_db 是通过 GetDeckConverter() 函数获取的，也就是 /deck/converter/:hid 接口
-func PostDeckPriceWithIDS(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
-	var req models.PostDeckPriceWithIDReq
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
-			Message: "解析请求体异常",
-			Data:    fmt.Sprintf("%v", err),
-		})
-		return
-	}
-
-	resp, err := deckprice.GetRespWithID(&req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
@@ -160,6 +128,38 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 
 	req := models.PostDeckPriceWithIDReq{
 		IDs: string(cardsIDString),
+	}
+
+	resp, err := deckprice.GetRespWithID(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "获取响应失败",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"最低价": resp.MinPrice,
+		"集换价": resp.AvgPrice,
+	}).Debugf("卡组价格")
+
+	c.JSON(200, &resp)
+}
+
+// 根据所有卡牌的 card_id_from_db 获取卡组价格。这里的 card_id_from_db 是通过 GetDeckConverter() 函数获取的，也就是 /deck/converter/:hid 接口
+func PostDeckPriceWithIDS(c *gin.Context) {
+	// 允许跨域
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
+	// 绑定请求体
+	var req models.PostDeckPriceWithIDReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "解析请求体异常",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
 	}
 
 	resp, err := deckprice.GetRespWithID(&req)

@@ -9,12 +9,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// 获取所有卡牌集合的信息
 func PostCardSets(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 	var req models.PostCardSetsReq
 
+	// 绑定请求体
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "请求体错误",

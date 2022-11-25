@@ -13,10 +13,14 @@ func InitRouter() *gin.Engine {
 
 	rr := r.Group("/api/v1")
 	rr.POST("/set/desc", v1.PostCardSets)
+
 	rr.GET("/card/desc", v1.GetCardsDesc)
 	rr.POST("/card/desc", v1.PostCardsDesc)
+
 	rr.GET("/card/price", v1.GetCardsPrice)
 	rr.POST("/card/price", v1.PostCardsPrice)
+	rr.POST("/card/pricewithimg", v1.PostCardsPriceWithDtcgDBImg)
+
 	rr.POST("/deck/price/json", v1.PostDeckPriceWithJSON)
 	rr.GET("/deck/price/hid/:hid", v1.GetDeckPriceWithHID)
 	rr.GET("/deck/price/cdid/:cdid", v1.GetDeckPriceWithCloudDeckID)

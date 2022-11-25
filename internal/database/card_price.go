@@ -120,17 +120,10 @@ func GetCardPriceByCondition(pageSize int, pageNum int, queryCardPrice *models.Q
 
 	// 多列模糊查询
 	if queryCardPrice.Keyword != "" {
-		// QField 不为空时，只查询 QField 中的列
-		if len(queryCardPrice.QField) > 0 {
-			for _, qf := range queryCardPrice.QField {
-				result = result.Or(qf+" LIKE ?", "%"+queryCardPrice.Keyword+"%")
-			}
-		} else {
-			result = result.Where("sc_name LIKE ? OR serial LIKE ?",
-				"%"+queryCardPrice.Keyword+"%",
-				"%"+queryCardPrice.Keyword+"%",
-			)
-		}
+		result = result.Where("sc_name LIKE ? OR serial LIKE ?",
+			"%"+queryCardPrice.Keyword+"%",
+			"%"+queryCardPrice.Keyword+"%",
+		)
 	}
 
 	// 查询最终结果
@@ -145,6 +138,51 @@ func GetCardPriceByCondition(pageSize int, pageNum int, queryCardPrice *models.Q
 	}
 
 	return &models.CardsPrice{
+		Count:       CardCount,
+		PageSize:    pageSize,
+		PageCurrent: pageNum,
+		PageTotal:   (int(CardCount) / pageSize) + 1,
+		Data:        cp,
+	}, nil
+}
+
+// 根据条件从 card_price 表获取卡牌价格中带有 card_desc 表中的图片
+func GetCardPriceWithDtcgDBImgByCondition(pageSize int, pageNum int, queryCardPrice *models.QueryCardPrice) (*models.CardsPriceWithImageDB, error) {
+	var (
+		CardCount int64
+		cp        []models.CardPriceWithImageDB
+	)
+
+	result := DB.Model(&models.CardPrice{})
+
+	// 联表查询
+	sqlSelect := `card_prices.card_id_from_db AS card_id_from_db,
+card_prices.set_prefix AS set_prefix,
+card_prices.serial AS serial,
+card_prices.sc_name AS sc_name,
+card_prices.alternative_art AS alternative_art,
+card_prices.rarity AS rarity,
+card_prices.card_version_id AS card_version_id,
+card_prices.min_price AS min_price,
+card_prices.avg_price AS avg_price,
+card_descs.image AS image`
+	result = result.Select(sqlSelect).Joins("LEFT JOIN card_descs ON card_prices.card_id_from_db = card_descs.card_id_from_db").Debug()
+
+	// 多列模糊查询
+	if queryCardPrice.Keyword != "" {
+		result = result.Where("card_prices.sc_name LIKE ? OR card_prices.serial LIKE ?",
+			"%"+queryCardPrice.Keyword+"%",
+			"%"+queryCardPrice.Keyword+"%",
+		)
+	}
+
+	// 分页、计数
+	result = result.Offset(pageSize * (pageNum - 1)).Limit(pageSize).Find(&cp).Offset(-1).Limit(-1).Count(&CardCount)
+	if condition := result.Error; condition != nil {
+		return nil, condition
+	}
+
+	return &models.CardsPriceWithImageDB{
 		Count:       CardCount,
 		PageSize:    pageSize,
 		PageCurrent: pageNum,

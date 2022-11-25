@@ -1,6 +1,6 @@
 package models
 
-type PostDeckPriceWithJSONReq struct {
+type PostDeckPriceWithJSONReqBody struct {
 	Deck  string `json:"deck"`
 	Envir string `json:"envir"`
 }

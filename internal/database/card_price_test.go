@@ -5,6 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -62,4 +63,67 @@ func TestGetCardPriceWhereSetPrefix(t *testing.T) {
 		logrus.Errorf("%v", err)
 	}
 	logrus.Infof("%v", got)
+}
+
+func TestGetCardPriceByCondition(t *testing.T) {
+	initDB()
+
+	got, err := GetCardPriceByCondition(3, 1, &models.QueryCardPrice{
+		CardPack:   0,
+		ClassInput: false,
+		Color:      []string{"红", "白"},
+		EvoCond:    []models.EvoCond{},
+		Keyword:    "奥米加",
+		Language:   "",
+		OrderType:  "",
+		QField:     []string{},
+		Rarity:     []string{},
+		Tags:       []string{},
+		TagsLogic:  "",
+		Type:       "",
+	})
+	if err != nil {
+		logrus.Errorln(err)
+	}
+
+	for _, v := range got.Data {
+		logrus.WithFields(logrus.Fields{
+			"CardIDFromDB":  v.CardIDFromDB,
+			"CardVersionID": v.CardVersionID,
+			"图片":            v.ImageUrl,
+		}).Infof("查询结果")
+	}
+}
+
+func TestGetCardPriceWithImageByCondition(t *testing.T) {
+	initDB()
+
+	got, err := GetCardPriceWithDtcgDBImgByCondition(3, 1, &models.QueryCardPrice{
+		CardPack:   0,
+		ClassInput: false,
+		Color:      []string{"红", "白"},
+		EvoCond:    []models.EvoCond{},
+		Keyword:    "奥米加",
+		Language:   "",
+		OrderType:  "",
+		QField: []string{
+			"serial",
+			"sc_name",
+		},
+		Rarity:    []string{},
+		Tags:      []string{},
+		TagsLogic: "",
+		Type:      "",
+	})
+	if err != nil {
+		logrus.Errorln(err)
+	}
+
+	for _, v := range got.Data {
+		logrus.WithFields(logrus.Fields{
+			"CardIDFromDB":  v.CardIDFromDB,
+			"CardVersionID": v.CardVersionID,
+			"图片":            v.Image,
+		}).Infof("查询结果")
+	}
 }

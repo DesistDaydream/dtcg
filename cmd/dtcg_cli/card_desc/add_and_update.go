@@ -72,7 +72,7 @@ func add(wantCardSets []models.CardSet) {
 			class, _ := json.Marshal(l.Class)
 			var image string
 			if len(l.Images) > 0 {
-				image = fmt.Sprintf("http://dtcg-pics.moecard.cn/img/%s~thumb.jpg", l.Images[0].ImgPath)
+				image = fmt.Sprintf("https://dtcg-pics.moecard.cn/img/%s~thumb.jpg", l.Images[0].ImgPath)
 			} else {
 				logrus.Errorf("无法获取 %v %v 卡图", l.CardID, l.ScName)
 			}
@@ -128,7 +128,7 @@ func update(wantCardSets []models.CardSet) {
 			class, _ := json.Marshal(l.Class)
 			var image string
 			if len(l.Images) > 0 {
-				image = fmt.Sprintf("http://dtcg-pics.moecard.cn/img/%s~thumb.jpg", l.Images[0].ImgPath)
+				image = fmt.Sprintf("https://dtcg-pics.moecard.cn/img/%s~thumb.jpg", l.Images[0].ImgPath)
 			} else {
 				logrus.Errorf("无法获取 %v %v 卡图", l.CardID, l.ScName)
 			}

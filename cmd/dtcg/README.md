@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jihuanshe-exporter:v1.1.0 -f build/jihuanshe_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v1.7.1 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v1.8.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jihuanshe-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.1.0
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.7.1
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.8.0
 
 # ChangeLog
 
@@ -50,3 +50,9 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 
 1. 添加 /card/price GET 接口
 2. 将 /card/price POST 接口改为可以通过条件筛选结果的逻辑
+
+## 1.8.0
+
+1. 添加 /card/pricewithimg 接口，用以获取带有 dtcgdb 网站中图片的卡牌价格详情。同步添加相关逻辑和数据库逻辑。
+2. 添加了一些注释
+3. 修改了一些结构体名字

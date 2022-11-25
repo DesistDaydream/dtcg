@@ -42,7 +42,7 @@ import (
 // 	return nil
 // }
 
-func GetResp(req *models.PostDeckPriceWithJSONReq) (*models.PostDeckPriceResp, error) {
+func GetResp(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceResp, error) {
 	var (
 		resp        models.PostDeckPriceResp
 		allMinPrice float64

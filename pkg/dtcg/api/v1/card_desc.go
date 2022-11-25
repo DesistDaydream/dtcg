@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// 获取所有卡牌的描述
 func GetCardsDesc(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -37,13 +38,13 @@ func GetCardsDesc(c *gin.Context) {
 	c.JSON(200, resp)
 }
 
+// 根据条件获取卡牌描述详情
 func PostCardsDesc(c *gin.Context) {
 	// 允许跨域
 	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// 绑定 url query
-	var reqQuery models.GetCardsDescReqQuery
-
+	var reqQuery models.PostCardsDescReqQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -57,7 +58,6 @@ func PostCardsDesc(c *gin.Context) {
 
 	// 绑定请求体
 	var reqBody dbmodels.QueryCardDesc
-
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		logrus.Error(err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
