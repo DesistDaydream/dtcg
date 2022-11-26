@@ -168,12 +168,17 @@ card_prices.avg_price AS avg_price,
 card_descs.image AS image`
 	result = result.Select(sqlSelect).Joins("LEFT JOIN card_descs ON card_prices.card_id_from_db = card_descs.card_id_from_db").Debug()
 
-	// 多列模糊查询
+	// 根据关键字从多列模糊查询
 	if queryCardPrice.Keyword != "" {
 		result = result.Where("card_prices.sc_name LIKE ? OR card_prices.serial LIKE ?",
 			"%"+queryCardPrice.Keyword+"%",
 			"%"+queryCardPrice.Keyword+"%",
 		)
+	}
+
+	// 是否是异画
+	if queryCardPrice.AlternativeArt != "" {
+		result = result.Where("card_prices.alternative_art = ?", queryCardPrice.AlternativeArt)
 	}
 
 	// 分页、计数
