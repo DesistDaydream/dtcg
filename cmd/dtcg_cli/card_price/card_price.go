@@ -74,6 +74,7 @@ func GetPriceFromJhs(cardDesc *models.CardDesc) (int, float64, float64) {
 	)
 
 	// 获取 cardVersionID
+	// TODO: 获取失败时，记录错误次数
 	cardPrice, err := database.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
 	if err != nil {
 		logrus.Errorf("获取 card_version_id 失败: %v", err)
