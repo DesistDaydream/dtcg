@@ -76,14 +76,16 @@ func GetPriceFromJhs(cardDesc *models.CardDesc) (int, float64, float64) {
 	// 获取 cardVersionID
 	cardPrice, err := database.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
 	if err != nil {
-		logrus.Fatalf("获取 card_version_id 失败: %v", err)
+		logrus.Errorf("获取 card_version_id 失败: %v", err)
+		return 0, 0, 0
 	}
 
 	cardVersionID = cardPrice.CardVersionID
 
 	productInfo, err := handler.H.JhsServices.Products.Get(fmt.Sprint(cardPrice.CardVersionID))
 	if err != nil {
-		logrus.Fatalf("获取卡牌 %v 价格失败: %v", cardDesc.CardIDFromDB, err)
+		logrus.Errorf("获取卡牌 %v 价格失败: %v", cardDesc.CardIDFromDB, err)
+		return cardVersionID, 0, 0
 	}
 
 	minPrice, _ = strconv.ParseFloat(productInfo.MinPrice, 64)

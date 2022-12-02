@@ -11,7 +11,7 @@ import (
 
 type UpdateFlags struct {
 	UpdateMethod   UpdateMethod
-	UpdateImageURL bool
+	UpdateAllField bool
 	FromWhere      string
 }
 
@@ -33,7 +33,7 @@ func UpdateCardPriceCommand() *cobra.Command {
 	updateCardPriceCmd.Flags().StringSliceVar(&updateFlags.UpdateMethod.SetPrefix, "sets-name", nil, "更新哪些卡包的价格，使用 card-set list 子命令获取卡包名称。若不指定则更新所有")
 	updateCardPriceCmd.Flags().IntVar(&updateFlags.UpdateMethod.StartAt, "start-at", 0, "从哪张卡牌开始更新")
 	updateCardPriceCmd.Flags().IntSliceVar(&updateFlags.UpdateMethod.CardIDFromDBs, "id", nil, "更新哪几张张卡牌的价格")
-	updateCardPriceCmd.Flags().BoolVar(&updateFlags.UpdateImageURL, "update-image", false, "是否更新卡牌的图片URL")
+	updateCardPriceCmd.Flags().BoolVar(&updateFlags.UpdateAllField, "all-field", false, "是否更新卡牌价格的全部字段")
 	updateCardPriceCmd.Flags().StringVar(&updateFlags.FromWhere, "from-where", "dtcgdb", "从哪里获取卡牌价格，目前支持 dtcgdb 和 jhs")
 
 	return updateCardPriceCmd
@@ -129,7 +129,7 @@ func updateRun(cardDesc *models.CardDesc) {
 	// 		AvgPrice:     avgPrice,
 	// 	}, map[string]interface{}{})
 	// }
-	if updateFlags.UpdateImageURL {
+	if updateFlags.UpdateAllField {
 		imageUrl := GetImageURL(cardVersionID)
 		database.UpdateCardPrice(&models.CardPrice{CardIDFromDB: cardDesc.CardIDFromDB}, map[string]interface{}{
 			"set_id":          cardDesc.SetID,
