@@ -47,7 +47,9 @@ func TestUpdateCardPrice(t *testing.T) {
 
 	for _, cardPrice := range cardsPrice.Data {
 		if cardPrice.ImageUrl == "" {
-			UpdateCardPrice(&cardPrice, map[string]string{})
+			UpdateCardPrice(&models.CardPrice{CardIDFromDB: cardPrice.CardIDFromDB}, map[string]interface{}{
+				"image_url": "找不到图片地址",
+			})
 		}
 	}
 }

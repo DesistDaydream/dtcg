@@ -46,7 +46,7 @@ func GetPriceFromDtcgdb(cardDesc *models.CardDesc) (int, float64, float64) {
 
 	cardPrice, err := handler.H.DtcgDBServices.Cdb.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
 	if err != nil {
-		logrus.Fatalf("获取卡片价格失败: %v", err)
+		logrus.Fatalf("获取卡牌 %v 价格失败: %v", cardDesc.CardIDFromDB, err)
 	}
 
 	avgPrice, _ = strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
@@ -83,7 +83,7 @@ func GetPriceFromJhs(cardDesc *models.CardDesc) (int, float64, float64) {
 
 	productInfo, err := handler.H.JhsServices.Products.Get(fmt.Sprint(cardPrice.CardVersionID))
 	if err != nil {
-		logrus.Fatalf("获取卡片价格失败: %v", err)
+		logrus.Fatalf("获取卡牌 %v 价格失败: %v", cardDesc.CardIDFromDB, err)
 	}
 
 	minPrice, _ = strconv.ParseFloat(productInfo.MinPrice, 64)

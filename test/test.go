@@ -36,7 +36,7 @@ func main() {
 			fmt.Println("开始处理 ", cardPrice.ScName)
 			img := cardprice.GetImageURL(cardPrice.CardVersionID)
 			cardPrice.ImageUrl = img
-			database.UpdateCardPrice(&cardPrice, map[string]string{})
+			database.UpdateCardPrice(&cardPrice, map[string]interface{}{})
 		}
 	}
 }

@@ -1,11 +1,24 @@
--- 获取所有卡牌的价格
+--- 删除记录后将 ID 重新排序，以便后面的添加可以连贯
+SET @i=0;
+UPDATE `card_descs` SET `id`=(@i:=@i+1);
+ALTER TABLE `card_descs` AUTO_INCREMENT=0
+
+--- 获取所有卡牌价格的总和
 SELECT
     SUM(min_price) AS all_min_price,
     SUM(avg_price) AS all_avg_price
 FROM
     card_prices
 
----查询带有 card_desc 表中的 image 字段的 card_prices 表中的数据
+--- 查询价格低于 500 的所有卡牌价格的总和
+SELECT
+    SUM(if(min_price < 500, min_price, 0)) AS all_min_price,
+    SUM(if(avg_price < 500, avg_price, 0))
+	  AS all_avg_price
+FROM
+    card_prices
+
+--- 查询带有 card_desc 表中的 image 字段的 card_prices 表中的数据
 SELECT
     card_prices.card_id_from_db,
     card_prices.set_prefix,

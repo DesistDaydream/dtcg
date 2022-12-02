@@ -68,7 +68,7 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 	for _, cardID := range cardsID {
 		cardPrice, err := clientSearch.GetCardPrice(cardID)
 		if err != nil {
-			logrus.Errorf("获取卡片价格失败: %v", err)
+			logrus.Errorf("获取卡牌 %v 价格失败: %v", cardID, err)
 		}
 
 		var fMin float64

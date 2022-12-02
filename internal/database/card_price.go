@@ -14,14 +14,23 @@ func AddCardPirce(cardPrice *models.CardPrice) {
 }
 
 // 更新卡牌价格
-func UpdateCardPrice(cardPrice *models.CardPrice, condition map[string]string) {
-	// TODO: 如何在 condition 中添加多个条件，然后根据不同情况执行 WHERE
-	result := DB.Model(cardPrice).Where("card_id_from_db = ?", cardPrice.CardIDFromDB).Updates(models.CardPrice{
-		CardVersionID: cardPrice.CardVersionID,
-		MinPrice:      cardPrice.MinPrice,
-		AvgPrice:      cardPrice.AvgPrice,
-		ImageUrl:      cardPrice.ImageUrl,
-	})
+func UpdateCardPrice(cardPrice *models.CardPrice, condition map[string]interface{}) {
+	// 注意：当使用 struct 进行更新时，GORM 只会更新非零值的字段。
+	// result := DB.Model(cardPrice).Select("min_price,avg_price").Where("card_id_from_db = ?", cardPrice.CardIDFromDB).Updates(models.CardPrice{
+	// 	SetID:          cardPrice.SetID,
+	// 	SetPrefix:      cardPrice.SetPrefix,
+	// 	Serial:         cardPrice.Serial,
+	// 	ScName:         cardPrice.ScName,
+	// 	AlternativeArt: cardPrice.AlternativeArt,
+	// 	Rarity:         cardPrice.Rarity,
+	// 	CardVersionID:  cardPrice.CardVersionID,
+	// 	MinPrice:       cardPrice.MinPrice,
+	// 	AvgPrice:       cardPrice.AvgPrice,
+	// 	ImageUrl:       cardPrice.ImageUrl,
+	// })
+	// 所以我们使用 map 更新字段，这样就可以更新零值字段了，具体更新哪个字段，由 condition 决定，即由函数的调用者决定
+	result := DB.Model(cardPrice).Where("card_id_from_db = ?", cardPrice.CardIDFromDB).Updates(condition)
+
 	if result.Error != nil {
 		logrus.Errorf("更新 %v %v 价格异常: %v", cardPrice.CardIDFromDB, cardPrice.ScName, result.Error)
 	}
