@@ -21,7 +21,7 @@ func RareDegreeStatistics(cardSets *models.CardSets) {
 			sr  int
 		)
 		cardsDesc, err := database.GetCardDescByCondition(300, 1, &models.QueryCardDesc{
-			CardPack: int64(cardSet.SetID),
+			CardSet: int64(cardSet.SetID),
 		})
 		if err != nil {
 			log.Fatalln(err)
@@ -67,7 +67,7 @@ func DPStatistics(cardGroups *models.CardSets) {
 	logrus.Debugf("当前共有 %v 张卡", cardsDesc.Count)
 
 	// 测试用，只给一个等级
-	// cardLevels = []string{"Lv.3"}
+	// cardLevels = []string{"3"}
 
 	for _, cardLevel := range cardLevels {
 		// 遍历所有卡片描述，获取指定等级的所有 DP 保存在该数组中

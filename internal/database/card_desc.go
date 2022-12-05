@@ -85,6 +85,11 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 
 	result := DB.Model(&models.CardDesc{})
 
+	// 卡牌集合匹配查询
+	if queryCardDesc.CardSet != 0 {
+		result = result.Where("set_id = ?", queryCardDesc.CardSet)
+	}
+
 	// 通过关键字在多列模糊查询
 	if queryCardDesc.Keyword != "" {
 		// QField 不为空时，只查询 QField 中的列
@@ -130,7 +135,7 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 		}(queryCardDesc, result)
 
 		// 通过 Group Conditions(组条件) 功能将查询分组
-		result = result.Where(f)
+		result = result.Debug().Where(f)
 	}
 
 	// 稀有度多匹配查询
@@ -144,7 +149,7 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 	})
 
 	// 分页、计数
-	result = result.Offset(pageSize * (pageNum - 1)).Limit(pageSize).Debug().Find(&cd).Offset(-1).Limit(-1).Count(&CardCount)
+	result = result.Offset(pageSize * (pageNum - 1)).Limit(pageSize).Find(&cd).Offset(-1).Limit(-1).Count(&CardCount)
 	if condition := result.Error; condition != nil {
 		return nil, condition
 	}
@@ -156,4 +161,18 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 		PageTotal:   (int(CardCount) / pageSize) + 1,
 		Data:        cd,
 	}, nil
+}
+
+// 获取所有卡牌可用的等级。即.获取 level 列的值并去重
+func GetCardDescLevel() ([]string, error) {
+	var (
+		level []string
+	)
+
+	result := DB.Model(&models.CardDesc{}).Distinct().Where("level != ''").Pluck("level", &level)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return level, nil
 }

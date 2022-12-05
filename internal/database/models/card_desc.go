@@ -41,7 +41,7 @@ type CardDesc struct {
 
 // 用于查询的 CardDesc
 type QueryCardDesc struct {
-	CardPack   int64     `json:"card_pack"`
+	CardSet    int64     `json:"card_set"`
 	ClassInput bool      `json:"class_input"`
 	Color      []string  `json:"color"`
 	EvoCond    []EvoCond `json:"evo_cond"`
