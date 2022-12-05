@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/DesistDaydream/dtcg/cards"
+	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
@@ -14,19 +14,24 @@ type ExcelDataForPrice struct {
 	Rows []models.JihuansheCardDescForPrice `json:"rows"`
 }
 
-func NewExcelDataForPrice(file string, cardGroupsFile string, test bool) (*ExcelDataForPrice, error) {
+func NewExcelDataForPrice(file string, test bool) (*ExcelDataForPrice, error) {
 	var (
-		d          ExcelDataForPrice
-		cardGroups []string
-		err        error
+		d        ExcelDataForPrice
+		cardSets []string
+		err      error
 	)
 
 	if test {
-		cardGroups = []string{"STC-01"}
+		cardSets = []string{"STC-01"}
 	} else {
-		cardGroups, err = cards.GetCardGroups(cardGroupsFile)
+		// 从数据库中获取卡牌集合信息
+		cs, err := database.ListCardSets()
 		if err != nil {
 			return nil, fmt.Errorf("获取卡盒列表失败：%v", err)
+		}
+
+		for _, cardSet := range cs.Data {
+			cardSets = append(cardSets, cardSet.SetPrefix)
 		}
 	}
 
@@ -43,7 +48,7 @@ func NewExcelDataForPrice(file string, cardGroupsFile string, test bool) (*Excel
 		}
 	}()
 
-	for _, sheet := range cardGroups {
+	for _, sheet := range cardSets {
 		// 逐行读取Excel文件
 		rows, err := f.GetRows(sheet)
 		if err != nil {

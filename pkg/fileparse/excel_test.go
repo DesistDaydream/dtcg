@@ -9,9 +9,8 @@ import (
 
 func TestNewExcelData(t *testing.T) {
 	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
-	cardGroupFile := "/mnt/d/Projects/DesistDaydream/dtcg/cards/card_package.json"
 	test := true
-	got, err := NewExcelDataForPrice(file, cardGroupFile, test)
+	got, err := NewExcelDataForPrice(file, test)
 	if err != nil {
 		logrus.Errorln(err)
 	}

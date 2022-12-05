@@ -1,63 +1,70 @@
 package main
 
 import (
+	"log"
 	"sort"
 	"strconv"
 
-	"github.com/DesistDaydream/dtcg/cards"
+	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
 
 // 统计每个卡盒中各种稀有度的数量以及异画数量
-func RareDegreeStatistics(cardGroups []string) {
-	for _, cardGroup := range cardGroups {
+func RareDegreeStatistics(cardSets *models.CardSets) {
+	for _, cardSet := range cardSets.Data {
 		var (
 			原画  int
 			sec int
 			sr  int
 		)
-
-		cardsDesc, err := cards.GetCardDesc(cardGroup)
+		cardsDesc, err := database.GetCardDescByCondition(300, 1, &models.QueryCardDesc{
+			CardPack: int64(cardSet.SetID),
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
 		if err != nil {
 			logrus.Fatalln(err)
 		}
 
-		for _, cardDesc := range cardsDesc {
-			if cardDesc.ParallCard == "1" {
+		for _, cardDesc := range cardsDesc.Data {
+			if cardDesc.AlternativeArt == "否" {
 				原画++
-				if cardDesc.RareDegree == "隐藏稀有（SEC）" {
+				if cardDesc.RaritySC == "sec" {
 					sec++
 				}
-				if cardDesc.RareDegree == "超稀有（SR）" {
+				if cardDesc.RaritySC == "sr" {
 					sr++
 				}
 			}
 		}
 
 		logrus.WithFields(logrus.Fields{
-			"数量":  len(cardsDesc),
+			"数量":  len(cardsDesc.Data),
 			"原画":  原画,
-			"异画":  len(cardsDesc) - 原画,
+			"异画":  len(cardsDesc.Data) - 原画,
 			"SEC": sec,
 			"SR":  sr,
-		}).Infof("【%v】卡包统计", cardGroup)
+		}).Infof("【%v】卡包统计", cardSet.SetName)
 	}
 }
 
 // 统计每个级别的各种 DP 的数量
-func DPStatistics(cardGroups []string) {
+func DPStatistics(cardGroups *models.CardSets) {
 	// 获取卡牌等级列表
-	cardLevels, err := cards.GetCardLevel()
+	cardLevels, err := database.GetCardDescLevel()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 	// 获取卡牌详情列表
-	allCardsDesc, err := cards.MergeCardsDesc(cardGroups)
+	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
-	logrus.Debugf("当前共有 %v 张卡", len(allCardsDesc))
+	logrus.Debugf("当前共有 %v 张卡", cardsDesc.Count)
 
 	// 测试用，只给一个等级
 	// cardLevels = []string{"Lv.3"}
@@ -65,10 +72,10 @@ func DPStatistics(cardGroups []string) {
 	for _, cardLevel := range cardLevels {
 		// 遍历所有卡片描述，获取指定等级的所有 DP 保存在该数组中
 		var alldps []int
-		for _, cardDesc := range allCardsDesc {
-			if cardDesc.ParallCard == "1" {
-				if cardDesc.CardLevel == cardLevel {
-					dp, _ := strconv.Atoi(cardDesc.Dp)
+		for _, cardDesc := range cardsDesc.Data {
+			if cardDesc.AlternativeArt == "否" {
+				if cardDesc.Level == cardLevel {
+					dp, _ := strconv.Atoi(cardDesc.DP)
 					alldps = append(alldps, dp)
 				}
 			}
@@ -131,7 +138,7 @@ type Flags struct {
 }
 
 func AddFlsgs(f *Flags) {
-	pflag.StringVarP(&f.StatisticsInfo, "statistics", "s", "rare-degree", "指定文件")
+	pflag.StringVarP(&f.StatisticsInfo, "statistics", "s", "rare-degree", "统计信息的类型，可选值：rare-degree, dp")
 	pflag.BoolVarP(&f.DownloadImg, "downloadImg", "d", false, "是否下载图片")
 }
 
@@ -141,18 +148,29 @@ func main() {
 	AddFlsgs(&flags)
 	pflag.Parse()
 
-	cardGroups, err := cards.GetCardGroups("")
+	// 初始化配置文件
+	c := config.NewConfig("", "")
+
+	// 初始化数据库
+	dbInfo := &database.DBInfo{
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
+	}
+
+	database.InitDB(dbInfo)
+
+	cardSets, err := database.ListCardSets()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 
 	switch flags.StatisticsInfo {
 	case "rare-degree":
-		RareDegreeStatistics(cardGroups)
+		RareDegreeStatistics(cardSets)
 	case "dp":
-		DPStatistics(cardGroups)
+		DPStatistics(cardSets)
 	default:
 		logrus.Fatalln("指定要统计的信息")
-
 	}
 }
