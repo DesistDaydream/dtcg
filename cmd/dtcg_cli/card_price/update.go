@@ -36,8 +36,8 @@ func UpdateCardPriceCommand() *cobra.Command {
 	updateCardPriceCmd.Flags().IntVar(&updateFlags.UpdateMethod.StartAt, "start-at", 0, "从哪张卡牌开始更新")
 	updateCardPriceCmd.Flags().IntSliceVar(&updateFlags.UpdateMethod.CardIDFromDBs, "id", nil, "更新哪几张张卡牌的价格")
 	updateCardPriceCmd.Flags().BoolVarP(&updateFlags.UpdateMethod.UpdateNoImage, "no-image", "n", false, "是否只更新没有卡图的卡牌价格")
-	updateCardPriceCmd.Flags().BoolVar(&updateFlags.UpdateAllField, "all-field", false, "是否更新卡牌价格的全部字段")
-	updateCardPriceCmd.Flags().StringVar(&updateFlags.FromWhere, "from-where", "dtcgdb", "从哪里获取卡牌价格，目前支持 dtcgdb 和 jhs")
+	updateCardPriceCmd.Flags().BoolVarP(&updateFlags.UpdateAllField, "all-field", "a", false, "是否更新卡牌价格的全部字段")
+	updateCardPriceCmd.Flags().StringVarP(&updateFlags.FromWhere, "from-where", "w", "dtcgdb", "从哪里获取卡牌价格，目前支持 dtcgdb 和 jhs")
 
 	updateCardPriceCmd.AddCommand(
 		UpdateNoImgCardPriceCommand(),
