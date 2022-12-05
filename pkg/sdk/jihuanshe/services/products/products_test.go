@@ -152,7 +152,7 @@ func TestProductsClientList(t *testing.T) {
 	currentPage := 1
 	for {
 		client := NewProductsClient(core.NewClient(token))
-		products, err := client.List(fmt.Sprint(currentPage))
+		products, err := client.List(fmt.Sprint(currentPage), "")
 		if err != nil {
 			logrus.Fatal(err)
 		}

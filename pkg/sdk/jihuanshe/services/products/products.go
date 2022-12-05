@@ -16,7 +16,7 @@ func NewProductsClient(client *core.Client) *ProductsClient {
 }
 
 // 获取我在卖的商品列表
-func (p *ProductsClient) List(page string) (*models.ProductsListResp, error) {
+func (p *ProductsClient) List(page string, keyword string) (*models.ProductsListResp, error) {
 	var productsResp models.ProductsListResp
 
 	uri := "/api/market/sellers/products"
@@ -26,8 +26,10 @@ func (p *ProductsClient) List(page string) (*models.ProductsListResp, error) {
 		ReqQuery: core.StructToMapStr(&models.ProductsListReqQuery{
 			GameKey:    "dgm",
 			GameSubKey: "sc",
+			Keyword:    keyword,
 			OnSale:     "1",
 			Page:       page,
+			Sorting:    "published_at_desc",
 			Token:      p.client.Token,
 		}),
 	}

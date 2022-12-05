@@ -76,10 +76,10 @@ func addProducts(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	var cards []string
 	cards, err := genNeedAddedCardInfo(addFlags.SetPrefix)
 	if err != nil {
 		logrus.Errorf("%v", err)
+		return
 	}
 
 	fmt.Println(cards)
