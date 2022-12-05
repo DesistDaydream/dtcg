@@ -10,37 +10,74 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type AddFlags struct {
+	SetPrefix []string
+	AddPolicy AddPolicy
+}
+
+type AddPolicy struct {
+	// 根据最大价格上架
+	ControlAddPrice bool
+	MaxPrice        float64
+}
+
+var addFlags AddFlags
+
 func AddCommand() *cobra.Command {
-	AddCardSetCmd := &cobra.Command{
+	addCardSetCmd := &cobra.Command{
 		Use:   "add",
 		Short: "添加商品",
 		Run:   addProducts,
 	}
 
-	return AddCardSetCmd
+	addCardSetCmd.Flags().StringSliceVarP(&addFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
+	addCardSetCmd.Flags().BoolVarP(&addFlags.AddPolicy.ControlAddPrice, "control-add-price", "c", false, "是否控制上架价格，如果为 true，需要指定 --max-price 标志。")
+	addCardSetCmd.Flags().Float64VarP(&addFlags.AddPolicy.MaxPrice, "max-price", "m", 100, "最高价格，低于该价格的卡牌才会被上架。")
+
+	return addCardSetCmd
 }
 
-// 根据 ser_prefix 获取 card_version_id
-func getCardVersionIDBySerPrefix(serPrefix string) ([]string, error) {
+// 生成需要上架的卡牌信息
+func genNeedAddedCardInfo(setsPrefix []string) ([]string, error) {
 	var cardVersionIDs []string
 
-	cardsPrice, err := database.GetCardPriceWhereSetPrefix(serPrefix)
-	if err != nil {
-		return nil, err
+	for _, setPrefix := range setsPrefix {
+		// 根据 ser_prefix 获取 card_version_id
+		cardsPrice, err := database.GetCardPriceWhereSetPrefix(setPrefix)
+		if err != nil {
+			return nil, err
+		}
+
+		// 上架策略
+		switch policy := addFlags.AddPolicy; {
+		// 是否根据价格控制上架
+		case policy.ControlAddPrice:
+			for _, cardPrice := range cardsPrice.Data {
+				if cardPrice.AvgPrice <= addFlags.AddPolicy.MaxPrice {
+					cardVersionIDs = append(cardVersionIDs, fmt.Sprint(cardPrice.CardVersionID))
+				}
+			}
+		default:
+			for _, cardPrice := range cardsPrice.Data {
+				cardVersionIDs = append(cardVersionIDs, fmt.Sprint(cardPrice.CardVersionID))
+			}
+		}
 	}
 
-	for _, cardPrice := range cardsPrice.Data {
-		cardVersionIDs = append(cardVersionIDs, fmt.Sprintf("%d", cardPrice.CardVersionID))
-	}
+	logrus.Debugf("当前需要上架 %v 张卡牌：%v", len(cardVersionIDs), cardVersionIDs)
 
 	return cardVersionIDs, nil
 }
 
 // 添加商品
 func addProducts(cmd *cobra.Command, args []string) {
+	if addFlags.SetPrefix == nil {
+		logrus.Error("请指定要上架的卡牌集合，使用 dtcg_cli card-set list 子命令获取卡包名称。")
+		return
+	}
+
 	var cards []string
-	// cards := []string{"2954", "2955", "2956", "2957"}
-	cards, err := getCardVersionIDBySerPrefix("STC-08")
+	cards, err := genNeedAddedCardInfo(addFlags.SetPrefix)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
