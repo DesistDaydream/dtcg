@@ -18,7 +18,7 @@ func main() {
 	// 无限制：空，简中：chs，日文：ja
 	gameEnv := "chs"
 	// 需要统计晚于该日志的卡组
-	createAt := "2022-08-25 00:00:00"
+	createAt := "2022-12-01 00:00:00"
 
 	var cardColor string
 
@@ -59,12 +59,13 @@ func main() {
 
 		var count int = 0
 		loc, _ := time.LoadLocation("Asia/Shanghai")
-		// 需要晚于 BTC2 发售日期
-		btc2time, _ := time.ParseInLocation("2006-01-02 15:04:05", createAt, loc)
+		// 需要晚于指定卡包的发售日期
+		btctime, _ := time.ParseInLocation("2006-01-02 15:04:05", createAt, loc)
+		logrus.Debugf("指定的要统计的时间：%v", btctime)
 
 		for _, deck := range resp.Data.Decks.List {
 			tt, _ := time.ParseInLocation("2006-01-02 15:04:05", deck.CreatedAt, loc)
-			if tt.After(btc2time) {
+			if tt.After(btctime) {
 				count++
 			}
 		}
