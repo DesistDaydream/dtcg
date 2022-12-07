@@ -22,7 +22,9 @@ type SQLite struct {
 }
 
 type DtcgDB struct {
-	Token string `yaml:"token"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Token    string `yaml:"token"`
 }
 
 func NewConfig(path, name string) *Config {

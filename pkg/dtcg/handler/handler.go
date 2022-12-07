@@ -8,8 +8,8 @@ type Handler struct {
 	DtcgDBServices *services.Services
 }
 
-func NewHandler(token string, retry int) *Handler {
+func NewHandler(username, password string, retry int) *Handler {
 	return &Handler{
-		DtcgDBServices: services.NewServices(token, retry),
+		DtcgDBServices: services.NewServices(true, username, password, retry),
 	}
 }

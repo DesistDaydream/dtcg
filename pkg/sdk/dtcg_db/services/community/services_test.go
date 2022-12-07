@@ -15,6 +15,7 @@ import (
 )
 
 var token string = ""
+var client *CommunityClient
 
 // var cardVersionID string = "2544"
 
@@ -40,10 +41,14 @@ func initDB() {
 	database.InitDB(dbInfo)
 }
 
-func TestCommunityClient_PostConvertDeck(t *testing.T) {
+func initTest() {
 	getToken()
+	client = NewCommunityClient(core.NewClient(token, 10))
+}
+
+func TestCommunityClient_PostConvertDeck(t *testing.T) {
+	initTest()
 	decksjson := `["Exported from http://digimon.card.moe","ST1-01","ST1-03","ST1-03","ST1-03","ST1-06","ST1-06","ST1-07","ST1-07","ST1-07","ST1-07","ST1-16","ST1-16","BT1-010","BT1-010","BT1-020","BT1-020","BT1-020","BT1-020","BT1-025","BT1-025","BT1-084","BT1-085","P-009","P-009","P-009","P-009","BT4-019","BT4-019","BT4-092","BT4-099","BT4-099","BT4-100","BT5-001","BT5-001","BT5-001","BT5-001","BT5-007","BT5-007","BT5-007","BT5-007","BT5-010","BT5-010","BT5-010","BT5-010","BT5-015","BT5-015","BT5-015","BT5-015","BT5-016","BT5-016","BT5-086","BT5-086","BT5-092","BT5-092","BT5-092"]`
-	client := NewCommunityClient(core.NewClient(token, 10))
 	decks, err := client.PostDeckConvert(decksjson)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -93,8 +98,7 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 
 // 从自己的卡组中获取卡组详情
 func TestCommunityClient_GetDeckCloud(t *testing.T) {
-	getToken()
-	client := NewCommunityClient(core.NewClient(token, 10))
+	initTest()
 	decks, err := client.GetDeckCloud("106981")
 	if err != nil {
 		logrus.Errorln(err)
@@ -140,7 +144,7 @@ func TestCommunityClient_GetDeckCloud(t *testing.T) {
 
 // 从卡组广场的卡组中获取卡组详情
 func TestCommunityClient_GetDeck(t *testing.T) {
-	client := NewCommunityClient(core.NewClient(token, 10))
+	initTest()
 	decks, err := client.GetDeck("6cea907f6a001007281eaa8f52feb517a811a5bd")
 	if err != nil {
 		logrus.Errorln(err)
