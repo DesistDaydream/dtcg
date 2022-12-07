@@ -11,8 +11,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var client *CdbClient
+
+func initTest() {
+	client = NewCdbClient(core.NewClient("", 10))
+}
+
 func TestSearchClient_CardDeckSearch(t *testing.T) {
-	client := NewCdbClient(core.NewClient("", 10))
+	initTest()
 	got, err := client.PostCardSearch(50)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -23,7 +29,7 @@ func TestSearchClient_CardDeckSearch(t *testing.T) {
 
 // 获取卡包信息，并以 JSON 格式写入到文件中
 func TestSearchClient_GetSeries(t *testing.T) {
-	client := NewCdbClient(core.NewClient("", 10))
+	initTest()
 	series, err := client.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)
@@ -54,7 +60,7 @@ func TestSearchClient_GetSeries(t *testing.T) {
 
 // 获取卡片信息，并以 JSON 格式写入到文件中
 func TestSearchClient_PostCardSearch(t *testing.T) {
-	client := NewCdbClient(core.NewClient("", 10))
+	initTest()
 
 	cardPacks := make(map[int]string)
 
@@ -100,7 +106,7 @@ func TestSearchClient_PostCardSearch(t *testing.T) {
 }
 
 func TestSearchClient_GetCardPrice(t *testing.T) {
-	client := NewCdbClient(core.NewClient("", 10))
+	initTest()
 
 	got, err := client.GetCardPrice("1896")
 	if err != nil {

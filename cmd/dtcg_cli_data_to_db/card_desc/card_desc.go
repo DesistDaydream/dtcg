@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/handler"
 	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	services2 "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
-	"github.com/sirupsen/logrus"
-
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
+
+	"github.com/sirupsen/logrus"
 )
 
 func AddCardDescFromOfficial() {
@@ -72,8 +71,7 @@ func AddCardDescFromDtcgDB() {
 		logrus.Fatalln(err)
 	}
 	for _, set := range d.Data {
-		client := services2.NewCdbClient(core.NewClient("", 1))
-		resp, err := client.PostCardSearch(set.PackID)
+		resp, err := handler.H.DtcgDBServices.Cdb.PostCardSearch(set.PackID)
 		if err != nil {
 			logrus.Fatalln(err)
 		}

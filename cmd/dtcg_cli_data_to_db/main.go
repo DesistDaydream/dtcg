@@ -3,6 +3,7 @@ package main
 import (
 	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/card_desc"
 	cardgroup "github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/card_group"
+	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/handler"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
@@ -43,9 +44,11 @@ func main() {
 
 	database.InitDB(dbInfo)
 
+	handler.H = handler.NewHandler(c.DtcgDB.Username, c.DtcgDB.Password, 1)
+
 	switch flags.Add {
 	case "cardgroupofficial":
-		cardgroup.AddCardGroupFromOfficial(false)
+		cardgroup.AddCardGroupFromOfficial()
 	case "carddescofficial":
 		carddesc.AddCardDescFromOfficial()
 	case "cardgroupdtcgdb":
