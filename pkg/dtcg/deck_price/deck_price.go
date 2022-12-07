@@ -66,6 +66,7 @@ func GetResp(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceRes
 		avgPrice := cardPrice.AvgPrice * float64(card.Number)
 
 		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
+			CardIDFromDB:   cardPrice.CardIDFromDB,
 			Count:          int(card.Number),
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,
@@ -91,6 +92,7 @@ func GetResp(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceRes
 		avgPrice := cardPrice.AvgPrice * float64(card.Number)
 
 		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
+			CardIDFromDB:   cardPrice.CardIDFromDB,
 			Count:          int(card.Number),
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,
@@ -170,6 +172,7 @@ func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceRes
 		avgPrice := cardPrice.AvgPrice * float64(card.Count)
 
 		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
+			CardIDFromDB:   cardPrice.CardIDFromDB,
 			Count:          int(card.Count),
 			Serial:         cardPrice.Serial,
 			ScName:         cardPrice.ScName,

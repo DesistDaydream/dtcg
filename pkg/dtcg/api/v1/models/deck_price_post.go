@@ -12,6 +12,7 @@ type PostDeckPriceResp struct {
 }
 
 type PostDeckPriceRespData struct {
+	CardIDFromDB   int    `json:"card_id_from_db"`
 	Count          int    `json:"count"`
 	Serial         string `json:"serial"`
 	ScName         string `json:"sc_name"`
