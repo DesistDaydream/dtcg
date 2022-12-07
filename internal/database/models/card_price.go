@@ -44,6 +44,7 @@ type QueryCardPrice struct {
 	AlternativeArt string    `json:"alternative_art"`
 }
 
+// 带有dtcg数据库中图片的卡牌价格
 type CardsPriceWithImageDB struct {
 	Count       int64                  `json:"count"`
 	PageSize    int                    `json:"page_size"`

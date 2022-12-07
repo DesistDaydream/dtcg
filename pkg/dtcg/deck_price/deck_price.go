@@ -75,6 +75,7 @@ func GetRespWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeck
 			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
 			MinUnitPrice:   fmt.Sprintf("%.2f", cardPrice.MinPrice),
 			AvgUnitPrice:   fmt.Sprintf("%.2f", cardPrice.AvgPrice),
+			Image:          cardPrice.ImageUrl,
 		})
 
 		allMinPrice = allMinPrice + minPrice
@@ -101,6 +102,7 @@ func GetRespWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeck
 			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
 			MinUnitPrice:   fmt.Sprintf("%.2f", cardPrice.MinPrice),
 			AvgUnitPrice:   fmt.Sprintf("%.2f", cardPrice.AvgPrice),
+			Image:          cardPrice.ImageUrl,
 		})
 
 		allMinPrice = allMinPrice + minPrice
@@ -181,6 +183,7 @@ func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceRes
 			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
 			MinUnitPrice:   fmt.Sprintf("%.2f", cardPrice.MinPrice),
 			AvgUnitPrice:   fmt.Sprintf("%.2f", cardPrice.AvgPrice),
+			Image:          cardPrice.ImageUrl,
 		})
 
 		allMinPrice = allMinPrice + minPrice

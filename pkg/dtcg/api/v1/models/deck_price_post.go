@@ -21,6 +21,7 @@ type PostDeckPriceRespData struct {
 	AvgPrice       string `json:"avg_price"`
 	MinUnitPrice   string `json:"min_unit_price"`
 	AvgUnitPrice   string `json:"avg_unit_price"`
+	Image          string `json:"image"`
 }
 
 type PostDeckPriceWithIDReq struct {
