@@ -4,14 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community"
+	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 	"github.com/sirupsen/logrus"
 )
 
 func GetResp(hID string) (string, error) {
-	client := community.NewCommunityClient(core.NewClient(""))
-	decks, err := client.GetDeck(hID)
+	decks, err := handler.H.DtcgDBServices.Community.GetDeck(hID)
 	if err != nil {
 		logrus.Errorln(err)
 	}

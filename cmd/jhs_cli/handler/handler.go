@@ -23,7 +23,7 @@ func NewHandler() *Handler {
 	token := string(file)
 
 	return &Handler{
-		DtcgDBServices: ds.NewServices(token),
+		DtcgDBServices: ds.NewServices(token, 1),
 		JhsServices:    js.NewServices(token),
 	}
 }

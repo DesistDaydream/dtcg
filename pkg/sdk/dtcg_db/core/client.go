@@ -18,11 +18,13 @@ const (
 
 type Client struct {
 	Token string
+	Retry int
 }
 
-func NewClient(token string) *Client {
+func NewClient(token string, retry int) *Client {
 	return &Client{
 		Token: token,
+		Retry: retry,
 	}
 }
 
@@ -99,11 +101,10 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 
 	client := &http.Client{}
 
-	// HTTP 重试
+	// HTTP 重试，请求过多会被限流返回 429
 	// TODO: 限流重试逻辑需要优化
-	// 请求过多会被限流返回 429
 	// time.Sleep(1200 * time.Millisecond)
-	for i := 0; i < 10; i++ {
+	for i := 0; i < c.Retry; i++ {
 		resp, err = client.Do(req)
 		if err != nil {
 			logrus.Errorf("获取 HTTP 响应异常：%v。准备重试", err)
@@ -116,11 +117,11 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 			return resp.StatusCode, body, nil
 		}
 
-		logrus.Errorf("第 %v 次 HTTP 请求异常，等待 10 秒后重试", i+1)
-
 		if resp != nil {
 			resp.Body.Close()
 		}
+
+		logrus.Errorf("第 %v 次 HTTP 请求异常【%v】，等待 10 秒后重试", i+1, resp.Status)
 
 		if req.Body != nil {
 			resetBody(req, originalBody)

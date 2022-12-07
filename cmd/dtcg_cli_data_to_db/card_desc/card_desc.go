@@ -72,7 +72,7 @@ func AddCardDescFromDtcgDB() {
 		logrus.Fatalln(err)
 	}
 	for _, set := range d.Data {
-		client := services2.NewCdbClient(core.NewClient(""))
+		client := services2.NewCdbClient(core.NewClient("", 1))
 		resp, err := client.PostCardSearch(set.PackID)
 		if err != nil {
 			logrus.Fatalln(err)

@@ -47,7 +47,7 @@ func AddCardGroupFromOfficial(wirteToJSON bool) {
 func AddCardGroupFromDtcgDB() {
 	var cardGroupsFromDtcgDB databasepkg.CardGroupsFromDtcgDB
 
-	client := servicesdb.NewCdbClient(core.NewClient(""))
+	client := servicesdb.NewCdbClient(core.NewClient("", 1))
 	series, err := client.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)

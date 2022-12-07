@@ -6,8 +6,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community"
+	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 )
 
 // type fanxing interface {
@@ -42,15 +41,16 @@ import (
 // 	return nil
 // }
 
-func GetResp(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceResp, error) {
+func GetRespWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceResp, error) {
 	var (
 		resp        models.PostDeckPriceResp
 		allMinPrice float64
 		allAvgPrice float64
 	)
 
-	client := community.NewCommunityClient(core.NewClient(""))
-	decks, err := client.PostDeckConvert(req.Deck)
+	// client := community.NewCommunityClient(core.NewClient("", 10))
+	// decks, err := client.PostDeckConvert(req.Deck)
+	decks, err := handler.H.DtcgDBServices.Community.PostDeckConvert(req.Deck)
 	if err != nil {
 		return nil, fmt.Errorf("从 dtcg db 网站获取卡组详情失败: %v", err)
 	}

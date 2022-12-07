@@ -50,7 +50,7 @@ func main() {
 			Page:  "1",
 		}
 
-		client := community.NewCommunityClient(core.NewClient(""))
+		client := community.NewCommunityClient(core.NewClient("", 1))
 
 		resp, err := client.PostDeckSearch(reqBody, reqQuery)
 		if err != nil {

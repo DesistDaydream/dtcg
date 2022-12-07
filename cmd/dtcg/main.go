@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
-	"github.com/DesistDaydream/dtcg/pkg/dtcg/auth"
+	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/router"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/gin-gonic/gin"
@@ -42,11 +42,11 @@ func main() {
 	}
 	database.InitDB(dbInfo)
 
-	auth.DtcgDBToken = c.DtcgDB.Token
-
 	if !flags.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
+	handler.H = handler.NewHandler(c.DtcgDB.Token, 1)
 
 	r := router.InitRouter()
 	r.Run(c.Listen)

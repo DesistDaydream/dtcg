@@ -12,14 +12,14 @@ type Services struct {
 	Community  *community.CommunityClient
 }
 
-func NewServices(token string) *Services {
+func NewServices(token string, retry int) *Services {
 	s := new(Services)
-	s.init(token)
+	s.init(token, retry)
 	return s
 }
 
-func (s *Services) init(token string) {
-	s.CoreClient = core.NewClient(token)
+func (s *Services) init(token string, retry int) {
+	s.CoreClient = core.NewClient(token, retry)
 	s.Cdb = cdb.NewCdbClient(s.CoreClient)
 	s.Community = community.NewCommunityClient(s.CoreClient)
 }

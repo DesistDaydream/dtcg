@@ -6,10 +6,8 @@ import (
 	"net/http"
 
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
-	"github.com/DesistDaydream/dtcg/pkg/dtcg/auth"
 	deckprice "github.com/DesistDaydream/dtcg/pkg/dtcg/deck_price"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community"
+	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -29,7 +27,7 @@ func PostDeckPriceWithJSON(c *gin.Context) {
 		return
 	}
 
-	resp, err := deckprice.GetResp(&req)
+	resp, err := deckprice.GetRespWithJSON(&req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
@@ -53,8 +51,7 @@ func GetDeckPriceWithHID(c *gin.Context) {
 
 	hid := c.Param("hid")
 
-	client := community.NewCommunityClient(core.NewClient(""))
-	decks, err := client.GetDeck(hid)
+	decks, err := handler.H.DtcgDBServices.Community.GetDeck(hid)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -96,7 +93,7 @@ func GetDeckPriceWithHID(c *gin.Context) {
 	c.JSON(200, &resp)
 }
 
-// 根据云 Cloud Deck ID(云卡组ID) 获取卡组加个，云卡组ID是个人页面的卡组ID，必须携带登录 Token 才可以获取到
+// 根据云 Cloud Deck ID(云卡组ID) 获取卡组价格，云卡组ID是个人页面的卡组ID，必须携带登录 Token 才可以获取到
 // 这种获取方式是最完整的，但是也是很麻烦的，因为需要登录，而且只能是自己的卡组。
 func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 	// 允许跨域
@@ -104,8 +101,7 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 
 	cloudDeckID := c.Param("cdid")
 
-	client := community.NewCommunityClient(core.NewClient(auth.DtcgDBToken))
-	decks, err := client.GetDeckCloud(cloudDeckID)
+	decks, err := handler.H.DtcgDBServices.Community.GetDeckCloud(cloudDeckID)
 	if err != nil {
 		logrus.Errorln(err)
 	}
