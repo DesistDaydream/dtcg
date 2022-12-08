@@ -20,7 +20,7 @@ func RareDegreeStatistics(cardSets *models.CardSets) {
 			sec int
 			sr  int
 		)
-		cardsDesc, err := database.GetCardDescByCondition(300, 1, &models.QueryCardDesc{
+		cardsDesc, err := database.GetCardDescByCondition(300, 1, &models.CardDescQuery{
 			CardSet: int64(cardSet.SetID),
 		})
 		if err != nil {

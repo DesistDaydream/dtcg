@@ -1,5 +1,6 @@
 package models
 
+// 数据库模型。卡牌集合信息
 type CardSets struct {
 	Count       int64     `json:"count"`
 	PageSize    int       `json:"page_size"`

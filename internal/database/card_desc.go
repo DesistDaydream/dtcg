@@ -77,7 +77,7 @@ func GetCardDescByCardIDFromDB(cardIDFromDB string) (*models.CardDesc, error) {
 }
 
 // 根据条件获取卡牌描述
-func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.QueryCardDesc) (*models.CardsDesc, error) {
+func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.CardDescQuery) (*models.CardsDesc, error) {
 	var (
 		CardCount int64
 		cd        []models.CardDesc
@@ -101,7 +101,7 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 			// }
 
 			// 通过这种方式解决了？参考：https://github.com/go-gorm/gorm/issues/5052
-			f := func(queryCardDesc *models.QueryCardDesc, result *gorm.DB) *gorm.DB {
+			f := func(queryCardDesc *models.CardDescQuery, result *gorm.DB) *gorm.DB {
 				// 通过 Session() 创建一个新的 DB 实例，避免影响原来的 DB 实例。用以实现为多个 Or 分组的功能
 				newResult := result.Session(&gorm.Session{NewDB: true})
 				for _, field := range queryCardDesc.QField {
@@ -125,7 +125,7 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Que
 
 	// 颜色多匹配查询
 	if len(queryCardDesc.Color) > 0 {
-		f := func(queryCardDesc *models.QueryCardDesc, result *gorm.DB) *gorm.DB {
+		f := func(queryCardDesc *models.CardDescQuery, result *gorm.DB) *gorm.DB {
 			// 通过 Session() 创建一个新的 DB 实例，避免影响原来的 DB 实例。用以实现为多个 Or 分组的功能
 			newResult := result.Session(&gorm.Session{NewDB: true})
 			for _, color := range queryCardDesc.Color {

@@ -9,7 +9,7 @@ import (
 
 func TestGetCardDescByCondition(t *testing.T) {
 	initDB()
-	got, err := GetCardDescByCondition(5, 1, &models.QueryCardDesc{
+	got, err := GetCardDescByCondition(5, 1, &models.CardDescQuery{
 		CardSet:    79,
 		ClassInput: false,
 		Color:      []string{"红", "白"},

@@ -57,7 +57,7 @@ func PostCardsDesc(c *gin.Context) {
 	}
 
 	// 绑定请求体
-	var reqBody dbmodels.QueryCardDesc
+	var reqBody dbmodels.CardDescQuery
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		logrus.Error(err)
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{

@@ -1,5 +1,6 @@
 package models
 
+// 数据库模型。卡牌描述信息
 type CardsDesc struct {
 	Count       int64      `json:"count"`
 	PageSize    int        `json:"page_size"`
@@ -39,8 +40,8 @@ type CardDesc struct {
 	Image          string `json:"image"`
 }
 
-// 用于查询的 CardDesc
-type QueryCardDesc struct {
+// 卡牌描述的查询条件
+type CardDescQuery struct {
 	CardSet    int64     `json:"card_set"`
 	ClassInput bool      `json:"class_input"`
 	Color      []string  `json:"color"`
