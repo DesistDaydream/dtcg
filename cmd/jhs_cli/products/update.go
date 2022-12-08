@@ -17,8 +17,9 @@ type UpdateFlags struct {
 }
 
 type UpdatePolicy struct {
-	GreaterThan5AndLessThan50 bool
-	GreaterThan50             bool
+	Less5             bool
+	Greater5AndLess50 bool
+	Greater50         bool
 }
 
 var updateFlags UpdateFlags
@@ -32,8 +33,9 @@ func UpdateCommand() *cobra.Command {
 	}
 
 	updateProductsCmd.Flags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.GreaterThan5AndLessThan50, "5", false, "大于 5 元小于 50 元的卡牌。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.GreaterThan50, "50", false, "大于 50 元的卡牌。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Less5, "1", false, "更新策略，小于 5 元的卡牌。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater5AndLess50, "5", false, "更新策略，大于 5 元小于 50 元的卡牌。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater50, "50", false, "更新策略，大于 50 元的卡牌。")
 
 	updateProductsCmd.AddCommand(
 		UpdateImageCommand(),
@@ -100,8 +102,13 @@ func updateProducts(cmd *cobra.Command, args []string) {
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			// TODO: 这里可以写更新策略
 			switch policy := updateFlags.UpdatePolicy; {
-			// 是否根据价格控制上架
-			case policy.GreaterThan5AndLessThan50:
+			case policy.Less5:
+				// 如果集换价小于5块，则以集换价更新
+				if cardPrice.AvgPrice < 5 {
+					updateRun(&product, cardPrice, 0)
+					logrus.Infof("商品【%v】%v 的价格更新为 %v", cardPrice.AlternativeArt, product.CardNameCn, cardPrice.AvgPrice)
+				}
+			case policy.Greater5AndLess50:
 				// 如果集换价大于5块小于50块，且不是异画，则增加5块
 				if cardPrice.AvgPrice > 5 && cardPrice.AvgPrice < 50 && cardPrice.AlternativeArt == "否" {
 					updateRun(&product, cardPrice, 5)
@@ -113,7 +120,7 @@ func updateProducts(cmd *cobra.Command, args []string) {
 					updateRun(&product, cardPrice, 10)
 					logrus.Infof("商品【%v】%v 的价格增加了10 块", cardPrice.AlternativeArt, product.CardNameCn)
 				}
-			case policy.GreaterThan50:
+			case policy.Greater50:
 				if cardPrice.AvgPrice > 50 {
 					updateRun(&product, cardPrice, 10)
 					logrus.Infof("商品【%v】%v 的价格增加了10 块", cardPrice.AlternativeArt, product.CardNameCn)
