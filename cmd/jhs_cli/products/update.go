@@ -15,6 +15,7 @@ import (
 
 type UpdateFlags struct {
 	SetPrefix    []string
+	isUpdate     bool
 	UpdatePolicy UpdatePolicy
 }
 
@@ -37,6 +38,7 @@ func UpdateCommand() *cobra.Command {
 	}
 
 	updateProductsCmd.Flags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
+	updateProductsCmd.Flags().BoolVarP(&updateFlags.isUpdate, "update", "u", false, "是否真实更新卡牌信息。")
 	// updateProductsCmd.Flags().StringVarP(&updateFlags.UpdatePolicy.PriceRange, "price-range", "p", "", "更新策略，卡牌价格区间。")
 	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Less3, "0", false, "更新策略，小于 3 元的卡牌。")
 	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater3AndLess10, "3", false, "更新策略，大于等于 3 元小于 10 元的卡牌。")
@@ -130,7 +132,9 @@ func genNeedUpdateProducts(avgPriceRange string, alternativeArt string, risingPr
 
 			if cardPrice.AvgPrice >= floatPriceRange[0] && cardPrice.AvgPrice <= floatPriceRange[1] {
 				// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-				// updateRun(&product, cardPrice, risingPrices)
+				if updateFlags.isUpdate {
+					updateRun(&product, cardPrice, risingPrices)
+				}
 				logrus.WithFields(logrus.Fields{
 					"原始价格": cardPrice.AvgPrice,
 					"更新价格": cardPrice.AvgPrice + risingPrices,
