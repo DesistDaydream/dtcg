@@ -71,15 +71,15 @@ func TestGetCardPriceByCondition(t *testing.T) {
 	initDB()
 
 	got, err := GetCardPriceByCondition(3, 1, &models.CardPriceQuery{
-		CardSet:        0,
+		SetsPrefix:     []string{"BTC-02", "BTC-03"},
 		Color:          []string{"红", "白"},
 		Keyword:        "奥米加",
 		Language:       "",
 		QField:         []string{},
 		Rarity:         []string{},
 		AlternativeArt: "",
-		MinPrice:       "",
-		AvgPrice:       "100-200",
+		MinPriceRange:  "",
+		AvgPriceRange:  "100-200",
 	})
 	if err != nil {
 		logrus.Errorln(err)
@@ -101,7 +101,7 @@ func TestGetCardPriceWithImageByCondition(t *testing.T) {
 	initDB()
 
 	got, err := GetCardPriceWithDtcgDBImgByCondition(3, 1, &models.CardPriceQuery{
-		CardSet:        0,
+		SetsPrefix:     []string{"BTC-02", "BTC-03"},
 		Color:          []string{"红", "白"},
 		Keyword:        "奥米加",
 		Language:       "",
