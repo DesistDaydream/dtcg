@@ -71,6 +71,7 @@ func TestGetCardPriceByCondition(t *testing.T) {
 	initDB()
 
 	got, err := GetCardPriceByCondition(3, 1, &models.CardPriceQuery{
+		CardVersionID:  0,
 		SetsPrefix:     []string{"BTC-02", "BTC-03"},
 		Color:          []string{"红", "白"},
 		Keyword:        "奥米加",

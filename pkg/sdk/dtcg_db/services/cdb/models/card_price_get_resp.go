@@ -18,7 +18,7 @@ type CardPriceGetData struct {
 }
 
 type Product struct {
-	CardVersionID    int64  `json:"card_version_id"`
+	CardVersionID    int    `json:"card_version_id"`
 	MinPrice         string `json:"min_price"`
 	Quantity         string `json:"quantity"`
 	SellerCity       string `json:"seller_city"`

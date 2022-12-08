@@ -30,7 +30,7 @@ type CardPrice struct {
 
 // 卡牌价格的查询条件
 type CardPriceQuery struct {
-	CardVersionID  int64    `json:"card_version_id"`
+	CardVersionID  int      `json:"card_version_id"`
 	SetsPrefix     []string `json:"set_prefix"`
 	Color          []string `json:"color"`
 	Keyword        string   `json:"keyword"`

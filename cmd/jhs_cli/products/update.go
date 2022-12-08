@@ -2,6 +2,8 @@ package products
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -17,10 +19,11 @@ type UpdateFlags struct {
 }
 
 type UpdatePolicy struct {
-	Less3             bool
-	Greater3AndLess10 bool
-	Greater5AndLess50 bool
-	Greater50         bool
+	// PriceRange        string
+	Less3              bool
+	Greater3AndLess10  bool
+	Greater10AndLess50 bool
+	Greater50          bool
 }
 
 var updateFlags UpdateFlags
@@ -34,9 +37,10 @@ func UpdateCommand() *cobra.Command {
 	}
 
 	updateProductsCmd.Flags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Less3, "1", false, "更新策略，小于 5 元的卡牌。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater3AndLess10, "3", false, "更新策略，大于 3 元小于 10 元的卡牌。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater5AndLess50, "5", false, "更新策略，大于 5 元小于 50 元的卡牌。")
+	// updateProductsCmd.Flags().StringVarP(&updateFlags.UpdatePolicy.PriceRange, "price-range", "p", "", "更新策略，卡牌价格区间。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Less3, "0", false, "更新策略，小于 3 元的卡牌。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater3AndLess10, "3", false, "更新策略，大于等于 3 元小于 10 元的卡牌。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater10AndLess50, "10", false, "更新策略，大于等于 10 元小于 50 元的卡牌。")
 	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater50, "50", false, "更新策略，大于 50 元的卡牌。")
 
 	updateProductsCmd.AddCommand(
@@ -54,90 +58,85 @@ func updatePersistentPreRun(cmd *cobra.Command, args []string) {
 	}
 }
 
-func genNeedUpdateProducts(setsPrefix []string) ([]string, error) {
-	// 生成需要更新的卡牌信息
-	var serials []string
-
-	for _, setPrefix := range setsPrefix {
-		cardsPrice, err := database.GetCardPriceWhereSetPrefix(setPrefix)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, cardPrice := range cardsPrice.Data {
-			serials = append(serials, cardPrice.Serial)
-		}
-	}
-
-	logrus.Debugf("当前需要更新 %v 张卡牌：%v", len(serials), serials)
-	return serials, nil
-}
-
 func updateProducts(cmd *cobra.Command, args []string) {
+
 	if updateFlags.SetPrefix == nil {
 		logrus.Error("请指定要更新的卡牌集合，使用 dtcg_cli card-set list 子命令获取卡包名称。")
 		return
 	}
 
+	// 根据更新策略更新的卡牌价格
+	switch policy := updateFlags.UpdatePolicy; {
+	case policy.Less3:
+		genNeedUpdateProducts("0-2.99", "", 0)
+	case policy.Greater3AndLess10:
+		genNeedUpdateProducts("3-3.99", "否", 0.5)
+	case policy.Greater10AndLess50:
+		genNeedUpdateProducts("10-50", "是", 5)
+	case policy.Greater50:
+		genNeedUpdateProducts("50.01-10000", "", 10)
+	default:
+		// updateRun(&product, cardPrice, 5)
+	}
+}
+
+// 生成需要更新的卡牌信息
+func genNeedUpdateProducts(avgPriceRange string, alternativeArt string, risingPrices float64) {
+	var (
+		cards      *databasemodels.CardsPrice
+		err        error
+		priceRange = strings.Split(avgPriceRange, "-")
+	)
+
+	// 将 priceRange 转为 float64 类型切片
+	floatPriceRange := make([]float64, len(priceRange))
+
+	for i, str := range priceRange {
+		f, err := strconv.ParseFloat(str, 64)
+		if err != nil {
+			logrus.Errorf("%v", err)
+		}
+		floatPriceRange[i] = f
+	}
+
 	// 生成需要更新的卡牌信息
-	cards, err := genNeedUpdateProducts(updateFlags.SetPrefix)
+	cards, err = database.GetCardPriceByCondition(200, 1, &databasemodels.CardPriceQuery{
+		SetsPrefix:     updateFlags.SetPrefix,
+		AlternativeArt: alternativeArt,
+		MinPriceRange:  "",
+		AvgPriceRange:  avgPriceRange,
+	})
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return
 	}
 
+	logrus.Infof("【%v】价格区间中共有 %v 张卡牌需要更新", avgPriceRange, len(cards.Data))
+
 	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
-	for _, card := range cards {
-		products, err := handler.H.JhsServices.Products.List("1", card)
+	for _, card := range cards.Data {
+		products, err := handler.H.JhsServices.Products.List("1", card.Serial)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
+		// 通过卡牌编号获取到的商品有异画的可能，所以需要先获取商品中的 card_version_id，同时获取到 product_id(商品ID)
+		// 然后还需要再判断一下价格区间，防止更新到价格不在区间内的商品
 		for _, product := range products.Data {
-			// 这里有异画的可能，所以需要先获取商品中的 card_version_id，同时获取到 product_id(商品ID)
-			// 使用 card_version_id 从本地数据库中获取卡牌价格
 			cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
 			if err != nil {
 				logrus.Errorf("获取 %v 价格失败：%v", product.CardNameCn, err)
 			}
 
-			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-			// TODO: 这里可以写更新策略
-			switch policy := updateFlags.UpdatePolicy; {
-			case policy.Less3:
-				// 如果集换价小于3元，则以集换价更新
-				if cardPrice.AvgPrice < 3 {
-					updateRun(&product, cardPrice, 0)
-					logrus.Infof("商品【%v】%v 的价格更新为 %v", cardPrice.AlternativeArt, product.CardNameCn, cardPrice.AvgPrice)
-				}
-			case policy.Greater3AndLess10:
-				// 如果集换价大于3元小于10元，则增加 0.5 元
-				if cardPrice.AvgPrice >= 3 && cardPrice.AvgPrice <= 10 {
-					updateRun(&product, cardPrice, 0.5)
-					logrus.Infof("商品【%v】%v 的价格增加了0.5 块", cardPrice.AlternativeArt, product.CardNameCn)
-				}
-			case policy.Greater5AndLess50:
-				// 如果集换价大于5块小于50块，且不是异画，则增加5元
-				if cardPrice.AvgPrice > 5 && cardPrice.AvgPrice < 50 && cardPrice.AlternativeArt == "否" {
-					updateRun(&product, cardPrice, 5)
-					logrus.Infof("商品【%v】%v 的价格增加了5 块", cardPrice.AlternativeArt, product.CardNameCn)
-				}
-
-				// 如果集换价大于5块小于50块，且是异画，则增加10块
-				if cardPrice.AvgPrice > 5 && cardPrice.AvgPrice < 50 && cardPrice.AlternativeArt == "是" {
-					updateRun(&product, cardPrice, 10)
-					logrus.Infof("商品【%v】%v 的价格增加了10 块", cardPrice.AlternativeArt, product.CardNameCn)
-				}
-			case policy.Greater50:
-				if cardPrice.AvgPrice > 50 {
-					updateRun(&product, cardPrice, 10)
-					logrus.Infof("商品【%v】%v 的价格增加了10 块", cardPrice.AlternativeArt, product.CardNameCn)
-				}
-			default:
-				// 更新商品，比集换价高 5 元
-				// 防止误操作，默认不要更新
-				// updateRun(&product, cardPrice, 5)
+			if cardPrice.AvgPrice >= floatPriceRange[0] && cardPrice.AvgPrice <= floatPriceRange[1] {
+				// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+				// updateRun(&product, cardPrice, risingPrices)
+				logrus.WithFields(logrus.Fields{
+					"原始价格": cardPrice.AvgPrice,
+					"更新价格": cardPrice.AvgPrice + risingPrices,
+				}).Infof("商品【%v】【%v %v】将要上调 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, risingPrices)
 			}
+
 		}
 	}
 }

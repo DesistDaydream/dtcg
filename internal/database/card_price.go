@@ -129,9 +129,13 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 
 	result := DB.Model(&models.CardPrice{})
 
+	// 根据 card_version_id 查询
+	if cardPriceQuery.CardVersionID != 0 {
+		result = result.Where("card_version_id = ?", cardPriceQuery.CardVersionID)
+	}
+
 	// 根据卡牌集合前缀查询
 	if cardPriceQuery.SetsPrefix != nil {
-		// result = result.Where("set_prefix = ?", cardPriceQuery.SetPrefix)
 		result = result.Where("set_prefix IN ?", cardPriceQuery.SetsPrefix)
 	}
 
@@ -145,14 +149,14 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 
 	// 是否是异画
 	if cardPriceQuery.AlternativeArt != "" {
-		result = result.Where("card_prices.alternative_art = ?", cardPriceQuery.AlternativeArt)
+		result = result.Debug().Where("alternative_art = ?", cardPriceQuery.AlternativeArt)
 	}
 
 	// 根据集换价范围查询
 	if cardPriceQuery.AvgPriceRange != "" {
 		priceRange := strings.Split(cardPriceQuery.AvgPriceRange, "-")
 		if len(priceRange) == 2 {
-			result = result.Where("card_prices.avg_price BETWEEN ? AND ?", priceRange[0], priceRange[1])
+			result = result.Where("avg_price BETWEEN ? AND ?", priceRange[0], priceRange[1])
 		}
 	}
 
@@ -160,7 +164,7 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 	if cardPriceQuery.MinPriceRange != "" {
 		priceRange := strings.Split(cardPriceQuery.MinPriceRange, "-")
 		if len(priceRange) == 2 {
-			result = result.Where("card_prices.min_price BETWEEN ? AND ?", priceRange[0], priceRange[1])
+			result = result.Where("min_price BETWEEN ? AND ?", priceRange[0], priceRange[1])
 		}
 	}
 
