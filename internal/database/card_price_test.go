@@ -70,19 +70,16 @@ func TestGetCardPriceWhereSetPrefix(t *testing.T) {
 func TestGetCardPriceByCondition(t *testing.T) {
 	initDB()
 
-	got, err := GetCardPriceByCondition(3, 1, &models.QueryCardPrice{
-		CardPack:   0,
-		ClassInput: false,
-		Color:      []string{"红", "白"},
-		EvoCond:    []models.EvoCond{},
-		Keyword:    "奥米加",
-		Language:   "",
-		OrderType:  "",
-		QField:     []string{},
-		Rarity:     []string{},
-		Tags:       []string{},
-		TagsLogic:  "",
-		Type:       "",
+	got, err := GetCardPriceByCondition(3, 1, &models.CardPriceQuery{
+		CardSet:        0,
+		Color:          []string{"红", "白"},
+		Keyword:        "奥米加",
+		Language:       "",
+		QField:         []string{},
+		Rarity:         []string{},
+		AlternativeArt: "",
+		MinPrice:       "",
+		AvgPrice:       "100-200",
 	})
 	if err != nil {
 		logrus.Errorln(err)
@@ -92,7 +89,10 @@ func TestGetCardPriceByCondition(t *testing.T) {
 		logrus.WithFields(logrus.Fields{
 			"CardIDFromDB":  v.CardIDFromDB,
 			"CardVersionID": v.CardVersionID,
-			"图片":            v.ImageUrl,
+			// "图片":            v.ImageUrl,
+			"卡片名称": v.ScName,
+			"集换价":  v.AvgPrice,
+			"最低价":  v.MinPrice,
 		}).Infof("查询结果")
 	}
 }
@@ -100,22 +100,14 @@ func TestGetCardPriceByCondition(t *testing.T) {
 func TestGetCardPriceWithImageByCondition(t *testing.T) {
 	initDB()
 
-	got, err := GetCardPriceWithDtcgDBImgByCondition(3, 1, &models.QueryCardPrice{
-		CardPack:   0,
-		ClassInput: false,
-		Color:      []string{"红", "白"},
-		EvoCond:    []models.EvoCond{},
-		Keyword:    "奥米加",
-		Language:   "",
-		OrderType:  "",
-		QField: []string{
-			"serial",
-			"sc_name",
-		},
-		Rarity:    []string{},
-		Tags:      []string{},
-		TagsLogic: "",
-		Type:      "",
+	got, err := GetCardPriceWithDtcgDBImgByCondition(3, 1, &models.CardPriceQuery{
+		CardSet:        0,
+		Color:          []string{"红", "白"},
+		Keyword:        "奥米加",
+		Language:       "",
+		QField:         []string{"serial", "sc_name"},
+		Rarity:         []string{},
+		AlternativeArt: "",
 	})
 	if err != nil {
 		logrus.Errorln(err)

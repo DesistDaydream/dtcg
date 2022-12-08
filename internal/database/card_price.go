@@ -1,6 +1,8 @@
 package database
 
 import (
+	"strings"
+
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
 )
@@ -119,7 +121,7 @@ func GetCardPriceWhereSetPrefix(setPrefix string) (*models.CardsPrice, error) {
 }
 
 // 根据条件获取卡牌价格详情
-func GetCardPriceByCondition(pageSize int, pageNum int, queryCardPrice *models.QueryCardPrice) (*models.CardsPrice, error) {
+func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.CardPriceQuery) (*models.CardsPrice, error) {
 	var (
 		CardCount int64
 		cp        []models.CardPrice
@@ -128,17 +130,33 @@ func GetCardPriceByCondition(pageSize int, pageNum int, queryCardPrice *models.Q
 	result := DB.Model(&models.CardPrice{})
 
 	// 多列模糊查询
-	if queryCardPrice.Keyword != "" {
+	if cardPriceQuery.Keyword != "" {
 		result = result.Where("sc_name LIKE ? OR serial LIKE ?",
-			"%"+queryCardPrice.Keyword+"%",
-			"%"+queryCardPrice.Keyword+"%",
+			"%"+cardPriceQuery.Keyword+"%",
+			"%"+cardPriceQuery.Keyword+"%",
 		)
 	}
 
-	// 查询最终结果
-	result = result.Where(&models.CardPrice{
-		AlternativeArt: queryCardPrice.Type,
-	})
+	// 是否是异画
+	if cardPriceQuery.AlternativeArt != "" {
+		result = result.Where("card_prices.alternative_art = ?", cardPriceQuery.AlternativeArt)
+	}
+
+	// 根据集换价范围查询
+	if cardPriceQuery.AvgPrice != "" {
+		priceRange := strings.Split(cardPriceQuery.AvgPrice, "-")
+		if len(priceRange) == 2 {
+			result = result.Where("card_prices.avg_price BETWEEN ? AND ?", priceRange[0], priceRange[1])
+		}
+	}
+
+	// 根据最低价范围查询
+	if cardPriceQuery.MinPrice != "" {
+		priceRange := strings.Split(cardPriceQuery.MinPrice, "-")
+		if len(priceRange) == 2 {
+			result = result.Where("card_prices.min_price BETWEEN ? AND ?", priceRange[0], priceRange[1])
+		}
+	}
 
 	// 分页、计数
 	result = result.Offset(pageSize * (pageNum - 1)).Limit(pageSize).Find(&cp).Offset(-1).Limit(-1).Count(&CardCount)
@@ -156,7 +174,7 @@ func GetCardPriceByCondition(pageSize int, pageNum int, queryCardPrice *models.Q
 }
 
 // 根据条件从 card_price 表获取卡牌价格中带有 card_desc 表中的图片
-func GetCardPriceWithDtcgDBImgByCondition(pageSize int, pageNum int, queryCardPrice *models.QueryCardPrice) (*models.CardsPriceWithImageDB, error) {
+func GetCardPriceWithDtcgDBImgByCondition(pageSize int, pageNum int, cardPriceQuery *models.CardPriceQuery) (*models.CardsPriceWithImageDB, error) {
 	var (
 		CardCount int64
 		cp        []models.CardPriceWithImageDB
@@ -178,16 +196,16 @@ card_descs.image AS image`
 	result = result.Select(sqlSelect).Joins("LEFT JOIN card_descs ON card_prices.card_id_from_db = card_descs.card_id_from_db").Debug()
 
 	// 根据关键字从多列模糊查询
-	if queryCardPrice.Keyword != "" {
+	if cardPriceQuery.Keyword != "" {
 		result = result.Where("card_prices.sc_name LIKE ? OR card_prices.serial LIKE ?",
-			"%"+queryCardPrice.Keyword+"%",
-			"%"+queryCardPrice.Keyword+"%",
+			"%"+cardPriceQuery.Keyword+"%",
+			"%"+cardPriceQuery.Keyword+"%",
 		)
 	}
 
 	// 是否是异画
-	if queryCardPrice.AlternativeArt != "" {
-		result = result.Where("card_prices.alternative_art = ?", queryCardPrice.AlternativeArt)
+	if cardPriceQuery.AlternativeArt != "" {
+		result = result.Where("card_prices.alternative_art = ?", cardPriceQuery.AlternativeArt)
 	}
 
 	// 分页、计数

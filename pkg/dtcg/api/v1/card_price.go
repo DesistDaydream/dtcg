@@ -56,7 +56,7 @@ func PostCardsPrice(c *gin.Context) {
 	}
 
 	// 绑定请求体
-	var reqBody dbmodels.QueryCardPrice
+	var reqBody dbmodels.CardPriceQuery
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "请求体错误",
@@ -92,7 +92,7 @@ func PostCardsPriceWithDtcgDBImg(c *gin.Context) {
 	}
 
 	// 绑定请求体
-	var reqBody dbmodels.QueryCardPrice
+	var reqBody dbmodels.CardPriceQuery
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "请求体错误",

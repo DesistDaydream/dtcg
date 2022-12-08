@@ -17,7 +17,8 @@ type UpdateFlags struct {
 }
 
 type UpdatePolicy struct {
-	Less5             bool
+	Less3             bool
+	Greater3AndLess10 bool
 	Greater5AndLess50 bool
 	Greater50         bool
 }
@@ -33,7 +34,8 @@ func UpdateCommand() *cobra.Command {
 	}
 
 	updateProductsCmd.Flags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Less5, "1", false, "更新策略，小于 5 元的卡牌。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Less3, "1", false, "更新策略，小于 5 元的卡牌。")
+	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater3AndLess10, "3", false, "更新策略，大于 3 元小于 10 元的卡牌。")
 	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater5AndLess50, "5", false, "更新策略，大于 5 元小于 50 元的卡牌。")
 	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater50, "50", false, "更新策略，大于 50 元的卡牌。")
 
@@ -102,14 +104,20 @@ func updateProducts(cmd *cobra.Command, args []string) {
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			// TODO: 这里可以写更新策略
 			switch policy := updateFlags.UpdatePolicy; {
-			case policy.Less5:
-				// 如果集换价小于5块，则以集换价更新
-				if cardPrice.AvgPrice < 5 {
+			case policy.Less3:
+				// 如果集换价小于3元，则以集换价更新
+				if cardPrice.AvgPrice < 3 {
 					updateRun(&product, cardPrice, 0)
 					logrus.Infof("商品【%v】%v 的价格更新为 %v", cardPrice.AlternativeArt, product.CardNameCn, cardPrice.AvgPrice)
 				}
+			case policy.Greater3AndLess10:
+				// 如果集换价大于3元小于10元，则增加 0.5 元
+				if cardPrice.AvgPrice >= 3 && cardPrice.AvgPrice <= 10 {
+					updateRun(&product, cardPrice, 0.5)
+					logrus.Infof("商品【%v】%v 的价格增加了0.5 块", cardPrice.AlternativeArt, product.CardNameCn)
+				}
 			case policy.Greater5AndLess50:
-				// 如果集换价大于5块小于50块，且不是异画，则增加5块
+				// 如果集换价大于5块小于50块，且不是异画，则增加5元
 				if cardPrice.AvgPrice > 5 && cardPrice.AvgPrice < 50 && cardPrice.AlternativeArt == "否" {
 					updateRun(&product, cardPrice, 5)
 					logrus.Infof("商品【%v】%v 的价格增加了5 块", cardPrice.AlternativeArt, product.CardNameCn)

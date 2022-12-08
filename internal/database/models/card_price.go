@@ -2,6 +2,22 @@ package models
 
 import "time"
 
+// 卡牌价格的查询条件
+type CardPriceQuery struct {
+	CardSet        int64    `json:"card_set"`
+	Color          []string `json:"color"`
+	Keyword        string   `json:"keyword"`
+	Language       string   `json:"language"`
+	QField         []string `json:"qField"` // 通过 Keyword 进行查询的字段
+	Rarity         []string `json:"rarity"`
+	AlternativeArt string   `json:"alternative_art"`
+	// 最低价范围
+	MinPrice string `json:"min_price"`
+	// 集换价范围
+	AvgPrice string `json:"avg_price"`
+}
+
+// 卡牌价格
 type CardsPrice struct {
 	Count       int64       `json:"count"`
 	PageSize    int         `json:"page_size"`
@@ -25,23 +41,6 @@ type CardPrice struct {
 	CreatedAt      time.Time `json:"create_at"`
 	UpdatedAt      time.Time `json:"update_at"`
 	ImageUrl       string    `json:"image_url"`
-}
-
-// 查询卡牌价格的条件
-type QueryCardPrice struct {
-	CardPack       int64     `json:"card_pack"`
-	ClassInput     bool      `json:"class_input"`
-	Color          []string  `json:"color"`
-	EvoCond        []EvoCond `json:"evo_cond"`
-	Keyword        string    `json:"keyword"`
-	Language       string    `json:"language"`
-	OrderType      string    `json:"order_type"`
-	QField         []string  `json:"qField"` // 通过 Keyword 进行查询的字段
-	Rarity         []string  `json:"rarity"`
-	Tags           []string  `json:"tags"` // 特征
-	TagsLogic      string    `json:"tags__logic"`
-	Type           string    `json:"type"`
-	AlternativeArt string    `json:"alternative_art"`
 }
 
 // 带有dtcg数据库中图片的卡牌价格
