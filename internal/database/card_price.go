@@ -135,7 +135,7 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 	}
 
 	// 根据卡牌集合前缀查询
-	if cardPriceQuery.SetsPrefix != nil {
+	if len(cardPriceQuery.SetsPrefix) > 0 {
 		result = result.Where("set_prefix IN ?", cardPriceQuery.SetsPrefix)
 	}
 
