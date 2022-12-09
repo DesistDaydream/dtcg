@@ -2,8 +2,6 @@ package products
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -20,30 +18,35 @@ type UpdateFlags struct {
 }
 
 type UpdatePolicy struct {
-	// PriceRange        string
-	Less3              bool
-	Greater3AndLess10  bool
-	Greater10AndLess50 bool
-	Greater50          bool
+	PriceRange  []float64
+	PriceChange float64
+	isArt       string
 }
 
 var updateFlags UpdateFlags
 
 func UpdateCommand() *cobra.Command {
+	long := `
+根据策略更新我在卖的卡片。
+比如：
+  jhs_cli products update -s BTC-03 -r 0,2.99 表示将所有价格在 0-2.99 之间卡牌的价格增加 0.1 元。
+  jhs_cli products update -s BTC-03 -r 3,9.99 -c 0.5 --art="否" 表示将所有价格在 3-9.99 之间的非异画卡牌的价格增加 0.5 元。
+  jhs_cli products update -s BTC-03 -r 10,50 -c 5 --art="是" 表示将所有价格在 0-1000 之间的异画卡牌的价格增加 5 元。
+  jhs_cli products update -s BTC-03 -r 50.01,1000 -c 10 表示将所有价格在 50.01-1000 之间的异画卡牌的价格增加 10 元。
+`
 	updateProductsCmd := &cobra.Command{
 		Use:              "update",
 		Short:            "更新我在卖的卡片",
+		Long:             long,
 		Run:              updateProducts,
 		PersistentPreRun: updatePersistentPreRun,
 	}
 
 	updateProductsCmd.Flags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
 	updateProductsCmd.Flags().BoolVarP(&updateFlags.isUpdate, "update", "u", false, "是否真实更新卡牌信息。")
-	// updateProductsCmd.Flags().StringVarP(&updateFlags.UpdatePolicy.PriceRange, "price-range", "p", "", "更新策略，卡牌价格区间。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Less3, "0", false, "更新策略，小于 3 元的卡牌。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater3AndLess10, "3", false, "更新策略，大于等于 3 元小于 10 元的卡牌。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater10AndLess50, "10", false, "更新策略，大于等于 10 元小于 50 元的卡牌。")
-	updateProductsCmd.Flags().BoolVar(&updateFlags.UpdatePolicy.Greater50, "50", false, "更新策略，大于 50 元的卡牌。")
+	updateProductsCmd.Flags().Float64SliceVarP(&updateFlags.UpdatePolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
+	updateProductsCmd.Flags().Float64VarP(&updateFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
+	updateProductsCmd.Flags().StringVar(&updateFlags.UpdatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
 
 	updateProductsCmd.AddCommand(
 		UpdateImageCommand(),
@@ -61,59 +64,40 @@ func updatePersistentPreRun(cmd *cobra.Command, args []string) {
 }
 
 func updateProducts(cmd *cobra.Command, args []string) {
-
 	if updateFlags.SetPrefix == nil {
 		logrus.Error("请指定要更新的卡牌集合，使用 dtcg_cli card-set list 子命令获取卡包名称。")
 		return
 	}
 
-	// 根据更新策略更新的卡牌价格
-	switch policy := updateFlags.UpdatePolicy; {
-	case policy.Less3:
-		genNeedUpdateProducts("0-2.99", "", 0)
-	case policy.Greater3AndLess10:
-		genNeedUpdateProducts("3-3.99", "否", 0.5)
-	case policy.Greater10AndLess50:
-		genNeedUpdateProducts("10-50", "是", 5)
-	case policy.Greater50:
-		genNeedUpdateProducts("50.01-10000", "", 10)
-	default:
-		// updateRun(&product, cardPrice, 5)
+	if updateFlags.UpdatePolicy.PriceRange == nil {
+		logrus.Error("请指定要更新的卡牌价格区间。比如 -r 0,2.99 表示将所有价格在 0-2.99 之间卡牌。")
+		return
 	}
+
+	// 根据更新策略更新卡牌价格
+	genNeedUpdateProducts(updateFlags.UpdatePolicy.PriceRange, updateFlags.UpdatePolicy.isArt, updateFlags.UpdatePolicy.PriceChange)
 }
 
 // 生成需要更新的卡牌信息
-func genNeedUpdateProducts(avgPriceRange string, alternativeArt string, risingPrices float64) {
+func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, priceChange float64) {
 	var (
-		cards      *databasemodels.CardsPrice
-		err        error
-		priceRange = strings.Split(avgPriceRange, "-")
+		cards *databasemodels.CardsPrice
+		err   error
 	)
-
-	// 将 priceRange 转为 float64 类型切片
-	floatPriceRange := make([]float64, len(priceRange))
-
-	for i, str := range priceRange {
-		f, err := strconv.ParseFloat(str, 64)
-		if err != nil {
-			logrus.Errorf("%v", err)
-		}
-		floatPriceRange[i] = f
-	}
 
 	// 生成需要更新的卡牌信息
 	cards, err = database.GetCardPriceByCondition(200, 1, &databasemodels.CardPriceQuery{
 		SetsPrefix:     updateFlags.SetPrefix,
 		AlternativeArt: alternativeArt,
 		MinPriceRange:  "",
-		AvgPriceRange:  avgPriceRange,
+		AvgPriceRange:  fmt.Sprintf("%v-%v", avgPriceRange[0], avgPriceRange[1]),
 	})
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return
 	}
 
-	logrus.Infof("【%v】价格区间中共有 %v 张卡牌需要更新", avgPriceRange, len(cards.Data))
+	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", avgPriceRange, len(cards.Data))
 
 	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
 	for _, card := range cards.Data {
@@ -130,26 +114,25 @@ func genNeedUpdateProducts(avgPriceRange string, alternativeArt string, risingPr
 				logrus.Errorf("获取 %v 价格失败：%v", product.CardNameCn, err)
 			}
 
-			if cardPrice.AvgPrice >= floatPriceRange[0] && cardPrice.AvgPrice <= floatPriceRange[1] {
+			if cardPrice.AvgPrice >= avgPriceRange[0] && cardPrice.AvgPrice <= avgPriceRange[1] {
 				// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 				if updateFlags.isUpdate {
-					updateRun(&product, cardPrice, risingPrices)
+					updateRun(&product, cardPrice, priceChange)
 				}
 				logrus.WithFields(logrus.Fields{
 					"原始价格": cardPrice.AvgPrice,
-					"更新价格": cardPrice.AvgPrice + risingPrices,
-				}).Infof("商品【%v】【%v %v】将要上调 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, risingPrices)
+					"更新价格": cardPrice.AvgPrice + priceChange,
+				}).Infof("商品【%v】【%v %v】将要调整 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, priceChange)
 			}
-
 		}
 	}
 }
 
-func updateRun(product *models.ProductListData, cardPrice *databasemodels.CardPrice, price float64) {
+func updateRun(product *models.ProductListData, cardPrice *databasemodels.CardPrice, priceChange float64) {
 	resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
 		Condition:            fmt.Sprint(product.Condition),
 		OnSale:               fmt.Sprint(product.OnSale),
-		Price:                fmt.Sprint(cardPrice.AvgPrice + price),
+		Price:                fmt.Sprint(cardPrice.AvgPrice + priceChange),
 		Quantity:             fmt.Sprint(product.Quantity),
 		Remark:               "",
 		UserCardVersionImage: cardPrice.ImageUrl,
