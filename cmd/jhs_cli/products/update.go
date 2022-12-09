@@ -99,15 +99,15 @@ func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, price
 
 	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", avgPriceRange, len(cards.Data))
 
-	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
 	for _, card := range cards.Data {
+		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
 		products, err := handler.H.JhsServices.Products.List("1", card.Serial)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
-		// 通过卡牌编号获取到的商品有异画的可能，所以需要先获取商品中的 card_version_id，同时获取到 product_id(商品ID)
-		// 然后还需要再判断一下价格区间，防止更新到价格不在区间内的商品
+		// 通过卡牌编号获取到的商品信息不是唯一的，有异画的可能，所以需要先获取商品中的 card_version_id，同时获取到 product_id(商品ID)
+		// 此时需要根据 card_version_id 获取到卡牌的价格信息，然后根据价格信息判断要更新的是哪个商品
 		for _, product := range products.Data {
 			cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
 			if err != nil {
