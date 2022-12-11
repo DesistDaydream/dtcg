@@ -32,7 +32,6 @@ type CardPrice struct {
 type CardPriceQuery struct {
 	CardVersionID  int      `json:"card_version_id"`
 	SetsPrefix     []string `json:"set_prefix"`
-	Color          []string `json:"color"`
 	Keyword        string   `json:"keyword"`
 	Language       string   `json:"language"`
 	QField         []string `json:"qField"` // 通过 Keyword 进行查询的字段

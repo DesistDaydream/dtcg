@@ -73,9 +73,7 @@ func TestGetCardPriceByCondition(t *testing.T) {
 	got, err := GetCardPriceByCondition(3, 1, &models.CardPriceQuery{
 		CardVersionID:  0,
 		SetsPrefix:     []string{"BTC-02", "BTC-03"},
-		Color:          []string{"红", "白"},
 		Keyword:        "奥米加",
-		Language:       "",
 		QField:         []string{},
 		Rarity:         []string{},
 		AlternativeArt: "",
@@ -103,7 +101,6 @@ func TestGetCardPriceWithImageByCondition(t *testing.T) {
 
 	got, err := GetCardPriceWithDtcgDBImgByCondition(3, 1, &models.CardPriceQuery{
 		SetsPrefix:     []string{"BTC-02", "BTC-03"},
-		Color:          []string{"红", "白"},
 		Keyword:        "奥米加",
 		Language:       "",
 		QField:         []string{"serial", "sc_name"},

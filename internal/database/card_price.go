@@ -139,7 +139,7 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 		result = result.Where("set_prefix IN ?", cardPriceQuery.SetsPrefix)
 	}
 
-	// 多列模糊查询
+	// 关键字多列模糊查询
 	if cardPriceQuery.Keyword != "" {
 		result = result.Where("sc_name LIKE ? OR serial LIKE ?",
 			"%"+cardPriceQuery.Keyword+"%",
