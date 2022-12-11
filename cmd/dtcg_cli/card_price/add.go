@@ -16,7 +16,7 @@ var addFlags AddFlags
 func AddCardPriceCommand() *cobra.Command {
 	AddCardPriceCmd := &cobra.Command{
 		Use:   "add",
-		Short: "添加卡片集合",
+		Short: "添加卡牌价格",
 		Run:   addCardPrice,
 	}
 

@@ -28,6 +28,7 @@ type DtcgDB struct {
 }
 
 func NewConfig(path, name string) *Config {
+	logrus.Debugf("检查手动指定的配置文件信息: %s/%s", path, name)
 	var config Config
 	viper.AddConfigPath(path)
 	viper.AddConfigPath("/etc/dtcg")
