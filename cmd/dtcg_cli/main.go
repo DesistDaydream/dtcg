@@ -16,6 +16,8 @@ import (
 )
 
 type Flags struct {
+	FilePath string
+	FileName string
 }
 
 func AddFlags(f *Flags) {
@@ -43,35 +45,39 @@ func newApp() *cobra.Command {
 还可以从集换社获取卡牌的价格
 `
 
-	var RootCmd = &cobra.Command{
-		Use:              "mydtcg",
-		Short:            "我的 DTCG 管理工具",
-		Long:             long,
-		PersistentPreRun: rootPersistentPreRun,
+	var rootCmd = &cobra.Command{
+		Use:   "mydtcg",
+		Short: "我的 DTCG 管理工具",
+		Long:  long,
+		// PersistentPreRun: rootPersistentPreRun,
 	}
 
+	cobra.OnInitialize(initConfig)
+
+	rootCmd.PersistentFlags().StringVar(&flags.FilePath, "path", "", "配置文件路径")
+	rootCmd.PersistentFlags().StringVar(&flags.FileName, "name", "", "配置文件名称")
 	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
 
 	// 添加子命令
-	RootCmd.AddCommand(
+	rootCmd.AddCommand(
 		cardset.CreateCommand(),
 		carddesc.CreateCommand(),
 		cardprice.CreateCommand(),
 	)
 
-	return RootCmd
+	return rootCmd
 }
 
 // 执行每个 root 下的子命令时，都需要执行的函数
-func rootPersistentPreRun(cmd *cobra.Command, args []string) {
+func initConfig() {
 	// 初始化日志
 	if err := logging.LogInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
 	// 初始化配置文件
-	c := config.NewConfig("", "")
+	c := config.NewConfig(flags.FilePath, flags.FileName)
 
 	// 初始化数据库
 	dbInfo := &database.DBInfo{
