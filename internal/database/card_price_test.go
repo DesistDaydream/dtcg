@@ -9,6 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var jhsToken string
+
 func initDB() {
 	// 初始化配置文件
 	c := config.NewConfig("../../config", "")
@@ -21,6 +23,8 @@ func initDB() {
 	}
 
 	InitDB(dbInfo)
+
+	jhsToken = c.JHS.Token
 }
 
 func TestGetCardPrice(t *testing.T) {
@@ -38,7 +42,7 @@ func TestUpdateCardPrice(t *testing.T) {
 	initDB()
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
-	handler.H = handler.NewHandler()
+	handler.H = handler.NewHandler(jhsToken)
 
 	cardsPrice, err := ListCardsPrice()
 	if err != nil {

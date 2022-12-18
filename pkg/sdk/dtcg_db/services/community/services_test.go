@@ -3,7 +3,6 @@ package community
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strconv"
 	"testing"
 
@@ -19,15 +18,7 @@ var client *CommunityClient
 
 // var cardVersionID string = "2544"
 
-func getToken() {
-	file, err := os.ReadFile("../token.txt")
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	token = string(file)
-}
-
-func initDB() {
+func initTest() {
 	// 初始化配置文件
 	c := config.NewConfig("../../../../../config", "")
 
@@ -39,11 +30,10 @@ func initDB() {
 	}
 
 	database.InitDB(dbInfo)
-}
 
-func initTest() {
-	getToken()
-	client = NewCommunityClient(core.NewClient(token, 10))
+	token = c.DtcgDB.Token
+
+	client = NewCommunityClient(core.NewClient(token, 1))
 }
 
 func TestCommunityClient_PostConvertDeck(t *testing.T) {
@@ -99,7 +89,7 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 // 从自己的卡组中获取卡组详情
 func TestCommunityClient_GetDeckCloud(t *testing.T) {
 	initTest()
-	decks, err := client.GetDeckCloud("106981")
+	decks, err := client.GetDeckCloud("124787")
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -124,7 +114,6 @@ func TestCommunityClient_GetDeckCloud(t *testing.T) {
 		minPrice float64
 		avgPrice float64
 	)
-	initDB()
 
 	for _, cardID := range cardsID {
 		cardPrice, err := database.GetCardPrice(cardID)

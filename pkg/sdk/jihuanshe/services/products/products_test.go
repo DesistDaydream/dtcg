@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
@@ -15,12 +17,20 @@ import (
 var token string = ""
 var cardVersionID string = "2544"
 
-func getToken() {
-	file, err := os.ReadFile("../token.txt")
-	if err != nil {
-		logrus.Fatal(err)
+func initConfig() {
+	// 初始化配置文件
+	c := config.NewConfig("../../../../../config", "")
+
+	// 初始化数据库
+	dbInfo := &database.DBInfo{
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
 	}
-	token = string(file)
+
+	database.InitDB(dbInfo)
+
+	token = c.JHS.Token
 }
 
 func TestStructToMapStr(t *testing.T) {
@@ -54,7 +64,7 @@ func TestProductsClientAdd(t *testing.T) {
 		logrus.Fatalln(err)
 	}
 
-	getToken()
+	initConfig()
 	client := NewProductsClient(core.NewClient(token))
 	file := "/mnt/d/Documents/WPS Cloud Files/1054253139/团队文档/东部王国/数码宝贝/价格统计表.xlsx"
 	f, err := excelize.OpenFile(file)
@@ -101,7 +111,7 @@ func TestProductsClientAdd(t *testing.T) {
 }
 
 func TestProductsClientDel(t *testing.T) {
-	getToken()
+	initConfig()
 	client := NewProductsClient(core.NewClient(token))
 
 	ProductIDs := []string{"15526516", "15526515", "15526514", "15526513", "15526511", "15526510", "15526509", "15526507", "15526506", "15526505", "15526504", "15525782"}
@@ -117,7 +127,7 @@ func TestProductsClientDel(t *testing.T) {
 
 // 批量更新售卖的商品
 func TestProductsClientUpdate(t *testing.T) {
-	getToken()
+	initConfig()
 	client := NewProductsClient(core.NewClient(token))
 	resp, err := client.Update(&models.ProductsUpdateReqBody{
 		Condition:            "1",
@@ -136,7 +146,7 @@ func TestProductsClientUpdate(t *testing.T) {
 }
 
 func TestProductsClientGet(t *testing.T) {
-	getToken()
+	initConfig()
 	client := NewProductsClient(core.NewClient(token))
 
 	got, err := client.Get(cardVersionID)
@@ -148,7 +158,7 @@ func TestProductsClientGet(t *testing.T) {
 }
 
 func TestProductsClientList(t *testing.T) {
-	getToken()
+	initConfig()
 	currentPage := 1
 	for {
 		client := NewProductsClient(core.NewClient(token))

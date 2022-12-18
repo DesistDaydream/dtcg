@@ -2,28 +2,39 @@ package orders
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
+	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/sirupsen/logrus"
 )
 
 var token string = ""
 
+// var client *CommunityClient
+
 // var cardVersionID string = "2544"
 
-func getToken() {
-	file, err := os.ReadFile("../token.txt")
-	if err != nil {
-		logrus.Fatal(err)
+func initConfig() {
+	// 初始化配置文件
+	c := config.NewConfig("../../../../../config", "")
+
+	// 初始化数据库
+	dbInfo := &database.DBInfo{
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
 	}
-	token = string(file)
+
+	database.InitDB(dbInfo)
+
+	token = c.JHS.Token
 }
 
 // 获取用户订单列表（买入）
 func TestOrdersClient_GetBuyerOrders(t *testing.T) {
-	getToken()
+	initConfig()
 	client := NewOrdersClient(core.NewClient(token))
 
 	resp, err := client.GetBuyerOrders("1")
@@ -36,7 +47,7 @@ func TestOrdersClient_GetBuyerOrders(t *testing.T) {
 }
 
 func TestOrdersClient_GetBuyerOrderProducts(t *testing.T) {
-	getToken()
+	initConfig()
 	client := NewOrdersClient(core.NewClient(token))
 	resp, err := client.GetBuyerOrderProducts(2479030)
 	if err != nil {
@@ -47,7 +58,7 @@ func TestOrdersClient_GetBuyerOrderProducts(t *testing.T) {
 
 // 获取用户订单列表（卖出）
 func TestOrdersClient_GetSellerOrders(t *testing.T) {
-	getToken()
+	initConfig()
 	client := NewOrdersClient(core.NewClient(token))
 
 	resp, err := client.GetSellerOrders("1")
@@ -60,7 +71,7 @@ func TestOrdersClient_GetSellerOrders(t *testing.T) {
 }
 
 func TestOrdersClient_GetSellerOrderProducts(t *testing.T) {
-	getToken()
+	initConfig()
 	client := NewOrdersClient(core.NewClient(token))
 	resp, err := client.GetSellerOrderProducts(2475268)
 	if err != nil {

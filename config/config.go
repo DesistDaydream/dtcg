@@ -10,6 +10,7 @@ type Config struct {
 	Mysql  MySQL  `yaml:"mysql"`
 	SQLite SQLite `yaml:"sqlite"`
 	DtcgDB DtcgDB `yaml:"dtcgDB"`
+	JHS    JHS    `yaml:"jhs"`
 }
 
 type MySQL struct {
@@ -25,6 +26,10 @@ type DtcgDB struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Token    string `yaml:"token"`
+}
+
+type JHS struct {
+	Token string `yaml:"token"`
 }
 
 func NewConfig(path, name string) *Config {
