@@ -43,7 +43,7 @@ func UpdateCommand() *cobra.Command {
 	}
 
 	updateProductsCmd.Flags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	updateProductsCmd.Flags().BoolVarP(&updateFlags.isUpdate, "update", "u", false, "是否真实更新卡牌信息。")
+	updateProductsCmd.Flags().BoolVarP(&updateFlags.isUpdate, "update", "u", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
 	updateProductsCmd.Flags().Float64SliceVarP(&updateFlags.UpdatePolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
 	updateProductsCmd.Flags().Float64VarP(&updateFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 	updateProductsCmd.Flags().StringVar(&updateFlags.UpdatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
