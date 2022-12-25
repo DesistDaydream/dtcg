@@ -98,6 +98,7 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("Accept", "*/*")
 	req.Header.Add("Host", "api.jihuanshe.com")
+	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", c.Token))
 
 	// 如果有 URL 的 Query 则逐一添加
 	if len(reqOpts.ReqQuery) > 0 {

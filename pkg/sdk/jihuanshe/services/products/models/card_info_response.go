@@ -17,11 +17,13 @@ type ProductsGetResp struct {
 }
 
 type ProductData struct {
-	ProductID       int         `json:"product_id"`
-	CardNameCn      string      `json:"card_name_cn"`
-	Price           float32     `json:"price"`
-	Quantity        int         `json:"quantity"`
-	Condition       int         `json:"condition"`
-	Remark          string      `json:"remark"`
-	PublishLocation interface{} `json:"publish_location"`
+	ProductID        int         `json:"product_id"`
+	CardNameCn       string      `json:"card_name_cn"`
+	Price            float32     `json:"price"`
+	Quantity         int         `json:"quantity"`
+	Condition        int         `json:"condition"`
+	Remark           string      `json:"remark"`
+	PublishLocation  interface{} `json:"publish_location"`
+	CardVersionImage string      `json:"card_version_image"`
+	IsDefault        bool        `json:"is_default"`
 }

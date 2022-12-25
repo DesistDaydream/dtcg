@@ -8,7 +8,3 @@ type ProductsUpdateReqBody struct {
 	Remark               string `json:"remark"`
 	UserCardVersionImage string `json:"user_card_version_image"`
 }
-
-type ProductsUpdateReqQuery struct {
-	Token string `query:"token"`
-}

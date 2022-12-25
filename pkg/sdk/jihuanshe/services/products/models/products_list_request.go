@@ -1,8 +1,11 @@
 package models
 
-type ProductsGetReqQuery struct {
-	GameKey       string `query:"game_key"`
-	SellerUserID  string `query:"seller_user_id"`
-	CardVersionID string `query:"card_version_id"`
-	Token         string `query:"token"`
+type ProductsListReqQuery struct {
+	GameKey    string `query:"game_key"`
+	GameSubKey string `query:"game_sub_key"`
+	Keyword    string `query:"keyword"`
+	OnSale     string `query:"on_sale"`
+	Page       string `query:"page"`
+	Sorting    string `query:"sorting"`
+	Token      string `query:"token"`
 }
