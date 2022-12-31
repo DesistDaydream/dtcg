@@ -4,8 +4,10 @@ import (
 	"log"
 	"strings"
 
+	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -18,7 +20,7 @@ type Flags struct {
 	Test       bool
 }
 
-func AddFlsgs(f *Flags) {
+func AddFlags(f *Flags) {
 	pflag.StringVarP(&f.CardLevel, "level", "l", "", "Lv.2、Lv.3...Lv.7")
 	pflag.StringVarP(&f.Color, "color", "c", "", "颜色，可用的值有：红、绿、蓝、黄、紫、黑、混色")
 	pflag.StringVarP(&f.EffectKey, "effectKey", "k", "6000", "要查找带有该关键字效果的卡牌")
@@ -42,14 +44,27 @@ func EffectKey(cardDesc models.CardDesc, flags Flags, cardSet string) {
 }
 
 func main() {
-	var flags Flags
-	AddFlsgs(&flags)
+	var (
+		flags    Flags
+		logFlags logging.LoggingFlags
+	)
+	AddFlags(&flags)
+	logging.AddFlags(&logFlags)
 	pflag.Parse()
-
-	i := &database.DBInfo{
-		FilePath: "internal/database/my_dtcg.db",
+	if err := logging.LogInit(&logFlags); err != nil {
+		logrus.Fatalf("初始化日志失败: %v", err)
 	}
-	database.InitDB(i)
+
+	// 初始化配置文件
+	c := config.NewConfig("", "")
+
+	// 连接数据库
+	dbInfo := &database.DBInfo{
+		FilePath: c.SQLite.FilePath,
+		Server:   c.Mysql.Server,
+		Password: c.Mysql.Password,
+	}
+	database.InitDB(dbInfo)
 
 	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
