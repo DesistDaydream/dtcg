@@ -115,14 +115,15 @@ func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, price
 			}
 
 			if cardPrice.AvgPrice >= avgPriceRange[0] && cardPrice.AvgPrice <= avgPriceRange[1] {
-				// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-				if updateFlags.isUpdate {
-					updateRun(&product, cardPrice, priceChange)
-				}
 				logrus.WithFields(logrus.Fields{
 					"原始价格": cardPrice.AvgPrice,
 					"更新价格": cardPrice.AvgPrice + priceChange,
 				}).Infof("商品【%v】【%v %v】将要调整 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, priceChange)
+
+				// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+				if updateFlags.isUpdate {
+					updateRun(&product, cardPrice, priceChange)
+				}
 			}
 		}
 	}

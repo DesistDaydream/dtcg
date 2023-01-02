@@ -17,3 +17,7 @@ go run cmd/jhs_cli/main.go products update -s BTC-03 -r 10,50 -c 5 --art="是"
 
 将所有价格在 50.01-1000 之间的卡牌的价格增加 10 元。
 go run cmd/jhs_cli/main.go products update -s BTC-03 -r 50.01,1000 -c 10
+
+# 构建
+
+go build -o jhs_cli cmd/jhs_cli/main.go
