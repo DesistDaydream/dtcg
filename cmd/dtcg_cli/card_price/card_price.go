@@ -46,7 +46,8 @@ func GetPriceFromDtcgdb(cardDesc *models.CardDesc) (int, float64, float64) {
 
 	cardPrice, err := handler.H.DtcgDBServices.Cdb.GetCardPrice(fmt.Sprint(cardDesc.CardIDFromDB))
 	if err != nil {
-		logrus.Fatalf("获取卡牌 %v 价格失败: %v", cardDesc.CardIDFromDB, err)
+		logrus.Errorf("获取卡牌 %v 价格失败: %v", cardDesc.CardIDFromDB, err)
+		return 0, 0, 0
 	}
 
 	avgPrice, _ = strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)

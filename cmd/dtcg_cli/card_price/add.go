@@ -46,7 +46,11 @@ func addCardPrice(cmd *cobra.Command, args []string) {
 	for i := startAt; i < len(cardsDesc.Data); i++ {
 		cardVersionID, minPrice, avgPrice := GetPriceFromDtcgdb(&cardsDesc.Data[i])
 
-		imageUrl := GetImageURL(cardVersionID)
+		// 如果没有卡牌获取到价格，就跳过获取图片 URL
+		var imageUrl string
+		if cardVersionID != 0 {
+			imageUrl = GetImageURL(cardVersionID)
+		}
 
 		database.AddCardPirce(&models.CardPrice{
 			CardIDFromDB:   cardsDesc.Data[i].CardIDFromDB,

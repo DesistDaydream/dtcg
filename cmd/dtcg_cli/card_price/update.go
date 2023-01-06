@@ -33,7 +33,7 @@ func UpdateCardPriceCommand() *cobra.Command {
 	}
 
 	updateCardPriceCmd.Flags().StringSliceVar(&updateFlags.UpdateMethod.SetPrefix, "sets-name", nil, "更新哪些卡包的价格，使用 card-set list 子命令获取卡包名称。若不指定则更新所有")
-	updateCardPriceCmd.Flags().IntVar(&updateFlags.UpdateMethod.StartAt, "start-at", 0, "从哪张卡牌开始更新")
+	updateCardPriceCmd.Flags().IntVar(&updateFlags.UpdateMethod.StartAt, "start-at", 0, "从哪张卡牌开始更新。值为card_id_from_db")
 	updateCardPriceCmd.Flags().IntSliceVar(&updateFlags.UpdateMethod.CardIDFromDBs, "id", nil, "更新哪几张张卡牌的价格")
 	updateCardPriceCmd.Flags().BoolVarP(&updateFlags.UpdateMethod.UpdateNoImage, "no-image", "n", false, "是否只更新没有卡图的卡牌价格")
 	updateCardPriceCmd.Flags().BoolVarP(&updateFlags.UpdateAllField, "all-field", "a", false, "是否更新卡牌价格的全部字段")
@@ -137,7 +137,10 @@ func updateRun(cardDesc *models.CardDesc) {
 	// 	}, map[string]interface{}{})
 	// }
 	if updateFlags.UpdateAllField {
-		imageUrl := GetImageURL(cardVersionID)
+		var imageUrl string
+		if cardVersionID != 0 {
+			imageUrl = GetImageURL(cardVersionID)
+		}
 		database.UpdateCardPrice(&models.CardPrice{CardIDFromDB: cardDesc.CardIDFromDB}, map[string]interface{}{
 			"set_id":          cardDesc.SetID,
 			"set_prefix":      cardDesc.SetPrefix,
