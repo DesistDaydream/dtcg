@@ -108,8 +108,6 @@ func addProducts(cmd *cobra.Command, args []string) {
 			GameKey:              "dgm",
 			UserCardVersionImage: cardPrice.ImageUrl,
 		})
-
-		// resp, err := client.Add(cardModelToCardVersionID[rows[i][0]], rows[i][1], rows[i][2])
 		if err != nil {
 			logrus.Errorf("%v 上架失败：%v", cardPrice.ScName, err)
 		} else {
