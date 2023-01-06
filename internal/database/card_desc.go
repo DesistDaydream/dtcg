@@ -8,7 +8,10 @@ import (
 
 // 添加卡牌描述
 func AddCardDesc(cardDesc *models.CardDesc) {
-	result := DB.FirstOrCreate(cardDesc, cardDesc)
+	// 若 card_id_from_db 已存在，则不添加。
+	// 毕竟是从 https://digimon.card.moe/ 爬取的数据，不会有重复的 card_id_from_db，如果对方的 ID 已经在本地了，那就不需要再添加了。
+	// TODO: 但是如果对方的数据有更新，那么本地的数据就会不同步了，需要有一个更新的机制。
+	result := DB.FirstOrCreate(cardDesc, &models.CardDesc{CardIDFromDB: cardDesc.CardIDFromDB})
 	if result.Error != nil {
 		logrus.Errorf("插入数据失败: %v", result.Error)
 	}
