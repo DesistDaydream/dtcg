@@ -5,6 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "dtcg",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "cwd": "${workspaceRoot}",
+      "program": "cmd/dtcg/main.go"
+    },
+    {
       "name": "jhs cli",
       "type": "go",
       "request": "launch",

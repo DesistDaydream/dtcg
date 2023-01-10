@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 	"time"
 
+	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,6 +45,17 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 	statusCode, body, err := c.request(uri, reqOpts)
 	if err != nil {
 		return err
+	}
+
+	// DTCGDB 在 token 失效时，没有 json 格式的响应体，直接返回 500，所以需要特殊处理
+	if statusCode >= 500 {
+		logrus.Errorf("DTCGDB 服务器异常，响应码：%v，重新获取 token", statusCode)
+		cfg := config.NewConfig("", "")
+		c.Token = Login(cfg.DtcgDB.Username, cfg.DtcgDB.Password)
+		statusCode, body, err = c.request(uri, reqOpts)
+		if err != nil {
+			return err
+		}
 	}
 
 	if statusCode != 200 {
@@ -115,6 +127,8 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 			}
 
 			return resp.StatusCode, body, nil
+		} else if resp.StatusCode >= 500 {
+			return resp.StatusCode, nil, nil
 		}
 
 		if resp != nil {
@@ -133,29 +147,46 @@ func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error
 	return 0, nil, req.Context().Err()
 }
 
-func StructToMapStr(obj interface{}) map[string]string {
-	data := make(map[string]string)
-
-	v := reflect.ValueOf(obj).Elem()
-	t := v.Type()
-
-	for i := 0; i < v.NumField(); i++ {
-		tField := t.Field(i)
-		vField := v.Field(i)
-		tFieldTag := string(tField.Tag.Get("query"))
-		if len(tFieldTag) > 0 {
-			data[tFieldTag] = vField.String()
-		} else {
-			data[tField.Name] = vField.String()
-		}
-	}
-
-	return data
-}
-
 func resetBody(request *http.Request, originalBody []byte) {
 	request.Body = io.NopCloser(bytes.NewBuffer(originalBody))
 	request.GetBody = func() (io.ReadCloser, error) {
 		return io.NopCloser(bytes.NewBuffer(originalBody)), nil
 	}
+}
+
+func Login(username, password string) string {
+	var loginPostResp models.LoginPostResp
+
+	reqBody, _ := json.Marshal(&models.LoginReqBody{
+		Username: username,
+		Email:    "",
+		Password: password,
+	})
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s", BaseAPI, "/api/community/user/login"), bytes.NewBuffer(reqBody))
+	if err != nil {
+		logrus.Errorf("登录失败，创建请求异常: %v", err)
+	}
+	req.Header.Add("authority", "dtcg-api.moecard.cn")
+	req.Header.Add("content-type", "application/json")
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		logrus.Errorf("登录失败，HTTP请求异常: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logrus.Errorf("登录失败，读取响应体异常: %v", err)
+	}
+
+	err = json.Unmarshal(body, &loginPostResp)
+	if err != nil {
+		logrus.Errorf("登录失败，解析响应体异常: %v", err)
+	}
+
+	return loginPostResp.Data.Token
 }

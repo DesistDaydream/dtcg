@@ -26,6 +26,7 @@ type DtcgDB struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 	Token    string `yaml:"token"`
+	Retry    int    `yaml:"retry"`
 }
 
 type JHS struct {

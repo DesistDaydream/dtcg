@@ -8,3 +8,6 @@ dtcgDB:
   username: ""
   password: ""
   token: ""
+  retry: 2 # 向 DtcgDB 服务器发送请求时的重试次数
+jhs:
+  token: ""
