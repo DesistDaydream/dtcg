@@ -1,6 +1,8 @@
 package cdb
 
 import (
+	"fmt"
+
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb/models"
 )
@@ -15,7 +17,41 @@ func NewCdbClient(client *core.Client) *CdbClient {
 	}
 }
 
-// 搜索卡片
+// 列出卡牌集合
+func (s *CdbClient) GetSeries() (*models.SeriesGetResp, error) {
+	var resp models.SeriesGetResp
+	uri := "/api/cdb/series"
+
+	reqOpts := &core.RequestOption{}
+
+	err := s.client.Request(uri, &resp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+// 获取卡牌集合详情(包括卡集中包含的所有卡牌)
+func (s *CdbClient) GetPackage(setName string) (*models.PackageGetResp, error) {
+	var resp models.PackageGetResp
+	uri := fmt.Sprintf("/api/cdb/package/%s?extend_cards=1", setName)
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+	}
+
+	err := s.client.Request(uri, &resp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &resp, nil
+}
+
+// TODO: 获取卡牌上下文(整个卡牌游戏中的所有颜色、所有稀有度等等)
+
+// 搜索卡牌
 func (s *CdbClient) PostCardSearch(cardPack int) (*models.CardSearchPostResp, error) {
 	var cardSearchResp models.CardSearchPostResp
 	uri := "/api/cdb/cards/search"
@@ -45,22 +81,9 @@ func (s *CdbClient) PostCardSearch(cardPack int) (*models.CardSearchPostResp, er
 	return &cardSearchResp, nil
 }
 
-// 获取卡包列表
-func (s *CdbClient) GetSeries() (*models.SeriesGetResp, error) {
-	var resp models.SeriesGetResp
-	uri := "/api/cdb/series"
+// TODO: 获取卡牌详情
 
-	reqOpts := &core.RequestOption{}
-
-	err := s.client.Request(uri, &resp, reqOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	return &resp, nil
-}
-
-// 获取卡片价格
+// 获取卡牌价格
 func (s *CdbClient) GetCardPrice(cardID string) (*models.CardPriceGetResp, error) {
 	var resp models.CardPriceGetResp
 	uri := "/api/cdb/jhs/price"
