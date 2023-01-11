@@ -37,7 +37,7 @@ func UpdateCardPriceCommand() *cobra.Command {
 	updateCardPriceCmd.Flags().IntSliceVar(&updateFlags.UpdateMethod.CardIDFromDBs, "id", nil, "更新哪几张张卡牌的价格")
 	updateCardPriceCmd.Flags().BoolVarP(&updateFlags.UpdateMethod.UpdateNoImage, "no-image", "n", false, "是否只更新没有卡图的卡牌价格")
 	updateCardPriceCmd.Flags().BoolVarP(&updateFlags.UpdateAllField, "all-field", "a", false, "是否更新卡牌价格的全部字段")
-	updateCardPriceCmd.Flags().StringVarP(&updateFlags.FromWhere, "from-where", "w", "dtcgdb", "从哪里获取卡牌价格，目前支持 dtcgdb 和 jhs")
+	updateCardPriceCmd.Flags().StringVarP(&updateFlags.FromWhere, "from-where", "w", "jhs", "从哪里获取卡牌价格，目前支持 dtcgdb 和 jhs。注意：从 dtcgdb 更新将会导致 card_version_id 重置为 0")
 
 	updateCardPriceCmd.AddCommand(
 		UpdateNoImgCardPriceCommand(),
@@ -107,6 +107,7 @@ func updateRun(cardDesc *models.CardDesc) {
 		minPrice      float64
 		avgPrice      float64
 	)
+	// 获取卡牌的集换社ID与价格
 	switch updateFlags.FromWhere {
 	case "dtcgdb":
 		cardVersionID, minPrice, avgPrice = GetPriceFromDtcgdb(cardDesc)
@@ -114,33 +115,16 @@ func updateRun(cardDesc *models.CardDesc) {
 		cardVersionID, minPrice, avgPrice = GetPriceFromJhs(cardDesc)
 	}
 
-	// if updateFlags.UpdateImageURL {
-	// 	imageUrl := GetImageURL(cardVersionID)
-	// 	database.UpdateCardPrice(&models.CardPrice{
-	// 		CardIDFromDB:   cardDesc.CardIDFromDB,
-	// 		SetID:          cardDesc.SetID,
-	// 		SetPrefix:      cardDesc.SetPrefix,
-	// 		Serial:         cardDesc.Serial,
-	// 		ScName:         cardDesc.ScName,
-	// 		AlternativeArt: cardDesc.AlternativeArt,
-	// 		Rarity:         cardDesc.Rarity,
-	// 		CardVersionID:  cardVersionID,
-	// 		MinPrice:       minPrice,
-	// 		AvgPrice:       avgPrice,
-	// 		ImageUrl:       imageUrl,
-	// 	}, map[string]interface{}{})
-	// } else {
-	// 	database.UpdateCardPrice(&models.CardPrice{
-	// 		CardIDFromDB: cardDesc.CardIDFromDB,
-	// 		MinPrice:     minPrice,
-	// 		AvgPrice:     avgPrice,
-	// 	}, map[string]interface{}{})
-	// }
+	// 从 DTCG DB 处获取到的 card_version_id 可能为 0
+	// 为了防止 card_version_id 被重置为 0，当 card_version_id 为 0 时，不再更新卡牌价格，直接返回
+	if cardVersionID == 0 {
+		return
+	}
+
+	// 若 card_version_id 不为 0 时，更新卡牌价格
+	// 可以更新全部字段，也可以只更新价格
 	if updateFlags.UpdateAllField {
-		var imageUrl string
-		if cardVersionID != 0 {
-			imageUrl = GetImageURL(cardVersionID)
-		}
+		imageUrl := GetImageURL(cardVersionID)
 		database.UpdateCardPrice(&models.CardPrice{CardIDFromDB: cardDesc.CardIDFromDB}, map[string]interface{}{
 			"set_id":          cardDesc.SetID,
 			"set_prefix":      cardDesc.SetPrefix,
