@@ -35,7 +35,8 @@ func updateImage(cmd *cobra.Command, args []string) {
 			if !strings.Contains(product.CardVersionImage, "cdn-client") {
 				cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
 				if err != nil {
-					logrus.Errorln("获取卡牌价格详情失败", err)
+					logrus.Errorf("获取卡牌 %v 价格详情失败: %v", product.CardNameCn, err)
+					continue
 				}
 
 				resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
