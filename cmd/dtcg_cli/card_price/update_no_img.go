@@ -9,9 +9,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func UpdateNoImgCardPriceCommand() *cobra.Command {
+func UpdateNoImgCommand() *cobra.Command {
 	updateNoImgCardPriceCmd := &cobra.Command{
-		Use:   "update-no-img",
+		Use:   "no-img",
 		Short: "更新没有卡图的卡牌价格",
 		Run:   updateNoImageCard,
 	}
