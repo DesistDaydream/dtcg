@@ -52,24 +52,25 @@ func (s *CdbClient) GetPackage(setName string) (*models.PackageGetResp, error) {
 // TODO: 获取卡牌上下文(整个卡牌游戏中的所有颜色、所有稀有度等等)
 
 // 搜索卡牌
-func (s *CdbClient) PostCardSearch(cardPack int) (*models.CardSearchPostResp, error) {
+func (s *CdbClient) PostCardSearch(cardPack int, limit string, language string, isParallel string) (*models.CardSearchPostResp, error) {
 	var cardSearchResp models.CardSearchPostResp
 	uri := "/api/cdb/cards/search"
 
 	reqOpts := &core.RequestOption{
 		Method: "POST",
 		ReqQuery: core.StructToMapStr(&models.CardSearchReqQuery{
-			Limit: "300",
+			Limit: limit,
 			Page:  "1",
 		}),
 		ReqBody: &models.CardSearchReqBody{
 			CardPack:   cardPack,
 			ClassInput: false,
 			Keyword:    "",
-			Language:   "chs",
+			Language:   language,
 			OrderType:  "default",
 			TagsLogic:  "or",
 			Type:       "",
+			IsParallel: isParallel,
 		},
 	}
 

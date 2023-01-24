@@ -26,7 +26,7 @@ func TestCdbClient_GetSeries(t *testing.T) {
 
 	for _, serie := range series.Data {
 		for _, pack := range serie.SeriesPack {
-			if pack.Language == "chs" {
+			if pack.Language == "ja" {
 				logrus.WithFields(logrus.Fields{
 					"前缀": pack.PackPrefix,
 					"名称": pack.PackName,
@@ -55,12 +55,19 @@ func TestCdbClient_GetPackage(t *testing.T) {
 
 func TestSearchClient_CardDeckSearch(t *testing.T) {
 	initTest()
-	got, err := client.PostCardSearch(50)
+	cardsDesc, err := client.PostCardSearch(79, "10", "chs", "")
+	// cardsDesc, err := client.PostCardSearch(27, "10", "ja", "true")
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 
-	fmt.Println(got)
+	logrus.Infof("共查询到 %v 张卡", cardsDesc.Data.Count)
+
+	for _, cardDesc := range cardsDesc.Data.List {
+		logrus.WithFields(logrus.Fields{
+			"名称": cardDesc.ScName,
+		}).Infof("卡牌描述")
+	}
 }
 
 // 获取卡片信息，并以 JSON 格式写入到文件中
@@ -95,7 +102,7 @@ func TestSearchClient_PostCardSearch(t *testing.T) {
 	// }
 
 	for id, name := range cardPacks {
-		cards, err := client.PostCardSearch(id)
+		cards, err := client.PostCardSearch(id, "300", "chs", "")
 		if err != nil {
 			logrus.Errorln(err)
 		}

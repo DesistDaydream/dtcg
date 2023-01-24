@@ -56,7 +56,7 @@ func addAndUpdateCardDesc(cmd *cobra.Command, args []string) {
 
 func add(wantCardSets []models.CardSet) {
 	for _, cardSet := range wantCardSets {
-		resp, err := handler.H.DtcgDBServices.Cdb.PostCardSearch(cardSet.SetID)
+		resp, err := handler.H.DtcgDBServices.Cdb.PostCardSearch(cardSet.SetID, "300", "chs", "")
 		if err != nil {
 			logrus.Fatalln(err)
 		}
@@ -112,7 +112,7 @@ func add(wantCardSets []models.CardSet) {
 
 func update(wantCardSets []models.CardSet) {
 	for _, cardSet := range wantCardSets {
-		resp, err := handler.H.DtcgDBServices.Cdb.PostCardSearch(cardSet.SetID)
+		resp, err := handler.H.DtcgDBServices.Cdb.PostCardSearch(cardSet.SetID, "300", "chs", "")
 		if err != nil {
 			logrus.Fatalln(err)
 		}
