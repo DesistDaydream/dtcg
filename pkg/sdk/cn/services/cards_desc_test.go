@@ -2,8 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services/models"
@@ -11,27 +9,6 @@ import (
 
 	"github.com/jinzhu/copier"
 )
-
-func NewReq() *models.FilterConditionReq {
-	return &models.FilterConditionReq{
-		Page:             "1",
-		Limit:            "3",
-		Name:             "",
-		State:            "0",
-		CardGroup:        "",
-		RareDegree:       "",
-		BelongsType:      "",
-		CardLevel:        "",
-		Form:             "",
-		Attribute:        "",
-		Type:             "",
-		Color:            "",
-		EnvolutionEffect: "",
-		SafeEffect:       "",
-		ParallCard:       "",
-		KeyEffect:        "",
-	}
-}
 
 // 处理卡片描述中的 KeyEffect，因为响应体是字符串，我们可以将其改为数组
 func NewCardsDesc(resp *models.CardListResponse) ([]byte, error) {
@@ -68,25 +45,36 @@ func NewCardsDesc(resp *models.CardListResponse) ([]byte, error) {
 
 }
 
-// 下载卡片详情的 JSON 格式，并保存到本地文件中
+func NewReq() *models.FilterConditionReq {
+	return &models.FilterConditionReq{
+		Page:             "1",
+		Limit:            "300",
+		Name:             "",
+		State:            "0",
+		CardGroup:        "",
+		RareDegree:       "",
+		BelongsType:      "",
+		CardLevel:        "",
+		Form:             "",
+		Attribute:        "",
+		Type:             "",
+		Color:            "",
+		EnvolutionEffect: "",
+		SafeEffect:       "",
+		ParallCard:       "",
+		KeyEffect:        "",
+	}
+}
+
+// 获取卡牌描述
 func TestDownloadCardsDesc(t *testing.T) {
-	// cardGroups := []string{"BTC-02"}
-	file, err := os.ReadFile("../../../../cards/card_package.json")
-	if err != nil {
-		logrus.Fatalln(err)
-	}
+	cardGroups := []string{"BTC-04"}
 
-	var cardPackages *models.CacheListResp
-
-	err = json.Unmarshal(file, &cardPackages)
-	if err != nil {
-		logrus.Fatalln(err)
-	}
-
-	for _, cardPackage := range cardPackages.List {
+	for _, cardPackage := range cardGroups {
 		filterConditionReq := NewReq()
 		filterConditionReq.Limit = "300"
-		filterConditionReq.CardGroup = cardPackage.Name
+		filterConditionReq.CardGroup = cardPackage
+		filterConditionReq.ParallCard = "0"
 
 		// 获取卡片描述
 		resp, err := GetCardsDesc(filterConditionReq)
@@ -94,13 +82,12 @@ func TestDownloadCardsDesc(t *testing.T) {
 			logrus.Fatal(err)
 		}
 
-		// （二选一）直接解析响应体
-		jsonByte, _ := json.Marshal(resp.Page.CardsDesc)
-		// （二选一）将响应体中的 KeyEffect 字段处理一下，改为数组
-		// jsonByte, _ := NewCardsDesc(resp)
+		for _, cardDesc := range resp.Page.CardsDesc {
+			logrus.WithFields(logrus.Fields{
+				"编号": cardDesc.Model,
+			}).Infof("%v 卡牌信息", cardDesc.Name)
+		}
 
-		// 将响应信息写入文件
-		fileName := fmt.Sprintf("../../../../cards/%v.json", cardPackage.Name)
-		os.WriteFile(fileName, jsonByte, 0666)
+		logrus.Infof("共获取到 %v 张卡牌", len(resp.Page.CardsDesc))
 	}
 }
