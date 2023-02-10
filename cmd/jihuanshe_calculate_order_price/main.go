@@ -68,7 +68,7 @@ func main() {
 		}
 
 		// 开始上架
-		resp, err := client.Get(cardModelToCardVersionID[rows[i][0]])
+		resp, err := client.Get(cardModelToCardVersionID[rows[i][0]], "1")
 		if err != nil {
 			logrus.Errorf("获取商品价格失败：%v", err)
 		}

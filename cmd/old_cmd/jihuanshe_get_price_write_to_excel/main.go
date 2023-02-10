@@ -71,7 +71,7 @@ func main() {
 			}
 
 			// 获取卡牌加个信息
-			productsGetResponse, err := client.Get(cardVersionID)
+			productsGetResponse, err := client.Get(cardVersionID, "1")
 			if err != nil {
 				logrus.Fatal(err)
 			}

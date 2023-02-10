@@ -13,8 +13,8 @@ import (
 )
 
 var token string = ""
-var cardVersionID string = "2539"
-var productID string = "19692228"
+var cardVersionID string = "3982"
+var productID string = ""
 
 func initConfig() {
 	// 初始化配置文件
@@ -32,6 +32,7 @@ func initConfig() {
 	token = c.JHS.Token
 }
 
+// 测试将结构体转为 map
 func TestStructToMapStr(t *testing.T) {
 	obj := models.ProductsGetReqQuery{
 		GameKey:       "dgm",
@@ -64,7 +65,7 @@ func TestProductsClientAdd(t *testing.T) {
 	client := NewProductsClient(core.NewClient(token))
 	resp, err := client.Add(&models.ProductsAddReqBody{
 		CardVersionID:        cardVersionID,
-		Price:                "111",
+		Price:                "1111",
 		Quantity:             "4",
 		Condition:            "1",
 		Remark:               "",
@@ -108,7 +109,7 @@ func TestProductsClientUpdate(t *testing.T) {
 	resp, err := client.Update(&models.ProductsUpdateReqBody{
 		Condition:            "1",
 		OnSale:               "1",
-		Price:                "250.00",
+		Price:                "2500.00",
 		Quantity:             "9",
 		Remark:               "",
 		UserCardVersionImage: "http://cdn-client.jihuanshe.com/product/2022-10-18-20-26-22-juYeujlzhTF7guekk7wA2QI4xlpc50fW8QKjyPGv.jpg?imageslim%7CimageMogr2%2Fauto-orient%2Fthumbnail%2F900x%2Fblur%2F1x0%2F%7CimageMogr2%2Fauto-orient%2Fgravity%2FCenter%2Fcrop%2F900x1312%2Fblur%2F1x0%7CimageMogr2%2Fformat%2Fjpg%7Cwatermark%2F2%2Ftext%2F6ZuG5o2i56S-IFVJRDo3MDA1Mw%3D%3D%2Ffont%2F6buR5L2T%2Ffontsize%2F600%2Ffill%2FI0ZGRkZGRg%3D%3D%2Fdissolve%2F90%2Fgravity%2FSouthEast%2Fdx%2F30%2Fdy%2F10",
@@ -137,12 +138,12 @@ func TestProductsClientDel(t *testing.T) {
 	}
 }
 
-// 获取卡牌价格信息
+// 获取商品信息
 func TestProductsClientGet(t *testing.T) {
 	initConfig()
 	client := NewProductsClient(core.NewClient(token))
 
-	got, err := client.Get(cardVersionID)
+	got, err := client.Get(cardVersionID, "609077")
 	if err != nil {
 		logrus.Fatal(err)
 	}

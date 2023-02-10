@@ -84,7 +84,7 @@ func GetPriceFromJhs(cardDesc *models.CardDesc) (int, float64, float64) {
 
 	cardVersionID = cardPrice.CardVersionID
 
-	productInfo, err := handler.H.JhsServices.Products.Get(fmt.Sprint(cardPrice.CardVersionID))
+	productInfo, err := handler.H.JhsServices.Products.Get(fmt.Sprint(cardPrice.CardVersionID), "1")
 	if err != nil {
 		logrus.Errorf("获取卡牌 %v 价格失败: %v", cardDesc.CardIDFromDB, err)
 		return cardVersionID, 0, 0
