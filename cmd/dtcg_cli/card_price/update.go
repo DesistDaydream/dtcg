@@ -16,7 +16,7 @@ var updateFlags UpdateFlags
 func UpdateCardPriceCommand() *cobra.Command {
 	updateCardPriceCmd := &cobra.Command{
 		Use:              "update",
-		Short:            "更新卡牌价格",
+		Short:            "更新卡牌价格数据表",
 		PersistentPreRun: cardPriceUpdatePersistentPreRun,
 		Run:              updateCardPrice,
 	}
@@ -29,6 +29,7 @@ func UpdateCardPriceCommand() *cobra.Command {
 		UpdateSetsNameCommand(),
 		UpdateIDCommand(),
 		UpdateNoImgCommand(),
+		UpdateCardVersionIDCommand(),
 	)
 
 	return updateCardPriceCmd

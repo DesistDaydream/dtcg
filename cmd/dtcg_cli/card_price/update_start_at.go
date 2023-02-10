@@ -23,16 +23,18 @@ func updateStartAt(cmd *cobra.Command, args []string) {
 		logrus.Errorf("获取全部卡牌描述失败: %v", err)
 	}
 
+	// startAt 是一个数组中元素的索引。也就是从数据库获取的 cardsDesc.data 这个数组的索引。
+	// 首先根据 card_id_from_db 的号推导出 id 号，然后 startAt 就是 id-1
 	var startAt int
 
 	switch len(args) {
 	case 0:
 		startAt = 0
-
 	case 1:
-		// 从数据库中获取卡牌的ID
-		cardDesc, _ := database.GetCardDescByCardIDFromDB(args[0])
-		// 开始更新的位置是id-1，因为数组元素编号是从 0 开始的
+		cardDesc, err := database.GetCardDescByCardIDFromDB(args[0])
+		if err != nil {
+			logrus.Errorf("获取 card_id_from_db 为 %v 的卡牌信息失败: %v", args[0], err)
+		}
 		startAt = cardDesc.ID - 1
 	}
 

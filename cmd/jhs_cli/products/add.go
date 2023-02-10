@@ -64,7 +64,7 @@ func genNeedAddedCardInfo(setsPrefix []string) ([]string, error) {
 		}
 	}
 
-	logrus.Debugf("当前需要上架 %v 张卡牌：%v", len(cardVersionIDs), cardVersionIDs)
+	logrus.Infof("当前需要上架 %v 张卡牌：%v", len(cardVersionIDs), cardVersionIDs)
 
 	return cardVersionIDs, nil
 }
@@ -82,7 +82,7 @@ func addProducts(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	fmt.Println(cards)
+	logrus.Debugln(cards)
 
 	for _, cardVersionID := range cards {
 		var price string
