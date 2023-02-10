@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func UpdateStartAtCommand() *cobra.Command {
+func UpdateByStartAtCommand() *cobra.Command {
 	updateStartAtCmd := &cobra.Command{
 		Use:   "start-at",
 		Short: "从哪张卡牌开始更新。参数为 card_id_from_db 的值",

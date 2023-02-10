@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func UpdateIDCommand() *cobra.Command {
+func UpdateByIDCommand() *cobra.Command {
 	updateIDCmd := &cobra.Command{
 		Use:   "id",
 		Short: "更新指定卡牌ID的价格。这里面的ID是 card_id_from_db 的值",

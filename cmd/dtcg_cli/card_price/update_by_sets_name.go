@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func UpdateSetsNameCommand() *cobra.Command {
+func UpdateBySetsNameCommand() *cobra.Command {
 	updateSetsNameCmd := &cobra.Command{
 		Use:   "sets-name",
 		Short: "更新指定卡牌集合的卡牌价格，使用 card-set list 子命令获取卡包名称。若不指定则更新所有",

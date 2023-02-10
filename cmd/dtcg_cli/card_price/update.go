@@ -25,11 +25,11 @@ func UpdateCardPriceCommand() *cobra.Command {
 	updateCardPriceCmd.PersistentFlags().StringVarP(&updateFlags.FromWhere, "from-where", "w", "jhs", "从哪里获取卡牌价格，目前支持 dtcgdb 和 jhs。")
 
 	updateCardPriceCmd.AddCommand(
-		UpdateStartAtCommand(),
-		UpdateSetsNameCommand(),
-		UpdateIDCommand(),
-		UpdateNoImgCommand(),
-		UpdateCardVersionIDCommand(),
+		UpdateByIDCommand(),
+		UpdateByStartAtCommand(),
+		UpdateBySetsNameCommand(),
+		UpdateByNoImgCommand(),
+		UpdateOnlyCardVersionIDCommand(),
 	)
 
 	return updateCardPriceCmd
