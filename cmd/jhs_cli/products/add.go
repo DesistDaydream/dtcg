@@ -87,6 +87,8 @@ func genNeedAddProducts(avgPriceRange []float64, alternativeArt string, priceCha
 	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要添加", avgPriceRange, len(cards.Data))
 
 	for _, card := range cards.Data {
+		// TODO: 从集换社获取一下 card.CardVersionID 是否已上架。只上架那些还没有上架的卡牌。但是每个卡牌都要向集换社发一个请求，这样是不是没必要？有必要进行这种判断吗？~
+
 		var price string
 
 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
