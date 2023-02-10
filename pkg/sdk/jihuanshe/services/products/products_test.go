@@ -65,7 +65,7 @@ func TestProductsClientAdd(t *testing.T) {
 	client := NewProductsClient(core.NewClient(token))
 	resp, err := client.Add(&models.ProductsAddReqBody{
 		CardVersionID:        cardVersionID,
-		Price:                "1111",
+		Price:                "1111.12",
 		Quantity:             "4",
 		Condition:            "1",
 		Remark:               "",
@@ -109,7 +109,7 @@ func TestProductsClientUpdate(t *testing.T) {
 	resp, err := client.Update(&models.ProductsUpdateReqBody{
 		Condition:            "1",
 		OnSale:               "1",
-		Price:                "2500.00",
+		Price:                "2500.10",
 		Quantity:             "9",
 		Remark:               "",
 		UserCardVersionImage: "http://cdn-client.jihuanshe.com/product/2022-10-18-20-26-22-juYeujlzhTF7guekk7wA2QI4xlpc50fW8QKjyPGv.jpg?imageslim%7CimageMogr2%2Fauto-orient%2Fthumbnail%2F900x%2Fblur%2F1x0%2F%7CimageMogr2%2Fauto-orient%2Fgravity%2FCenter%2Fcrop%2F900x1312%2Fblur%2F1x0%7CimageMogr2%2Fformat%2Fjpg%7Cwatermark%2F2%2Ftext%2F6ZuG5o2i56S-IFVJRDo3MDA1Mw%3D%3D%2Ffont%2F6buR5L2T%2Ffontsize%2F600%2Ffill%2FI0ZGRkZGRg%3D%3D%2Fdissolve%2F90%2Fgravity%2FSouthEast%2Fdx%2F30%2Fdy%2F10",

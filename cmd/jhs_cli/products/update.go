@@ -99,40 +99,70 @@ func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, price
 
 	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", avgPriceRange, len(cards.Data))
 
+	// TODO: 下面这俩接口有各自的优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
+
+	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
+	// for _, card := range cards.Data {
+	// 	products, err := handler.H.JhsServices.Products.List("1", card.Serial)
+	// 	if err != nil {
+	// 		logrus.Fatal(err)
+	// 	}
+	// 	// 通过卡牌编号获取到的商品信息不是唯一的，有异画的可能，所以需要先获取商品中的 card_version_id，同时获取到 product_id(商品ID)
+	// 	// 此时需要根据 card_version_id 获取到卡牌的价格信息，然后根据价格信息判断要更新的是哪个商品
+	// 	for _, product := range products.Data {
+	// 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
+	// 		if err != nil {
+	// 			logrus.Errorf("获取 %v 价格失败：%v", product.CardNameCn, err)
+	// 		}
+	// 		if cardPrice.AvgPrice >= avgPriceRange[0] && cardPrice.AvgPrice <= avgPriceRange[1] {
+	// 			logrus.WithFields(logrus.Fields{
+	// 				"原始价格": cardPrice.AvgPrice,
+	// 				"更新价格": cardPrice.AvgPrice + priceChange,
+	// 			}).Infof("商品【%v】【%v %v】将要调整 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, priceChange)
+	// 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+	// 			if updateFlags.isUpdate {
+	// 				updateRun(&product, cardPrice, priceChange)
+	// 			}
+	// 		}
+	// 	}
+	// }
+
+	// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
+	// 然后，只需要遍历修改这些商品即可。
+	// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
 	for _, card := range cards.Data {
-		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
-		products, err := handler.H.JhsServices.Products.List("1", card.Serial)
+		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), "609077")
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
-		// 通过卡牌编号获取到的商品信息不是唯一的，有异画的可能，所以需要先获取商品中的 card_version_id，同时获取到 product_id(商品ID)
-		// 此时需要根据 card_version_id 获取到卡牌的价格信息，然后根据价格信息判断要更新的是哪个商品
-		for _, product := range products.Data {
-			cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
-			if err != nil {
-				logrus.Errorf("获取 %v 价格失败：%v", product.CardNameCn, err)
+		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
+		if err != nil {
+			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
+		}
+
+		for _, product := range products.Products {
+			logrus.WithFields(logrus.Fields{
+				"原始价格": cardPrice.AvgPrice,
+				"更新价格": cardPrice.AvgPrice + priceChange,
+			}).Infof("商品【%v】【%v %v】将要调整 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, priceChange)
+
+			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+			if updateFlags.isUpdate {
+				updateRun(&product, cardPrice, priceChange)
 			}
 
-			if cardPrice.AvgPrice >= avgPriceRange[0] && cardPrice.AvgPrice <= avgPriceRange[1] {
-				logrus.WithFields(logrus.Fields{
-					"原始价格": cardPrice.AvgPrice,
-					"更新价格": cardPrice.AvgPrice + priceChange,
-				}).Infof("商品【%v】【%v %v】将要调整 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, priceChange)
-
-				// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-				if updateFlags.isUpdate {
-					updateRun(&product, cardPrice, priceChange)
-				}
-			}
 		}
 	}
+
 }
 
-func updateRun(product *models.ProductListData, cardPrice *databasemodels.CardPrice, priceChange float64) {
+// func updateRun(product *models.ProductListData, cardPrice *databasemodels.CardPrice, priceChange float64) {
+func updateRun(product *models.ProductData, cardPrice *databasemodels.CardPrice, priceChange float64) {
 	resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
-		Condition:            fmt.Sprint(product.Condition),
-		OnSale:               fmt.Sprint(product.OnSale),
+		Condition: fmt.Sprint(product.Condition),
+		// OnSale:               fmt.Sprint(product.OnSale),
+		OnSale:               "1",
 		Price:                fmt.Sprint(cardPrice.AvgPrice + priceChange),
 		Quantity:             fmt.Sprint(product.Quantity),
 		Remark:               "",

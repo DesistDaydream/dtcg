@@ -21,13 +21,13 @@ type ProductsGetResp struct {
 type ProductData struct {
 	ProductID         int         `json:"product_id"`
 	CardNameCn        string      `json:"card_name_cn"`
-	Price             float32     `json:"price"`
+	Price             float64     `json:"price"`
 	Quantity          int         `json:"quantity"`
-	Condition         int         `json:"condition"`
+	Condition         int         `json:"condition"` // 商品的品相。1: 流通品相，2: 有瑕疵，3: 有损伤
 	Remark            string      `json:"remark"`
 	PublishLocation   interface{} `json:"publish_location"`
 	CardVersionImage  string      `json:"card_version_image"`
-	IsDefault         bool        `json:"is_default"`
+	IsDefault         bool        `json:"is_default"` // 是否为默认商品
 	AuthenticatorID   interface{} `json:"authenticator_id"`
 	AuthenticatorName interface{} `json:"authenticator_name"`
 	Grading           interface{} `json:"grading"`
@@ -36,7 +36,7 @@ type ProductData struct {
 type DefaultProduct struct {
 	ProductID        int         `json:"product_id"`
 	CardNameCn       string      `json:"card_name_cn"`
-	Price            int         `json:"price"`
+	Price            float64     `json:"price"`
 	Quantity         int         `json:"quantity"`
 	Condition        int         `json:"condition"`
 	Remark           string      `json:"remark"`
