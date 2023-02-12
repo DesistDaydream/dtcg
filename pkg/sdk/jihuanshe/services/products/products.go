@@ -105,8 +105,7 @@ func (p *ProductsClient) Get(cardVersionID string, sellerUserID string) (*models
 	reqOpts := &core.RequestOption{
 		Method: "GET",
 		ReqQuery: core.StructToMapStr(&models.ProductsGetReqQuery{
-			GameKey: "dgm",
-			// SellerUserID:  "609077",
+			GameKey:       "dgm",
 			SellerUserID:  sellerUserID,
 			CardVersionID: cardVersionID,
 		}),

@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var sellerUserID string = "609077"
 var token string = ""
 var cardVersionID string = "3982"
 var productID string = ""
@@ -36,7 +37,7 @@ func initConfig() {
 func TestStructToMapStr(t *testing.T) {
 	obj := models.ProductsGetReqQuery{
 		GameKey:       "dgm",
-		SellerUserID:  "609077",
+		SellerUserID:  sellerUserID,
 		CardVersionID: cardVersionID,
 	}
 
@@ -156,7 +157,7 @@ func TestProductsClientGet(t *testing.T) {
 	initConfig()
 	client := NewProductsClient(core.NewClient(token))
 
-	got, err := client.Get(cardVersionID, "609077")
+	got, err := client.Get(cardVersionID, sellerUserID)
 	if err != nil {
 		logrus.Fatal(err)
 	}

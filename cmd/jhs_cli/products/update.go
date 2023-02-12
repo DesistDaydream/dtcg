@@ -12,6 +12,7 @@ import (
 )
 
 type UpdateFlags struct {
+	SellerUserID string
 	SetPrefix    []string
 	isUpdate     bool
 	UpdatePolicy UpdatePolicy
@@ -44,6 +45,7 @@ func UpdateCommand() *cobra.Command {
 		PersistentPreRun: updatePersistentPreRun,
 	}
 
+	updateProductsCmd.Flags().StringVarP(&updateFlags.SellerUserID, "seller-user-id", "i", "609077", "卖家用户ID。")
 	updateProductsCmd.Flags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
 	updateProductsCmd.Flags().BoolVarP(&updateFlags.isUpdate, "yes", "y", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
 	updateProductsCmd.Flags().Float64SliceVarP(&updateFlags.UpdatePolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
@@ -134,7 +136,7 @@ func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, price
 	// 然后，只需要遍历修改这些商品即可。
 	// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
 	for _, card := range cards.Data {
-		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), "609077")
+		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
 		if err != nil {
 			logrus.Fatal(err)
 		}
