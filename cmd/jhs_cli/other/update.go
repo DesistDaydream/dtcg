@@ -35,12 +35,12 @@ func UpdateProducts() {
 	// for i := 1; i < len(rows); i++ {
 	for i := 1; i < 3; i++ {
 		resp, err := client.Update(&models.ProductsUpdateReqBody{
-			Condition:            "1",
-			OnSale:               "1",
-			Price:                rows[i][1],
-			Quantity:             rows[i][2],
-			Remark:               "",
-			UserCardVersionImage: rows[i][13],
+			Condition:               "1",
+			OnSale:                  "1",
+			Price:                   rows[i][1],
+			Quantity:                rows[i][2],
+			Remark:                  "",
+			ProductCardVersionImage: rows[i][13],
 		}, rows[i][0])
 		if err != nil {
 			logrus.Errorf("商品 %v %v 修改失败：%v", rows[i][10], rows[i][8], err)

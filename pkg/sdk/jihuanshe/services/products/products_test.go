@@ -38,7 +38,6 @@ func TestStructToMapStr(t *testing.T) {
 		GameKey:       "dgm",
 		SellerUserID:  "609077",
 		CardVersionID: cardVersionID,
-		Token:         token,
 	}
 
 	got := core.StructToMapStr(&obj)
@@ -64,13 +63,15 @@ func TestProductsClientAdd(t *testing.T) {
 
 	client := NewProductsClient(core.NewClient(token))
 	resp, err := client.Add(&models.ProductsAddReqBody{
-		CardVersionID:        cardVersionID,
-		Price:                "1111.12",
-		Quantity:             "4",
-		Condition:            "1",
-		Remark:               "",
-		GameKey:              "dgm",
-		UserCardVersionImage: cardPrice.ImageUrl,
+		AuthenticatorID:         "",
+		Grading:                 "",
+		CardVersionID:           cardVersionID,
+		Condition:               "1",
+		GameKey:                 "dgm",
+		Price:                   "1234.56",
+		ProductCardVersionImage: cardPrice.ImageUrl,
+		Quantity:                "3",
+		Remark:                  "测试卡牌",
 	})
 
 	if err != nil {
@@ -93,11 +94,16 @@ func TestProductsClientList(t *testing.T) {
 	logrus.Infof("共有 %v 个商品", products.Total)
 
 	logrus.WithFields(logrus.Fields{
-		"商品ID": products.Data[0].ProductID,
-		"卡牌ID": products.Data[0].CardVersionID,
-		"卡牌名称": products.Data[0].CardNameCn,
-		"售卖价格": products.Data[0].Price,
+		"商品ID":   products.Data[0].ProductID,
+		"卡牌ID":   products.Data[0].CardVersionID,
+		"卡牌名称":   products.Data[0].CardNameCn,
+		"售卖价格":   products.Data[0].Price,
+		"评级公司ID": products.Data[1].AuthenticatorID,
+		"评级公司名称": products.Data[1].AuthenticatorName,
+		"评分":     products.Data[1].Grading,
 	}).Infof("第一个商品的信息，即刚刚添加的商品信息")
+
+	logrus.Infof("完整信息: %v", products.Data[1])
 
 	productID = fmt.Sprint(products.Data[0].ProductID)
 }
@@ -105,14 +111,21 @@ func TestProductsClientList(t *testing.T) {
 // 更新商品
 func TestProductsClientUpdate(t *testing.T) {
 	initConfig()
+
+	productID = "22075072"
+	img := "http://cdn-client.jihuanshe.com/product/2023-02-10-20-25-04-c62Gsu1rOrE9Ea45D1otme3nXxMOEgZbZ1h7PpkD.jpg?imageslim%7CimageMogr2%2Fauto-orient%2Fthumbnail%2F900x%2Fblur%2F1x0%2F%7CimageMogr2%2Fauto-orient%2Fgravity%2FCenter%2Fcrop%2F900x1312%2Fblur%2F1x0%7CimageMogr2%2Fformat%2Fjpg%7Cwatermark%2F2%2Ftext%2F6ZuG5o2i56S-IFVJRDoxMzg1%2Ffont%2F6buR5L2T%2Ffontsize%2F600%2Ffill%2FI0ZGRkZGRg%3D%3D%2Fdissolve%2F90%2Fgravity%2FSouthEast%2Fdx%2F30%2Fdy%2F10"
+
 	client := NewProductsClient(core.NewClient(token))
 	resp, err := client.Update(&models.ProductsUpdateReqBody{
-		Condition:            "1",
-		OnSale:               "1",
-		Price:                "2500.10",
-		Quantity:             "9",
-		Remark:               "",
-		UserCardVersionImage: "http://cdn-client.jihuanshe.com/product/2022-10-18-20-26-22-juYeujlzhTF7guekk7wA2QI4xlpc50fW8QKjyPGv.jpg?imageslim%7CimageMogr2%2Fauto-orient%2Fthumbnail%2F900x%2Fblur%2F1x0%2F%7CimageMogr2%2Fauto-orient%2Fgravity%2FCenter%2Fcrop%2F900x1312%2Fblur%2F1x0%7CimageMogr2%2Fformat%2Fjpg%7Cwatermark%2F2%2Ftext%2F6ZuG5o2i56S-IFVJRDo3MDA1Mw%3D%3D%2Ffont%2F6buR5L2T%2Ffontsize%2F600%2Ffill%2FI0ZGRkZGRg%3D%3D%2Fdissolve%2F90%2Fgravity%2FSouthEast%2Fdx%2F30%2Fdy%2F10",
+		AuthenticatorID: "",
+		Grading:         "",
+		Condition:       "1",
+		// Default:                 "",
+		OnSale:                  "1",
+		Price:                   "2500.10",
+		ProductCardVersionImage: img,
+		Quantity:                "9",
+		Remark:                  "测试更新卡牌",
 	}, productID)
 
 	if err != nil {

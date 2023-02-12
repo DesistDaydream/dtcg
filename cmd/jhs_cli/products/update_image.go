@@ -40,12 +40,12 @@ func updateImage(cmd *cobra.Command, args []string) {
 				}
 
 				resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
-					Condition:            fmt.Sprint(product.Condition),
-					OnSale:               fmt.Sprint(product.OnSale),
-					Price:                product.Price,
-					Quantity:             fmt.Sprint(product.Quantity),
-					Remark:               "",
-					UserCardVersionImage: cardPrice.ImageUrl,
+					Condition:               fmt.Sprint(product.Condition),
+					OnSale:                  fmt.Sprint(product.OnSale),
+					Price:                   product.Price,
+					Quantity:                fmt.Sprint(product.Quantity),
+					Remark:                  "",
+					ProductCardVersionImage: cardPrice.ImageUrl,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
 					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)

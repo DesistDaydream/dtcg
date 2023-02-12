@@ -15,6 +15,7 @@ type UpdateFlags struct {
 	SetPrefix    []string
 	isUpdate     bool
 	UpdatePolicy UpdatePolicy
+	Remark       string
 }
 
 type UpdatePolicy struct {
@@ -29,10 +30,11 @@ func UpdateCommand() *cobra.Command {
 	long := `
 根据策略更新我在卖的卡片。
 比如：
-  jhs_cli products update -s BTC-03 -r 0,2.99 表示将所有价格在 0-2.99 之间卡牌的价格不增加，以集换价售卖。
-  jhs_cli products update -s BTC-03 -r 3,9.99 -c 0.5 --art="否" 表示将所有价格在 3-9.99 之间的非异画卡牌的价格增加 0.5 元。
-  jhs_cli products update -s BTC-03 -r 10,50 -c 5 --art="是" 表示将所有价格在 0-1000 之间的异画卡牌的价格增加 5 元。
-  jhs_cli products update -s BTC-03 -r 50.01,1000 -c 10 表示将所有价格在 50.01-1000 之间的异画卡牌的价格增加 10 元。
+  jhs_cli products update -s BTC-04 -r 0,0.99 表示将所有价格在 0-0.99 之间卡牌的价格不增加，以集换价售卖。
+  jhs_cli products update -s BTC-04 -r 1,9.99 -c 0.5 表示将所有价格在 1-9.99 之间卡牌的价格增加 0.5 元。
+  jhs_cli products update -s BTC-04 -r 3,9.99 -c 2 --art="否" 表示将所有价格在 3-9.99 之间的非异画卡牌的价格增加 0.5 元。
+  jhs_cli products update -s BTC-04 -r 10,50 -c 5 --art="是" 表示将所有价格在 0-1000 之间的异画卡牌的价格增加 5 元。
+  jhs_cli products update -s BTC-04 -r 50.01,1000 -c 10 表示将所有价格在 50.01-1000 之间的异画卡牌的价格增加 10 元。
 `
 	updateProductsCmd := &cobra.Command{
 		Use:              "update",
@@ -47,6 +49,7 @@ func UpdateCommand() *cobra.Command {
 	updateProductsCmd.Flags().Float64SliceVarP(&updateFlags.UpdatePolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
 	updateProductsCmd.Flags().Float64VarP(&updateFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 	updateProductsCmd.Flags().StringVar(&updateFlags.UpdatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
+	updateProductsCmd.Flags().StringVar(&updateFlags.Remark, "remark", "", "商品备注信息")
 
 	updateProductsCmd.AddCommand(
 		UpdateImageCommand(),
@@ -162,11 +165,12 @@ func updateRun(product *models.ProductData, cardPrice *databasemodels.CardPrice,
 	resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
 		Condition: fmt.Sprint(product.Condition),
 		// OnSale:               fmt.Sprint(product.OnSale),
-		OnSale:               "1",
-		Price:                fmt.Sprint(cardPrice.AvgPrice + priceChange),
-		Quantity:             fmt.Sprint(product.Quantity),
-		Remark:               "",
-		UserCardVersionImage: cardPrice.ImageUrl,
+		OnSale:   "1",
+		Price:    fmt.Sprint(cardPrice.AvgPrice + priceChange),
+		Quantity: fmt.Sprint(product.Quantity),
+		// Remark:               fmt.Sprintf("%v", time.Now().Format("06-01-02 15:04")),
+		Remark:                  updateFlags.Remark,
+		ProductCardVersionImage: cardPrice.ImageUrl,
 	}, fmt.Sprint(product.ProductID))
 	if err != nil {
 		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)

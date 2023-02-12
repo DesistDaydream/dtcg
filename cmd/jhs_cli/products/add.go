@@ -15,6 +15,7 @@ type AddFlags struct {
 	SetPrefix []string
 	isAdd     bool
 	AddPolicy AddPolicy
+	Remark    string
 }
 
 type AddPolicy struct {
@@ -29,25 +30,23 @@ func AddCommand() *cobra.Command {
 	long := `
 根据策略添加商品。
 比如：
-  jhs_cli products add -s BTC-03 -r 0,2.99 表示将所有价格在 0-2.99 之间卡牌的价格不增加，以集换价售卖。
-  jhs_cli products add -s BTC-03 -r 3,9.99 -c 0.5 --art="否" 表示将所有价格在 3-9.99 之间的非异画卡牌的价格增加 0.5 元。
-  jhs_cli products add -s BTC-03 -r 10,50 -c 5 --art="是" 表示将所有价格在 0-1000 之间的异画卡牌的价格增加 5 元。
-  jhs_cli products add -s BTC-03 -r 50.01,1000 -c 10 表示将所有价格在 50.01-1000 之间的异画卡牌的价格增加 10 元。
+  jhs_cli products add -s BTC-03 -r 0,1000 -c 20 表示将所有价格在 0-1000 之间卡牌的价格增加 20 块售卖。
 `
-	addCardSetCmd := &cobra.Command{
+	addProdcutCmd := &cobra.Command{
 		Use:   "add",
 		Short: "添加商品",
 		Long:  long,
 		Run:   addProducts,
 	}
 
-	addCardSetCmd.Flags().StringSliceVarP(&addFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	addCardSetCmd.Flags().BoolVarP(&addFlags.isAdd, "yes", "y", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
-	addCardSetCmd.Flags().Float64SliceVarP(&addFlags.AddPolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
-	addCardSetCmd.Flags().Float64VarP(&addFlags.AddPolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
-	addCardSetCmd.Flags().StringVar(&addFlags.AddPolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
+	addProdcutCmd.Flags().StringSliceVarP(&addFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
+	addProdcutCmd.Flags().BoolVarP(&addFlags.isAdd, "yes", "y", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
+	addProdcutCmd.Flags().Float64SliceVarP(&addFlags.AddPolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
+	addProdcutCmd.Flags().Float64VarP(&addFlags.AddPolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
+	addProdcutCmd.Flags().StringVar(&addFlags.AddPolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
+	addProdcutCmd.Flags().StringVar(&addFlags.Remark, "remark", "", "商品备注信息")
 
-	return addCardSetCmd
+	return addProdcutCmd
 }
 
 // 添加商品
@@ -116,13 +115,15 @@ func genNeedAddProducts(avgPriceRange []float64, alternativeArt string, priceCha
 func addRun(cardPrice *databasemodels.CardPrice, cardVersionID string, price string) {
 	// 开始上架
 	resp, err := handler.H.JhsServices.Products.Add(&models.ProductsAddReqBody{
-		CardVersionID:        cardVersionID,
-		Price:                price,
-		Quantity:             "4",
-		Condition:            "1",
-		Remark:               "",
-		GameKey:              "dgm",
-		UserCardVersionImage: cardPrice.ImageUrl,
+		AuthenticatorID:         "",
+		Grading:                 "",
+		CardVersionID:           cardVersionID,
+		Condition:               "1",
+		GameKey:                 "dgm",
+		Price:                   price,
+		ProductCardVersionImage: cardPrice.ImageUrl,
+		Quantity:                "4",
+		Remark:                  fmt.Sprintf("%v", "拍之前请联系确认库存"),
 	})
 	if err != nil {
 		logrus.Errorf("%v 上架失败：%v", cardPrice.ScName, err)
