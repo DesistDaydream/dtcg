@@ -14,6 +14,7 @@ func CreateCommand() *cobra.Command {
 	productsCmd.AddCommand(
 		AddCommand(),
 		UpdateCommand(),
+		DelCommand(),
 	)
 
 	return productsCmd

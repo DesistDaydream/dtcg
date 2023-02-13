@@ -94,19 +94,21 @@ func TestProductsClientList(t *testing.T) {
 
 	logrus.Infof("共有 %v 个商品", products.Total)
 
-	logrus.WithFields(logrus.Fields{
-		"商品ID":   products.Data[0].ProductID,
-		"卡牌ID":   products.Data[0].CardVersionID,
-		"卡牌名称":   products.Data[0].CardNameCn,
-		"售卖价格":   products.Data[0].Price,
-		"评级公司ID": products.Data[1].AuthenticatorID,
-		"评级公司名称": products.Data[1].AuthenticatorName,
-		"评分":     products.Data[1].Grading,
-	}).Infof("第一个商品的信息，即刚刚添加的商品信息")
+	if products.Total != 0 {
+		logrus.WithFields(logrus.Fields{
+			"商品ID":   products.Data[0].ProductID,
+			"卡牌ID":   products.Data[0].CardVersionID,
+			"卡牌名称":   products.Data[0].CardNameCn,
+			"售卖价格":   products.Data[0].Price,
+			"评级公司ID": products.Data[1].AuthenticatorID,
+			"评级公司名称": products.Data[1].AuthenticatorName,
+			"评分":     products.Data[1].Grading,
+		}).Infof("第一个商品的信息，即刚刚添加的商品信息")
 
-	logrus.Infof("完整信息: %v", products.Data[1])
+		logrus.Infof("完整信息: %v", products.Data[1])
 
-	productID = fmt.Sprint(products.Data[0].ProductID)
+		productID = fmt.Sprint(products.Data[0].ProductID)
+	}
 }
 
 // 更新商品

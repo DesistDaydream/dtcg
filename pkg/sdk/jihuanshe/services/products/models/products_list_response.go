@@ -17,7 +17,7 @@ type ProductListData struct {
 	ProductID         int    `json:"product_id"`
 	Price             string `json:"price"`
 	Quantity          int    `json:"quantity"`
-	OnSale            int    `json:"on_sale"`
+	OnSale            int    `json:"on_sale"` // 售卖状态。1: 在售，0: 下架
 	Condition         int    `json:"condition"`
 	Remark            string `json:"remark"`
 	CardID            int    `json:"card_id"`

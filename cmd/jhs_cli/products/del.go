@@ -5,6 +5,7 @@ import (
 )
 
 type DelFlags struct {
+	SaleState string
 }
 
 var delFlags DelFlags
@@ -22,7 +23,7 @@ func DelCommand() *cobra.Command {
 		Run:   delProducts,
 	}
 
-	// delProdcutCmd.Flags().StringSliceVarP(&delFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
+	delProdcutCmd.Flags().StringVarP(&delFlags.SaleState, "sale-state", "s", "0", "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
 
 	return delProdcutCmd
 }
