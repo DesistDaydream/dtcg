@@ -34,7 +34,7 @@ func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddReqBody) 
 }
 
 // 列出我在卖的商品
-func (p *ProductsClient) List(page string, keyword string) (*models.ProductsListResp, error) {
+func (p *ProductsClient) List(page string, keyword string, onSale string) (*models.ProductsListResp, error) {
 	var productsResp models.ProductsListResp
 
 	uri := "/api/market/sellers/products"
@@ -45,7 +45,7 @@ func (p *ProductsClient) List(page string, keyword string) (*models.ProductsList
 			GameKey:    "dgm",
 			GameSubKey: "sc",
 			Keyword:    keyword,
-			OnSale:     "1",
+			OnSale:     onSale,
 			Page:       page,
 			Sorting:    "published_at_desc",
 		}),

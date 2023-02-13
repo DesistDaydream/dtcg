@@ -3,49 +3,53 @@ package products
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
-	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-func UpdateImageCommand() *cobra.Command {
-	UpdateProductsImageCmd := &cobra.Command{
-		Use:   "image",
-		Short: "更新卡牌图片",
-		Run:   updateImage,
+type UpdateSaleStateFlags struct {
+	OldSaleState string
+	NewSaleState string
+}
+
+var updateSaleStateFlags UpdateSaleStateFlags
+
+func UpdateSaleStateCommand() *cobra.Command {
+	UpdateProductsSaleStateCmd := &cobra.Command{
+		Use:   "sale-state",
+		Short: "更新商品的售卖状态，是上架还是下架",
+		Run:   updateSaleState,
 	}
 
-	return UpdateProductsImageCmd
+	UpdateProductsSaleStateCmd.Flags().StringVarP(&updateSaleStateFlags.OldSaleState, "old-sale-state", "o", "0", "当前售卖状态。即获取什么状态的商品")
+	UpdateProductsSaleStateCmd.Flags().StringVarP(&updateSaleStateFlags.NewSaleState, "new-sale-state", "n", "1", "期望的售卖状态。")
+
+	return UpdateProductsSaleStateCmd
 }
 
 // 更新我在卖卡牌的卡图
-func updateImage(cmd *cobra.Command, args []string) {
+func updateSaleState(cmd *cobra.Command, args []string) {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", "1")
+		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", updateSaleStateFlags.OldSaleState)
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
 
 		for _, product := range products.Data {
-			if !strings.Contains(product.CardVersionImage, "cdn-client") {
-				cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
-				if err != nil {
-					logrus.Errorf("获取卡牌 %v 价格详情失败: %v", product.CardNameCn, err)
-					continue
-				}
-
+			if product.Quantity != 0 {
 				resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
+					AuthenticatorID:         "",
+					Grading:                 "",
 					Condition:               fmt.Sprint(product.Condition),
-					OnSale:                  fmt.Sprint(product.OnSale),
+					OnSale:                  updateSaleStateFlags.NewSaleState,
 					Price:                   product.Price,
+					ProductCardVersionImage: product.CardVersionImage,
 					Quantity:                fmt.Sprint(product.Quantity),
-					Remark:                  "",
-					ProductCardVersionImage: cardPrice.ImageUrl,
+					Remark:                  product.Remark,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
 					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)

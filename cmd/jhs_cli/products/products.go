@@ -6,9 +6,9 @@ import (
 
 func CreateCommand() *cobra.Command {
 	productsCmd := &cobra.Command{
-		Use:              "products",
-		Short:            "管理我在卖的商品信息",
-		PersistentPreRun: productsPersistentPreRun,
+		Use:   "products",
+		Short: "管理我在卖的商品信息",
+		// PersistentPreRun: productsPersistentPreRun,
 	}
 
 	productsCmd.AddCommand(
@@ -17,12 +17,4 @@ func CreateCommand() *cobra.Command {
 	)
 
 	return productsCmd
-}
-
-func productsPersistentPreRun(cmd *cobra.Command, args []string) {
-	// 执行父命令的初始化操作
-	parent := cmd.Parent()
-	if parent.PersistentPreRun != nil {
-		parent.PersistentPreRun(parent, args)
-	}
 }

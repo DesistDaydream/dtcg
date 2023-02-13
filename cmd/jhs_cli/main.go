@@ -39,11 +39,13 @@ func newApp() *cobra.Command {
 `
 
 	var RootCmd = &cobra.Command{
-		Use:              "myjhs",
-		Short:            "我的集换社管理工具",
-		Long:             long,
-		PersistentPreRun: rootPersistentPreRun,
+		Use:   "myjhs",
+		Short: "我的集换社管理工具",
+		Long:  long,
+		// PersistentPreRun: rootPersistentPreRun,
 	}
+
+	cobra.OnInitialize(initConfig)
 
 	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
@@ -58,7 +60,7 @@ func newApp() *cobra.Command {
 }
 
 // 执行每个 root 下的子命令时，都需要执行的函数
-func rootPersistentPreRun(cmd *cobra.Command, args []string) {
+func initConfig() {
 	if err := logging.LogInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}

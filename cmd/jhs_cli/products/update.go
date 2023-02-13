@@ -38,11 +38,11 @@ func UpdateCommand() *cobra.Command {
   jhs_cli products update -s BTC-04 -r 50.01,1000 -c 10 表示将所有价格在 50.01-1000 之间的异画卡牌的价格增加 10 元。
 `
 	updateProductsCmd := &cobra.Command{
-		Use:              "update",
-		Short:            "更新商品",
-		Long:             long,
-		Run:              updateProducts,
-		PersistentPreRun: updatePersistentPreRun,
+		Use:   "update",
+		Short: "更新商品",
+		Long:  long,
+		Run:   updateProducts,
+		// PersistentPreRun: updatePersistentPreRun,
 	}
 
 	updateProductsCmd.Flags().StringVarP(&updateFlags.SellerUserID, "seller-user-id", "i", "609077", "卖家用户ID。")
@@ -55,17 +55,10 @@ func UpdateCommand() *cobra.Command {
 
 	updateProductsCmd.AddCommand(
 		UpdateImageCommand(),
+		UpdateSaleStateCommand(),
 	)
 
 	return updateProductsCmd
-}
-
-func updatePersistentPreRun(cmd *cobra.Command, args []string) {
-	// 执行父命令的初始化操作
-	parent := cmd.Parent()
-	if parent.PersistentPreRun != nil {
-		parent.PersistentPreRun(parent, args)
-	}
 }
 
 func updateProducts(cmd *cobra.Command, args []string) {
@@ -108,7 +101,7 @@ func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, price
 
 	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
 	// for _, card := range cards.Data {
-	// 	products, err := handler.H.JhsServices.Products.List("1", card.Serial)
+	// 	products, err := handler.H.JhsServices.Products.List("1", card.Serial, "0")
 	// 	if err != nil {
 	// 		logrus.Fatal(err)
 	// 	}
@@ -140,26 +133,21 @@ func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, price
 		if err != nil {
 			logrus.Fatal(err)
 		}
-
 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
 		if err != nil {
 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
 		}
-
 		for _, product := range products.Products {
 			logrus.WithFields(logrus.Fields{
 				"原始价格": cardPrice.AvgPrice,
 				"更新价格": cardPrice.AvgPrice + priceChange,
 			}).Infof("商品【%v】【%v %v】将要调整 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, priceChange)
-
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if updateFlags.isUpdate {
 				updateRun(&product, cardPrice, priceChange)
 			}
-
 		}
 	}
-
 }
 
 // func updateRun(product *models.ProductListData, cardPrice *databasemodels.CardPrice, priceChange float64) {
