@@ -15,14 +15,14 @@ import (
 func UpdateImageCommand() *cobra.Command {
 	UpdateProductsImageCmd := &cobra.Command{
 		Use:   "image",
-		Short: "更新卡牌图片",
+		Short: "更新商品图片",
 		Run:   updateImage,
 	}
 
 	return UpdateProductsImageCmd
 }
 
-// 更新我在卖卡牌的卡图
+// 更新商品卡图
 func updateImage(cmd *cobra.Command, args []string) {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
