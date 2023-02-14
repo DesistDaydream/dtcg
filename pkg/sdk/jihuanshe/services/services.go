@@ -5,6 +5,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/orders"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/wishes"
 )
 
 type Services struct {
@@ -12,6 +13,7 @@ type Services struct {
 	Market     *market.MarketClient
 	Orders     *orders.OrdersClient
 	Products   *products.ProductsClient
+	Wishes     *wishes.WishesClient
 }
 
 func NewServices(token string) *Services {
@@ -25,4 +27,5 @@ func (s *Services) init(token string) {
 	s.Market = market.NewMarketClient(s.CoreClient)
 	s.Orders = orders.NewOrdersClient(s.CoreClient)
 	s.Products = products.NewProductsClient(s.CoreClient)
+	s.Wishes = wishes.NewWishesClient(s.CoreClient)
 }

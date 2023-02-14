@@ -42,7 +42,7 @@ func TestUpdateCardPrice(t *testing.T) {
 	initDB()
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
-	handler.H = handler.NewHandler(jhsToken)
+	handler.H = handler.NewHandler(false, jhsToken, "", "")
 
 	cardsPrice, err := ListCardsPrice()
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/orders"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/products"
+	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/wishes"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/logging"
@@ -14,9 +15,7 @@ import (
 )
 
 type Flags struct {
-}
-
-func AddFlags(f *Flags) {
+	enable_dtcgdb_auth bool
 }
 
 var (
@@ -47,13 +46,14 @@ func newApp() *cobra.Command {
 
 	cobra.OnInitialize(initConfig)
 
-	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
+	RootCmd.PersistentFlags().BoolVar(&flags.enable_dtcgdb_auth, "enable-dtcgdb-auth", false, "DTCG DB 中我的卡组的 ID")
 
 	// 添加子命令
 	RootCmd.AddCommand(
 		products.CreateCommand(),
 		orders.CreateCommand(),
+		wishes.CreateCommand(),
 	)
 
 	return RootCmd
@@ -77,5 +77,9 @@ func initConfig() {
 	database.InitDB(dbInfo)
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
-	handler.H = handler.NewHandler(c.JHS.Token)
+	if flags.enable_dtcgdb_auth {
+		handler.H = handler.NewHandler(true, c.JHS.Token, c.DtcgDB.Username, c.DtcgDB.Password)
+	} else {
+		handler.H = handler.NewHandler(false, c.JHS.Token, "", "")
+	}
 }
