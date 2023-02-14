@@ -78,8 +78,8 @@ func initConfig() {
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
 	if flags.enable_dtcgdb_auth {
-		handler.H = handler.NewHandler(true, c.JHS.Token, c.DtcgDB.Username, c.DtcgDB.Password)
+		handler.H = handler.NewHandler(true, c.JHS.Token, c.DtcgDB.Username, c.DtcgDB.Password, c.DtcgDB.Token)
 	} else {
-		handler.H = handler.NewHandler(false, c.JHS.Token, "", "")
+		handler.H = handler.NewHandler(false, c.JHS.Token, "", "", "")
 	}
 }

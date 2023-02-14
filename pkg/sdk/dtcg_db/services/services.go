@@ -4,6 +4,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community"
+	"github.com/sirupsen/logrus"
 )
 
 type Services struct {
@@ -12,11 +13,15 @@ type Services struct {
 	Community  *community.CommunityClient
 }
 
-func NewServices(isLogin bool, username, password string, retry int) *Services {
-	var token string
+func NewServices(isLogin bool, username, password, token string, retry int) *Services {
+	// var token string
 
 	if isLogin {
-		token = core.Login(username, password)
+		if core.CheckToken(token) {
+			logrus.Infoln("TOKEN 可用，不用重新获取")
+		} else {
+			token = core.Login(username, password)
+		}
 	} else {
 		token = ""
 	}

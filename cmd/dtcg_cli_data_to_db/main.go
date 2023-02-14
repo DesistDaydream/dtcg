@@ -44,7 +44,7 @@ func main() {
 
 	database.InitDB(dbInfo)
 
-	handler.H = handler.NewHandler(c.DtcgDB.Username, c.DtcgDB.Password, 1)
+	handler.H = handler.NewHandler(c.DtcgDB.Username, c.DtcgDB.Password, c.DtcgDB.Token, 1)
 
 	switch flags.Add {
 	case "cardgroupofficial":

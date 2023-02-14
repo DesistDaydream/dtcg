@@ -12,9 +12,9 @@ type Handler struct {
 	JhsServices    *js.Services
 }
 
-func NewHandler(isLogin bool, jhsToken, dtcgdbUsername, dtcgdbPwd string) *Handler {
+func NewHandler(isLogin bool, jhsToken, dtcgdbUsername, dtcgdbPwd, dtcgdbToken string) *Handler {
 	return &Handler{
-		DtcgDBServices: ds.NewServices(isLogin, dtcgdbUsername, dtcgdbPwd, 1),
+		DtcgDBServices: ds.NewServices(isLogin, dtcgdbUsername, dtcgdbPwd, dtcgdbToken, 1),
 		JhsServices:    js.NewServices(jhsToken),
 	}
 }

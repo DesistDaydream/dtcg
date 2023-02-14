@@ -47,7 +47,7 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 		return err
 	}
 
-	// DTCGDB 在 token 失效时，没有 json 格式的响应体，直接返回 500，所以需要特殊处理
+	// DTCGDB 的部分接口在 token 失效时，没有 json 格式的响应体，直接返回 500，所以需要特殊处理
 	if statusCode >= 500 {
 		logrus.Errorf("DTCGDB 服务器异常，响应码：%v，重新获取 token", statusCode)
 		cfg := config.NewConfig("", "")
@@ -154,6 +154,29 @@ func resetBody(request *http.Request, originalBody []byte) {
 	}
 }
 
+// 开始执行登录前，先检查当前 token 是否可用
+func CheckToken(token string) bool {
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", "https://dtcg-api.moecard.cn/api/community/user/session", nil)
+	if err != nil {
+		logrus.Fatalf("TOKEN 检查失败: %v", err)
+	}
+	req.Header.Add("authority", "dtcg-api.moecard.cn")
+	req.Header.Add("authorization", fmt.Sprintf("Bearer %v", token))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		logrus.Fatalf("TOKEN 检查失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 200 {
+		return true
+	} else {
+		return false
+	}
+}
+
 func Login(username, password string) string {
 	var loginPostResp models.LoginPostResp
 
@@ -187,6 +210,8 @@ func Login(username, password string) string {
 	if err != nil {
 		logrus.Errorf("登录失败，解析响应体异常: %v", err)
 	}
+
+	// TODO: 将刚取得的 TOKEN 写入文件中
 
 	return loginPostResp.Data.Token
 }

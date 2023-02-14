@@ -46,7 +46,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	handler.H = handler.NewHandler(c.DtcgDB.Username, c.DtcgDB.Password, c.DtcgDB.Retry)
+	handler.H = handler.NewHandler(c.DtcgDB.Username, c.DtcgDB.Password, c.DtcgDB.Token, c.DtcgDB.Retry)
 
 	r := router.InitRouter()
 	r.Run(c.Listen)

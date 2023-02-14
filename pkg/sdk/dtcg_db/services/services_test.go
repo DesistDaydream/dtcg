@@ -21,7 +21,7 @@ func TestNewServices(t *testing.T) {
 
 	database.InitDB(dbInfo)
 
-	got := NewServices(true, c.DtcgDB.Username, c.DtcgDB.Password, 2)
+	got := NewServices(true, c.DtcgDB.Username, c.DtcgDB.Password, "", 2)
 
 	fmt.Println(got.CoreClient)
 

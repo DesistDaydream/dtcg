@@ -14,7 +14,7 @@ type Handler struct {
 
 func NewHandler() *Handler {
 	return &Handler{
-		DtcgDBServices: ds.NewServices(false, "", "", 10),
+		DtcgDBServices: ds.NewServices(false, "", "", "", 10),
 		JhsServices:    js.NewServices(""),
 	}
 }
