@@ -211,7 +211,18 @@ func Login(username, password string) string {
 		logrus.Errorf("登录失败，解析响应体异常: %v", err)
 	}
 
-	// TODO: 将刚取得的 TOKEN 写入文件中
+	// TODO: 将刚取得的 TOKEN 写入文件中，如何确定 dstFile 文件的位置？测试时和部署时的环境不一样的~~
+	// cfg := config.NewConfig("", "")
+	// cfg.DtcgDB.Token = loginPostResp.Data.Token
+
+	// yamlData, err := yaml.Marshal(&cfg)
+	// if err != nil {
+	// 	logrus.Errorf("Marshal YAML 格式失败: %v", err)
+	// }
+
+	// dstFile := "config/my_dtcg.yaml"
+
+	// os.WriteFile(dstFile, yamlData, 0666)
 
 	return loginPostResp.Data.Token
 }

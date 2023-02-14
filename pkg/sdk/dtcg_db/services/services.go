@@ -20,6 +20,7 @@ func NewServices(isLogin bool, username, password, token string, retry int) *Ser
 		if core.CheckToken(token) {
 			logrus.Infoln("TOKEN 可用，不用重新获取")
 		} else {
+			logrus.Infoln("TOKEN 不可用，准备重新获取")
 			token = core.Login(username, password)
 		}
 	} else {
