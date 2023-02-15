@@ -77,7 +77,7 @@ func initConfig() {
 	}
 
 	// 初始化配置文件
-	c := config.NewConfig(flags.FilePath, flags.FileName)
+	c, _ := config.NewConfig(flags.FilePath, flags.FileName)
 
 	// 初始化数据库
 	dbInfo := &database.DBInfo{

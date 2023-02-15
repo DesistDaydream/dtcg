@@ -18,7 +18,6 @@ func UpdateCardPriceCommand() *cobra.Command {
 		Use:              "update",
 		Short:            "更新卡牌价格数据表",
 		PersistentPreRun: cardPriceUpdatePersistentPreRun,
-		Run:              updateCardPrice,
 	}
 
 	updateCardPriceCmd.PersistentFlags().BoolVarP(&updateFlags.UpdateAllField, "all-field", "a", false, "是否更新卡牌价格的全部字段")
@@ -40,10 +39,6 @@ func cardPriceUpdatePersistentPreRun(cmd *cobra.Command, args []string) {
 	if parent.PersistentPreRun != nil {
 		parent.PersistentPreRun(parent, args)
 	}
-}
-
-func updateCardPrice(cmd *cobra.Command, args []string) {
-
 }
 
 func updateRun(cardDesc *models.CardDesc) {

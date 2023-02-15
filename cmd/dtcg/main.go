@@ -32,7 +32,7 @@ func main() {
 	}
 
 	// 初始化配置文件
-	c := config.NewConfig("", "")
+	c, _ := config.NewConfig("", "")
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{

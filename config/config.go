@@ -33,8 +33,9 @@ type JHS struct {
 	Token string `yaml:"token"`
 }
 
-func NewConfig(path, name string) *Config {
+func NewConfig(path, name string) (*Config, string) {
 	logrus.Debugf("检查手动指定的配置文件信息: %s/%s", path, name)
+
 	var config Config
 	viper.AddConfigPath(path)
 	viper.AddConfigPath("/etc/dtcg")
@@ -51,5 +52,7 @@ func NewConfig(path, name string) *Config {
 		logrus.Fatalf("解析配置文件失败: %v", err)
 	}
 
-	return &config
+	logrus.Debugf("读取到的配置文件绝对路径: %v", viper.ConfigFileUsed())
+
+	return &config, viper.ConfigFileUsed()
 }

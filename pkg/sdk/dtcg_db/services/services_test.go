@@ -10,7 +10,7 @@ import (
 
 func TestNewServices(t *testing.T) {
 	// 初始化配置文件
-	c := config.NewConfig("../../../../config", "")
+	c, _ := config.NewConfig("../../../../config", "")
 
 	// 初始化数据库
 	dbInfo := &database.DBInfo{

@@ -14,7 +14,7 @@ import (
 // 获取每张卡的价格写入到 Excel 中
 func main() {
 	// 初始化配置文件
-	c := config.NewConfig("", "")
+	c, _ := config.NewConfig("", "")
 
 	// 初始化数据库
 	dbInfo := &database.DBInfo{

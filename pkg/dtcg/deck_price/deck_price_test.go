@@ -11,7 +11,7 @@ import (
 
 func initDB() {
 	// 初始化配置文件
-	c := config.NewConfig("../../../config", "")
+	c, _ := config.NewConfig("../../../config", "")
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{

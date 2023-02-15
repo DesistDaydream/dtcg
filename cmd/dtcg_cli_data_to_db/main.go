@@ -33,7 +33,7 @@ func main() {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	c := config.NewConfig("", "")
+	c, _ := config.NewConfig("", "")
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{
