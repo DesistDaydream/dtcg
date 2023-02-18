@@ -36,12 +36,16 @@ type JHS struct {
 func NewConfig(path, name string) (*Config, string) {
 	logrus.Debugf("检查手动指定的配置文件信息: %s/%s", path, name)
 
+	if name == "" {
+		name = "my_dtcg.yaml"
+	}
+
 	var config Config
 	viper.AddConfigPath(path)
 	viper.AddConfigPath("/etc/dtcg")
 	viper.AddConfigPath("./config")
 	viper.SetConfigName(name)
-	viper.SetConfigName("my_dtcg.yaml")
+	// viper.SetConfigName("my_dtcg.yaml")
 	viper.SetConfigType("yaml")
 	err := viper.ReadInConfig()
 	if err != nil {

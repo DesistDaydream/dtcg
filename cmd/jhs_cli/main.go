@@ -16,6 +16,8 @@ import (
 
 type Flags struct {
 	enable_dtcgdb_auth bool
+	ConfigPath         string
+	ConfigName         string
 }
 
 var (
@@ -48,6 +50,8 @@ func newApp() *cobra.Command {
 
 	logging.AddFlags(&logFlags)
 	RootCmd.PersistentFlags().BoolVar(&flags.enable_dtcgdb_auth, "enable-dtcgdb-auth", false, "DTCG DB 中我的卡组的 ID")
+	RootCmd.PersistentFlags().StringVar(&flags.ConfigPath, "config-path", "", "配置文件路径")
+	RootCmd.PersistentFlags().StringVar(&flags.ConfigName, "config-name", "", "配置文件名称")
 
 	// 添加子命令
 	RootCmd.AddCommand(
@@ -65,7 +69,7 @@ func initConfig() {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
-	c, _ := config.NewConfig("", "")
+	c, _ := config.NewConfig(flags.ConfigPath, flags.ConfigName)
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{
