@@ -28,11 +28,10 @@ func UpdatePriceCommand() *cobra.Command {
 	long := `
 根据策略更新商品价格。
 比如：
-	jhs_cli products update -s BTC-04 -r 0,0.99 表示将所有价格在 0-0.99 之间卡牌的价格不增加，以集换价售卖。
-	jhs_cli products update -s BTC-04 -r 1,9.99 -c 0.5 表示将所有价格在 1-9.99 之间卡牌的价格增加 0.5 元。
-	jhs_cli products update -s BTC-04 -r 3,9.99 -c 2 --art="否" 表示将所有价格在 3-9.99 之间的非异画卡牌的价格增加 0.5 元。
-	jhs_cli products update -s BTC-04 -r 10,50 -c 5 --art="是" 表示将所有价格在 0-1000 之间的异画卡牌的价格增加 5 元。
-	jhs_cli products update -s BTC-04 -r 50.01,1000 -c 10 表示将所有价格在 50.01-1000 之间的异画卡牌的价格增加 10 元。
+	go run cmd/jhs_cli/main.go products update price -s BTC-04 -r 0,0.99 表示将所有价格在 0-0.99 之间卡牌的价格不增加，以集换价售卖。
+	go run cmd/jhs_cli/main.go products update price -s BTC-04 -r 1,9.99 -c 0.5 表示将所有价格在 1-9.99 之间卡牌的价格增加 0.5 元。
+	go run cmd/jhs_cli/main.go products update price -s BTC-04 -r 3,9.99 --art="否" -c 2  表示将所有价格在 3-9.99 之间的非异画卡牌的价格增加 0.5 元。
+	go run cmd/jhs_cli/main.go products update price -s BTC-04 -r 0,10000 --art="是" -c 50 表示将所有价格在 0-10000 之间的异画卡价格增加 50 元。
 `
 	UpdateProductsPriceCmd := &cobra.Command{
 		Use:   "price",
@@ -145,13 +144,14 @@ func updateRun(product *models.ProductData, cardPrice *databasemodels.CardPrice,
 	}
 
 	resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
-		Condition: fmt.Sprint(product.Condition),
-		// OnSale:               fmt.Sprint(product.OnSale),
+		AuthenticatorID:         "",
+		Grading:                 "",
+		Condition:               fmt.Sprint(product.Condition),
 		OnSale:                  "1",
 		Price:                   fmt.Sprint(cardPrice.AvgPrice + priceChange),
+		ProductCardVersionImage: cardPrice.ImageUrl,
 		Quantity:                fmt.Sprint(product.Quantity),
 		Remark:                  remark,
-		ProductCardVersionImage: cardPrice.ImageUrl,
 	}, fmt.Sprint(product.ProductID))
 	if err != nil {
 		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)
