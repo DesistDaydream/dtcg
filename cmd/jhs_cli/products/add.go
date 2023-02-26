@@ -24,7 +24,12 @@ type AddPolicy struct {
 	isArt       string
 }
 
-var addFlags AddFlags
+var (
+	addFlags     AddFlags
+	successCount int = 0
+	failCount    int = 0
+	failList     []string
+)
 
 func AddCommand() *cobra.Command {
 	long := `
@@ -44,7 +49,7 @@ func AddCommand() *cobra.Command {
 	addProdcutCmd.Flags().Float64SliceVarP(&addFlags.AddPolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
 	addProdcutCmd.Flags().Float64VarP(&addFlags.AddPolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 	addProdcutCmd.Flags().StringVar(&addFlags.AddPolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
-	addProdcutCmd.Flags().StringVar(&addFlags.Remark, "remark", "", "商品备注信息")
+	addProdcutCmd.Flags().StringVar(&addFlags.Remark, "remark", "拍之前请联系确认库存", "商品备注信息")
 
 	return addProdcutCmd
 }
@@ -110,6 +115,12 @@ func genNeedAddProducts(avgPriceRange []float64, alternativeArt string, priceCha
 			addRun(cardPrice, fmt.Sprint(card.CardVersionID), price)
 		}
 	}
+
+	logrus.WithFields(logrus.Fields{
+		"总数": cards.Count,
+		"成功": successCount,
+		"失败": failCount,
+	}).Infof("上架结果")
 }
 
 func addRun(cardPrice *databasemodels.CardPrice, cardVersionID string, price string) {
@@ -123,11 +134,14 @@ func addRun(cardPrice *databasemodels.CardPrice, cardVersionID string, price str
 		Price:                   price,
 		ProductCardVersionImage: cardPrice.ImageUrl,
 		Quantity:                "4",
-		Remark:                  fmt.Sprintf("%v", "拍之前请联系确认库存"),
+		Remark:                  addFlags.Remark,
 	})
 	if err != nil {
 		logrus.Errorf("%v 上架失败：%v", cardPrice.ScName, err)
+		failCount++
+		failList = append(failList, fmt.Sprintf("%v-%v", cardVersionID, cardPrice.ScName))
 	} else {
 		logrus.Infof("%v 上架成功：%v", cardPrice.ScName, resp)
+		successCount++
 	}
 }
