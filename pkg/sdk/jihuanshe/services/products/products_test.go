@@ -14,7 +14,7 @@ import (
 
 var sellerUserID string = "609077"
 var token string = ""
-var cardVersionID string = "3982"
+var cardVersionID string = "4282"
 var productID string = ""
 
 func initConfig() {

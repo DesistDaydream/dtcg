@@ -44,7 +44,7 @@ func updateImage(cmd *cobra.Command, args []string) {
 					OnSale:                  fmt.Sprint(product.OnSale),
 					Price:                   product.Price,
 					Quantity:                fmt.Sprint(product.Quantity),
-					Remark:                  "",
+					Remark:                  product.Remark,
 					ProductCardVersionImage: cardPrice.ImageUrl,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
