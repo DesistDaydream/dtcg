@@ -15,13 +15,13 @@
 
 # 构建
 
-nerdctl build . -t lchdzh/jihuanshe-exporter:v1.1.0 -f build/jihuanshe_exporter/Dockerfile
+nerdctl build . -t lchdzh/jihuanshe-exporter:v1.1.1 -f build/jihuanshe_exporter/Dockerfile
 
 nerdctl build . -t lchdzh/dtcg:v1.8.7 -f build/dtcg/Dockerfile
 
 # 运行
 
-nerdctl run -it --rm --name jihuanshe-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.1.0
+nerdctl run -it --rm --name jihuanshe-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jihuanshe-exporter:v1.1.1
 
 nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v1.8.7
 

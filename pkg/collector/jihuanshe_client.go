@@ -196,7 +196,9 @@ type JihuansheOpts struct {
 	// 是否进行测试，若不进行测试，则获取所有卡盒的信息
 	test bool
 	// 要采集集换价大于多少的卡的信息
-	price float64
+	minPrice float64
+	// 要采集集换价小于多少的卡的信息
+	maxPrice float64
 }
 
 // AddFlag use after set Opts
@@ -210,5 +212,6 @@ func (o *JihuansheOpts) AddFlag() {
 	pflag.StringVar(&o.MySQLServer, "server", "", "数据库连接地址")
 	pflag.StringVar(&o.MySQLPassword, "password", "", "数据库连接密码")
 	pflag.BoolVar(&o.test, "test", false, "是否进行测试。")
-	pflag.Float64Var(&o.price, "price", 1, "要采集集换价大于多少的卡，单位：元")
+	pflag.Float64Var(&o.minPrice, "min-price", 1, "要采集的卡的集换价的最低价，单位：元")
+	pflag.Float64Var(&o.maxPrice, "max-price", 500, "要采集的卡的集换价的最高价，单位：元")
 }

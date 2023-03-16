@@ -63,8 +63,8 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 		go func(cardPrice models.CardPrice) {
 			defer wg.Done()
 
-			// 只采集集换价大于 client.Opts.Price 的卡的信息
-			if cardPrice.AvgPrice >= client.Opts.price {
+			// 只采集集换价在指定价格区间内的卡的信息
+			if cardPrice.AvgPrice >= client.Opts.minPrice && cardPrice.AvgPrice <= client.Opts.maxPrice {
 				priceInfo, err := c.Get(fmt.Sprint(cardPrice.CardVersionID), "1")
 				if err != nil {
 					logrus.Errorf("获取卡片信息异常：%v", err)
