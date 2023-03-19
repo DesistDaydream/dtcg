@@ -5,7 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
-	databasemodels "github.com/DesistDaydream/dtcg/internal/database/models"
+	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -19,6 +19,7 @@ type UpdatePriceFlags struct {
 type UpdatePricePolicy struct {
 	PriceRange  []float64
 	PriceChange float64
+	Operator    string
 	isArt       string
 }
 
@@ -42,6 +43,7 @@ func UpdatePriceCommand() *cobra.Command {
 
 	UpdateProductsPriceCmd.Flags().Float64SliceVarP(&updatePriceFlags.UpdatePolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
 	UpdateProductsPriceCmd.Flags().Float64VarP(&updatePriceFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
+	UpdateProductsPriceCmd.Flags().StringVarP(&updatePriceFlags.UpdatePolicy.Operator, "operator", "o", "+", "卡牌价格变化的计算方式，乘法还是加法。")
 	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.UpdatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
 	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.Remark, "remark", "", "商品备注信息")
 
@@ -54,31 +56,20 @@ func updatePrice(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// 根据更新策略更新卡牌价格
-	genNeedUpdateProducts(updatePriceFlags.UpdatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt, updatePriceFlags.UpdatePolicy.PriceChange)
-}
-
-// 生成需要更新的卡牌信息
-func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, priceChange float64) {
-	var (
-		cards *databasemodels.CardsPrice
-		err   error
-	)
-
-	// 生成需要更新的卡牌信息
-	cards, err = database.GetCardPriceByCondition(300, 1, &databasemodels.CardPriceQuery{
-		SetsPrefix:     updateFlags.SetPrefix,
-		AlternativeArt: alternativeArt,
-		MinPriceRange:  "",
-		AvgPriceRange:  fmt.Sprintf("%v-%v", avgPriceRange[0], avgPriceRange[1]),
-	})
+	// 生成待处理的卡牌信息
+	cards, err := GenNeedHandleCards(updatePriceFlags.UpdatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt)
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return
 	}
+	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", updatePriceFlags.UpdatePolicy.PriceRange, len(cards.Data))
 
-	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", avgPriceRange, len(cards.Data))
+	// 根据更新策略更新卡牌价格
+	genNeedHandleProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+}
 
+// 生成待处理的商品信息
+func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 	// TODO: 下面这俩接口有各自的优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
 
 	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
@@ -119,22 +110,31 @@ func genNeedUpdateProducts(avgPriceRange []float64, alternativeArt string, price
 		if err != nil {
 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
 		}
+
+		var newPrice string
+
+		if updatePriceFlags.UpdatePolicy.Operator == "*" {
+			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
+		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
+			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice+priceChange)
+		}
+
 		for _, product := range products.Products {
 			logrus.WithFields(logrus.Fields{
 				"原始价格": cardPrice.AvgPrice,
-				"更新价格": cardPrice.AvgPrice + priceChange,
+				"更新价格": newPrice,
 				"调整价格": priceChange,
-			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
+			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCn, updatePriceFlags.UpdatePolicy.Operator)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-			if updateFlags.isUpdate {
-				updateRun(&product, cardPrice, priceChange)
+			if updateFlags.isRealRun {
+				updateRun(&product, cardPrice, newPrice)
 			}
 		}
 	}
 }
 
 // func updateRun(product *models.ProductListData, cardPrice *databasemodels.CardPrice, priceChange float64) {
-func updateRun(product *models.ProductData, cardPrice *databasemodels.CardPrice, priceChange float64) {
+func updateRun(product *models.ProductData, cardPrice *dbmodels.CardPrice, newPrice string) {
 	// 生成备注信息
 	var remark string
 	if updatePriceFlags.Remark != "" {
@@ -148,7 +148,7 @@ func updateRun(product *models.ProductData, cardPrice *databasemodels.CardPrice,
 		Grading:                 "",
 		Condition:               fmt.Sprint(product.Condition),
 		OnSale:                  "1",
-		Price:                   fmt.Sprint(cardPrice.AvgPrice + priceChange),
+		Price:                   newPrice,
 		ProductCardVersionImage: cardPrice.ImageUrl,
 		Quantity:                fmt.Sprint(product.Quantity),
 		Remark:                  remark,

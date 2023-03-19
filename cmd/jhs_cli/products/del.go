@@ -16,15 +16,9 @@ type DelFlags struct {
 var delFlags DelFlags
 
 func DelCommand() *cobra.Command {
-	long := `
-根据策略添加商品。
-比如：
-  jhs_cli products add -s BTC-03 -r 0,1000 -c 20 表示将所有价格在 0-1000 之间卡牌的价格增加 20 块售卖。
-`
 	delProdcutCmd := &cobra.Command{
 		Use:   "del",
 		Short: "删除商品",
-		Long:  long,
 		Run:   delProducts,
 	}
 
@@ -33,7 +27,7 @@ func DelCommand() *cobra.Command {
 	return delProdcutCmd
 }
 
-// 添加商品
+// 删除商品
 func delProducts(cmd *cobra.Command, args []string) {
 	page := 1 // 从获取到的数据的第一页开始
 	for {

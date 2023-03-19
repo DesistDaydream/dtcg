@@ -1,6 +1,11 @@
 package products
 
 import (
+	"fmt"
+
+	"github.com/DesistDaydream/dtcg/internal/database"
+	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -18,4 +23,25 @@ func CreateCommand() *cobra.Command {
 	)
 
 	return productsCmd
+}
+
+// 生成待处理的卡牌信息
+func GenNeedHandleCards(avgPriceRange []float64, alternativeArt string) (*dbmodels.CardsPrice, error) {
+	var (
+		cards *dbmodels.CardsPrice
+		err   error
+	)
+	cards, err = database.GetCardPriceByCondition(300, 1, &dbmodels.CardPriceQuery{
+		SetsPrefix:     updateFlags.SetPrefix,
+		AlternativeArt: alternativeArt,
+		MinPriceRange:  "",
+		AvgPriceRange:  fmt.Sprintf("%v-%v", avgPriceRange[0], avgPriceRange[1]),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", avgPriceRange, len(cards.Data))
+
+	return cards, nil
 }

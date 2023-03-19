@@ -5,7 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
-	databasemodels "github.com/DesistDaydream/dtcg/internal/database/models"
+	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -13,7 +13,7 @@ import (
 
 type AddFlags struct {
 	SetPrefix []string
-	isAdd     bool
+	isRealRun bool
 	AddPolicy AddPolicy
 	Remark    string
 }
@@ -45,10 +45,10 @@ func AddCommand() *cobra.Command {
 	}
 
 	addProdcutCmd.Flags().StringSliceVarP(&addFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	addProdcutCmd.Flags().BoolVarP(&addFlags.isAdd, "yes", "y", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
+	addProdcutCmd.Flags().BoolVarP(&addFlags.isRealRun, "yes", "y", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
 	addProdcutCmd.Flags().Float64SliceVarP(&addFlags.AddPolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
 	addProdcutCmd.Flags().Float64VarP(&addFlags.AddPolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
-	addProdcutCmd.Flags().StringVar(&addFlags.AddPolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
+	addProdcutCmd.Flags().StringVar(&addFlags.AddPolicy.isArt, "art", "", "是否添加异画卡，可用的值有两个：是、否。空值为更新所有卡牌")
 	addProdcutCmd.Flags().StringVar(&addFlags.Remark, "remark", "拍之前请联系确认库存", "商品备注信息")
 
 	return addProdcutCmd
@@ -66,44 +66,36 @@ func addProducts(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	genNeedAddProducts(addFlags.AddPolicy.PriceRange, addFlags.AddPolicy.isArt, addFlags.AddPolicy.PriceChange)
-}
-
-// 生成需要添加的商品信息
-func genNeedAddProducts(avgPriceRange []float64, alternativeArt string, priceChange float64) {
-	var (
-		cards *databasemodels.CardsPrice
-		err   error
-	)
-
-	// 生成需要更新的卡牌信息
-	cards, err = database.GetCardPriceByCondition(300, 1, &databasemodels.CardPriceQuery{
-		SetsPrefix:     addFlags.SetPrefix,
-		AlternativeArt: alternativeArt,
-		MinPriceRange:  "",
-		AvgPriceRange:  fmt.Sprintf("%v-%v", avgPriceRange[0], avgPriceRange[1]),
-	})
+	// 生成待处理的卡牌信息
+	cards, err := GenNeedHandleCards(updatePriceFlags.UpdatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt)
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return
 	}
+	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", updatePriceFlags.UpdatePolicy.PriceRange, len(cards.Data))
 
-	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要添加", avgPriceRange, len(cards.Data))
+	genNeedAddProducts(cards, addFlags.AddPolicy.PriceChange)
+}
 
+// 生成需要添加的商品信息
+func genNeedAddProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 	for _, card := range cards.Data {
 		// TODO: 从集换社获取一下 card.CardVersionID 是否已上架。只上架那些还没有上架的卡牌。但是每个卡牌都要向集换社发一个请求，这样是不是没必要？有必要进行这种判断吗？~
 
-		var price string
-
 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
 		if err != nil {
-			logrus.Errorln("获取卡牌价格详情失败", err)
+			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
+			failCount++
+			failList = append(failList, fmt.Sprintf("%v-%v", cardPrice.CardVersionID, cardPrice.ScName))
+			continue
 		}
 
-		if cardPrice.AvgPrice == 0 {
-			price = fmt.Sprint(cardPrice.MinPrice + priceChange)
-		} else {
-			price = fmt.Sprint(cardPrice.AvgPrice + priceChange)
+		var newPrice string
+
+		if updatePriceFlags.UpdatePolicy.Operator == "*" {
+			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
+		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
+			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice+priceChange)
 		}
 
 		logrus.WithFields(logrus.Fields{
@@ -111,8 +103,8 @@ func genNeedAddProducts(avgPriceRange []float64, alternativeArt string, priceCha
 			"上架价格": cardPrice.AvgPrice + priceChange,
 		}).Infof("将要上架的【%v】【%v %v】调整 %v 元", card.AlternativeArt, card.Serial, card.ScName, priceChange)
 
-		if addFlags.isAdd {
-			addRun(cardPrice, fmt.Sprint(card.CardVersionID), price)
+		if addFlags.isRealRun {
+			addRun(cardPrice, fmt.Sprint(card.CardVersionID), newPrice)
 		}
 	}
 
@@ -121,9 +113,13 @@ func genNeedAddProducts(avgPriceRange []float64, alternativeArt string, priceCha
 		"成功": successCount,
 		"失败": failCount,
 	}).Infof("上架结果")
+
+	if len(failList) > 0 {
+		logrus.Errorf("%v", failList)
+	}
 }
 
-func addRun(cardPrice *databasemodels.CardPrice, cardVersionID string, price string) {
+func addRun(cardPrice *dbmodels.CardPrice, cardVersionID string, newPrice string) {
 	// 开始上架
 	resp, err := handler.H.JhsServices.Products.Add(&models.ProductsAddReqBody{
 		AuthenticatorID:         "",
@@ -131,7 +127,7 @@ func addRun(cardPrice *databasemodels.CardPrice, cardVersionID string, price str
 		CardVersionID:           cardVersionID,
 		Condition:               "1",
 		GameKey:                 "dgm",
-		Price:                   price,
+		Price:                   newPrice,
 		ProductCardVersionImage: cardPrice.ImageUrl,
 		Quantity:                "4",
 		Remark:                  addFlags.Remark,

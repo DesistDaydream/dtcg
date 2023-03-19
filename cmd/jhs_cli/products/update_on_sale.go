@@ -5,7 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
-	databasemodels "github.com/DesistDaydream/dtcg/internal/database/models"
+	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -57,12 +57,12 @@ func updateSaleState(cmd *cobra.Command, args []string) {
 // 生成需要更新的卡牌信息
 func genNeedUpdateSaleStateProducts(alternativeArt string, priceChange float64) {
 	var (
-		cards *databasemodels.CardsPrice
+		cards *dbmodels.CardsPrice
 		err   error
 	)
 
 	// 生成需要更新的卡牌信息
-	cards, err = database.GetCardPriceByCondition(300, 1, &databasemodels.CardPriceQuery{
+	cards, err = database.GetCardPriceByCondition(300, 1, &dbmodels.CardPriceQuery{
 		SetsPrefix:     updateFlags.SetPrefix,
 		AlternativeArt: alternativeArt,
 		MinPriceRange:  "",
@@ -89,7 +89,7 @@ func genNeedUpdateSaleStateProducts(alternativeArt string, priceChange float64) 
 				"预期状态": updateSaleStateFlags.NewSaleState,
 			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-			if updateFlags.isUpdate {
+			if updateFlags.isRealRun {
 				updateSaleStateRun(&product, priceChange, updateSaleStateFlags.NewSaleState)
 			}
 		}
