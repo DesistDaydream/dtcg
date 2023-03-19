@@ -71,7 +71,7 @@ func genNeedHandleImgProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 				"调整价格": priceChange,
 			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-			if updateFlags.isRealRun {
+			if productsFlags.isRealRun {
 				resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
 					ProductCardVersionImage: cardPrice.ImageUrl,
 				}, fmt.Sprint(product.ProductID))

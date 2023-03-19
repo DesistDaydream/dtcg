@@ -126,7 +126,7 @@ func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 				"调整价格": priceChange,
 			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCn, updatePriceFlags.UpdatePolicy.Operator)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-			if updateFlags.isRealRun {
+			if productsFlags.isRealRun {
 				updateRun(&product, cardPrice, newPrice)
 			}
 		}

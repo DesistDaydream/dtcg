@@ -8,7 +8,6 @@ import (
 type UpdateFlags struct {
 	SellerUserID string
 	SetPrefix    []string
-	isRealRun    bool
 }
 
 var updateFlags UpdateFlags
@@ -24,7 +23,6 @@ func UpdateCommand() *cobra.Command {
 
 	updateProductsCmd.PersistentFlags().StringVarP(&updateFlags.SellerUserID, "seller-user-id", "i", "934972", "卖家用户ID。")
 	updateProductsCmd.PersistentFlags().StringSliceVarP(&updateFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	updateProductsCmd.PersistentFlags().BoolVarP(&updateFlags.isRealRun, "yes", "y", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
 
 	updateProductsCmd.AddCommand(
 		UpdatePriceCommand(),

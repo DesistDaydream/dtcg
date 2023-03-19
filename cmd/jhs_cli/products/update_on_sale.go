@@ -89,7 +89,7 @@ func genNeedUpdateSaleStateProducts(alternativeArt string, priceChange float64) 
 				"预期状态": updateSaleStateFlags.NewSaleState,
 			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-			if updateFlags.isRealRun {
+			if productsFlags.isRealRun {
 				updateSaleStateRun(&product, priceChange, updateSaleStateFlags.NewSaleState)
 			}
 		}

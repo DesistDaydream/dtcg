@@ -9,6 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type ProductsFlags struct {
+	isRealRun bool
+}
+
+var productsFlags ProductsFlags
+
 func CreateCommand() *cobra.Command {
 	productsCmd := &cobra.Command{
 		Use:   "products",
@@ -21,6 +27,8 @@ func CreateCommand() *cobra.Command {
 		UpdateCommand(),
 		DelCommand(),
 	)
+
+	productsCmd.PersistentFlags().BoolVarP(&productsFlags.isRealRun, "yes", "y", false, "是否真正执行处理商品的逻辑，默认值只检查商品的增删改查而不真的去调用集换社接口。")
 
 	return productsCmd
 }

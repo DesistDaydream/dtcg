@@ -13,7 +13,6 @@ import (
 
 type AddFlags struct {
 	SetPrefix []string
-	isRealRun bool
 	AddPolicy AddPolicy
 	Remark    string
 }
@@ -45,7 +44,6 @@ func AddCommand() *cobra.Command {
 	}
 
 	addProdcutCmd.Flags().StringSliceVarP(&addFlags.SetPrefix, "sets-name", "s", nil, "要上架哪些卡包的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-	addProdcutCmd.Flags().BoolVarP(&addFlags.isRealRun, "yes", "y", false, "是否真实更新卡牌信息，默认值只检查更新目标并列出将要调整的价格。")
 	addProdcutCmd.Flags().Float64SliceVarP(&addFlags.AddPolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
 	addProdcutCmd.Flags().Float64VarP(&addFlags.AddPolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 	addProdcutCmd.Flags().StringVar(&addFlags.AddPolicy.isArt, "art", "", "是否添加异画卡，可用的值有两个：是、否。空值为更新所有卡牌")
@@ -103,7 +101,7 @@ func genNeedAddProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 			"上架价格": cardPrice.AvgPrice + priceChange,
 		}).Infof("将要上架的【%v】【%v %v】调整 %v 元", card.AlternativeArt, card.Serial, card.ScName, priceChange)
 
-		if addFlags.isRealRun {
+		if productsFlags.isRealRun {
 			addRun(cardPrice, fmt.Sprint(card.CardVersionID), newPrice)
 		}
 	}
