@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
-	"github.com/DesistDaydream/dtcg/internal/database"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
@@ -13,7 +12,9 @@ import (
 
 type UpdatePriceFlags struct {
 	UpdatePolicy UpdatePricePolicy
-	Remark       string
+	Remark       string // 商品备注
+	CurSaleState string // 获取哪种售卖状态的商品
+	ExpSaleState string // 期望商品变成哪种售卖状态
 }
 
 type UpdatePricePolicy struct {
@@ -23,7 +24,12 @@ type UpdatePricePolicy struct {
 	isArt       string
 }
 
-var updatePriceFlags UpdatePriceFlags
+var (
+	updatePriceFlags   UpdatePriceFlags
+	updateSuccessCount int = 0
+	updateFailCount    int = 0
+	updateSkip         int = 0
+)
 
 func UpdatePriceCommand() *cobra.Command {
 	long := `
@@ -47,6 +53,9 @@ func UpdatePriceCommand() *cobra.Command {
 	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.UpdatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
 	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.Remark, "remark", "", "商品备注信息")
 
+	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.CurSaleState, "cur-sale-state", "1", "当前售卖状态。即获取什么状态的商品。1: 售卖。0: 下架")
+	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.ExpSaleState, "exp-sale-state", "1", "期望的售卖状态。")
+
 	return UpdateProductsPriceCmd
 }
 
@@ -66,75 +75,91 @@ func updatePrice(cmd *cobra.Command, args []string) {
 
 	// 根据更新策略更新卡牌价格
 	genNeedHandleProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+
+	logrus.WithFields(logrus.Fields{
+		"总数": cards.Count,
+		"成功": updateSuccessCount,
+		"失败": updateFailCount,
+		"跳过": updateSkip,
+	}).Infof("更新结果")
 }
+
+// TODO: 下面这俩接口有各自的优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
+
+// 生成待处理的商品信息
+// func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
+// 	for _, card := range cards.Data {
+// 		// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
+// 		// 然后，只需要遍历修改这些商品即可。
+// 		// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
+// 		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
+// 		if err != nil {
+// 			logrus.Fatal(err)
+// 		}
+// 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
+// 		if err != nil {
+// 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
+// 		}
+// 		var newPrice string
+// 		if updatePriceFlags.UpdatePolicy.Operator == "*" {
+// 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
+// 		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
+// 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice+priceChange)
+// 		}
+// 		for _, product := range products.Products {
+// 			logrus.WithFields(logrus.Fields{
+// 				"原始价格": cardPrice.AvgPrice,
+// 				"更新价格": newPrice,
+// 				"调整价格": priceChange,
+// 			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCn, updatePriceFlags.UpdatePolicy.Operator)
+// 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+// 			if productsFlags.isRealRun {
+// 				updateRun(&product, cardPrice, newPrice)
+// 			}
+// 		}
+// 	}
+// }
 
 // 生成待处理的商品信息
 func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
-	// TODO: 下面这俩接口有各自的优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
-
-	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
-	// for _, card := range cards.Data {
-	// 	products, err := handler.H.JhsServices.Products.List("1", card.Serial, "0")
-	// 	if err != nil {
-	// 		logrus.Fatal(err)
-	// 	}
-	// 	// 通过卡牌编号获取到的商品信息不是唯一的，有异画的可能，所以需要先获取商品中的 card_version_id，同时获取到 product_id(商品ID)
-	// 	// 此时需要根据 card_version_id 获取到卡牌的价格信息，然后根据价格信息判断要更新的是哪个商品
-	// 	for _, product := range products.Data {
-	// 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
-	// 		if err != nil {
-	// 			logrus.Errorf("获取 %v 价格失败：%v", product.CardNameCn, err)
-	// 		}
-	// 		if cardPrice.AvgPrice >= avgPriceRange[0] && cardPrice.AvgPrice <= avgPriceRange[1] {
-	// 			logrus.WithFields(logrus.Fields{
-	// 				"原始价格": cardPrice.AvgPrice,
-	// 				"更新价格": cardPrice.AvgPrice + priceChange,
-	// 			}).Infof("商品【%v】【%v %v】将要调整 %v 元", card.AlternativeArt, card.Serial, product.CardNameCn, priceChange)
-	// 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-	// 			if updateFlags.isUpdate {
-	// 				updateRun(&product, cardPrice, priceChange)
-	// 			}
-	// 		}
-	// 	}
-	// }
-
-	// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
-	// 然后，只需要遍历修改这些商品即可。
-	// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
 	for _, card := range cards.Data {
-		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
+		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
+		products, err := handler.H.JhsServices.Products.List("1", card.Serial, updatePriceFlags.CurSaleState)
 		if err != nil {
 			logrus.Fatal(err)
-		}
-		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
-		if err != nil {
-			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
 		}
 
 		var newPrice string
 
 		if updatePriceFlags.UpdatePolicy.Operator == "*" {
-			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
+			newPrice = fmt.Sprintf("%.2f", card.AvgPrice*priceChange)
 		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
-			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice+priceChange)
+			newPrice = fmt.Sprintf("%.2f", card.AvgPrice+priceChange)
 		}
 
-		for _, product := range products.Products {
+		// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
+		// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
+		for _, product := range products.Data {
+			if product.CardVersionID != card.CardVersionID {
+				logrus.Errorf("不是 %v %v-%v %v 这个商品，继续处理下一个", product.CardVersionID, product.CardVersionNumber, product.CardNameCn, product.CardVersionRarity)
+				updateSkip++
+				continue
+			}
 			logrus.WithFields(logrus.Fields{
-				"原始价格": cardPrice.AvgPrice,
+				"原始价格": card.AvgPrice,
 				"更新价格": newPrice,
-				"调整价格": priceChange,
-			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCn, updatePriceFlags.UpdatePolicy.Operator)
+				"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, priceChange),
+			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
-				updateRun(&product, cardPrice, newPrice)
+				updateRun(&product, card.ImageUrl, newPrice)
 			}
 		}
 	}
 }
 
-// func updateRun(product *models.ProductListData, cardPrice *databasemodels.CardPrice, priceChange float64) {
-func updateRun(product *models.ProductData, cardPrice *dbmodels.CardPrice, newPrice string) {
+func updateRun(product *models.ProductListData, imageUrl, newPrice string) {
+	// func updateRun(product *models.ProductData, cardPrice *dbmodels.CardPrice, newPrice string) {
 	// 生成备注信息
 	var remark string
 	if updatePriceFlags.Remark != "" {
@@ -147,15 +172,17 @@ func updateRun(product *models.ProductData, cardPrice *dbmodels.CardPrice, newPr
 		AuthenticatorID:         "",
 		Grading:                 "",
 		Condition:               fmt.Sprint(product.Condition),
-		OnSale:                  "1",
+		OnSale:                  updatePriceFlags.ExpSaleState,
 		Price:                   newPrice,
-		ProductCardVersionImage: cardPrice.ImageUrl,
+		ProductCardVersionImage: imageUrl,
 		Quantity:                fmt.Sprint(product.Quantity),
 		Remark:                  remark,
 	}, fmt.Sprint(product.ProductID))
 	if err != nil {
 		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)
+		updateFailCount++
 	} else {
 		logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCn, resp)
+		updateSuccessCount++
 	}
 }
