@@ -80,64 +80,38 @@ func updatePrice(cmd *cobra.Command, args []string) {
 	}).Infof("更新结果")
 }
 
-// TODO: 下面这俩接口有各自的优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
-
-// 生成待处理的商品信息
-// func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
-// 	for _, card := range cards.Data {
-// 		// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
-// 		// 然后，只需要遍历修改这些商品即可。
-// 		// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
-// 		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
-// 		if err != nil {
-// 			logrus.Fatal(err)
-// 		}
-// 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
-// 		if err != nil {
-// 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
-// 		}
-// 		var newPrice string
-// 		if updatePriceFlags.UpdatePolicy.Operator == "*" {
-// 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
-// 		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
-// 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice+priceChange)
-// 		}
-// 		for _, product := range products.Products {
-// 			logrus.WithFields(logrus.Fields{
-// 				"原始价格": cardPrice.AvgPrice,
-// 				"更新价格": newPrice,
-// 				"调整价格": priceChange,
-// 			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCn, updatePriceFlags.UpdatePolicy.Operator)
-// 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-// 			if productsFlags.isRealRun {
-// 				updateRun(&product, cardPrice, newPrice)
-// 			}
-// 		}
-// 	}
-// }
-
 // 生成待处理的商品信息
 func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
+	// 逐一更新待处理卡牌的商品信息
 	for _, card := range cards.Data {
-		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
+		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
 		products, err := handler.H.JhsServices.Products.List("1", card.Serial, updateFlags.CurSaleState)
 		if err != nil {
 			logrus.Fatal(err)
 		}
 
-		var newPrice string
+		// 判断一下这个这个卡牌有几个商品，若商品为0，则继续处理下一个
+		if len(products.Data) == 0 {
+			logrus.Errorf("%v %v 没有可供处理的商品，跳过", card.CardVersionID, card.ScName)
+			updateSkip++
+			continue
+		}
 
+		// 生成商品将要更新的价格
+		var newPrice string
 		if updatePriceFlags.UpdatePolicy.Operator == "*" {
 			newPrice = fmt.Sprintf("%.2f", card.AvgPrice*priceChange)
 		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
 			newPrice = fmt.Sprintf("%.2f", card.AvgPrice+priceChange)
 		}
 
-		// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
-		// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
 		for _, product := range products.Data {
+			// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
+			// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
 			if product.CardVersionID != card.CardVersionID {
-				logrus.Errorf("不是 %v %v-%v %v 这个商品，继续处理下一个", product.CardVersionID, product.CardVersionNumber, product.CardNameCn, product.CardVersionRarity)
+				logrus.Errorf("当前商品 [%v %v-%v %v] 与期望处理的商品 [%v %v-%v %v] 不匹配，效果",
+					product.CardVersionID, product.CardVersionNumber, product.CardNameCn, product.CardVersionRarity,
+					card.CardVersionID, card.Serial, card.ScName, card.AlternativeArt)
 				updateSkip++
 				continue
 			}
@@ -182,3 +156,38 @@ func updateRun(product *models.ProductListData, imageUrl, newPrice string) {
 		updateSuccessCount++
 	}
 }
+
+// TODO: 下面这个接口与另一个 genNeedHandleProducts 接口各有优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
+// 生成待处理的商品信息
+// func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
+// 	for _, card := range cards.Data {
+// 		// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
+// 		// 然后，只需要遍历修改这些商品即可。
+// 		// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
+// 		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
+// 		if err != nil {
+// 			logrus.Fatal(err)
+// 		}
+// 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
+// 		if err != nil {
+// 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
+// 		}
+// 		var newPrice string
+// 		if updatePriceFlags.UpdatePolicy.Operator == "*" {
+// 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
+// 		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
+// 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice+priceChange)
+// 		}
+// 		for _, product := range products.Products {
+// 			logrus.WithFields(logrus.Fields{
+// 				"原始价格": cardPrice.AvgPrice,
+// 				"更新价格": newPrice,
+// 				"调整价格": priceChange,
+// 			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCn, updatePriceFlags.UpdatePolicy.Operator)
+// 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+// 			if productsFlags.isRealRun {
+// 				updateRun(&product, cardPrice, newPrice)
+// 			}
+// 		}
+// 	}
+// }
