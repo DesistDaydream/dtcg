@@ -88,7 +88,7 @@ func genNeedHandleImgProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 func updateNoImage() {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", "1")
+		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", updateFlags.CurSaleState)
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}

@@ -13,8 +13,7 @@ import (
 type UpdatePriceFlags struct {
 	UpdatePolicy UpdatePricePolicy
 	Remark       string // 商品备注
-	CurSaleState string // 获取哪种售卖状态的商品
-	ExpSaleState string // 期望商品变成哪种售卖状态
+
 }
 
 type UpdatePricePolicy struct {
@@ -52,9 +51,6 @@ func UpdatePriceCommand() *cobra.Command {
 	UpdateProductsPriceCmd.Flags().StringVarP(&updatePriceFlags.UpdatePolicy.Operator, "operator", "o", "+", "卡牌价格变化的计算方式，乘法还是加法。")
 	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.UpdatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
 	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.Remark, "remark", "", "商品备注信息")
-
-	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.CurSaleState, "cur-sale-state", "1", "当前售卖状态。即获取什么状态的商品。1: 售卖。0: 下架")
-	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.ExpSaleState, "exp-sale-state", "1", "期望的售卖状态。")
 
 	return UpdateProductsPriceCmd
 }
@@ -124,7 +120,7 @@ func updatePrice(cmd *cobra.Command, args []string) {
 func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 	for _, card := range cards.Data {
 		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
-		products, err := handler.H.JhsServices.Products.List("1", card.Serial, updatePriceFlags.CurSaleState)
+		products, err := handler.H.JhsServices.Products.List("1", card.Serial, updateFlags.CurSaleState)
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -172,7 +168,7 @@ func updateRun(product *models.ProductListData, imageUrl, newPrice string) {
 		AuthenticatorID:         "",
 		Grading:                 "",
 		Condition:               fmt.Sprint(product.Condition),
-		OnSale:                  updatePriceFlags.ExpSaleState,
+		OnSale:                  updateFlags.ExpSaleState,
 		Price:                   newPrice,
 		ProductCardVersionImage: imageUrl,
 		Quantity:                fmt.Sprint(product.Quantity),
