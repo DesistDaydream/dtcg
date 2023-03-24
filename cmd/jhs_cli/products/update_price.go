@@ -109,7 +109,7 @@ func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 			// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
 			// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
 			if product.CardVersionID != card.CardVersionID {
-				logrus.Errorf("当前商品 [%v %v-%v %v] 与期望处理的商品 [%v %v-%v %v] 不匹配，效果",
+				logrus.Errorf("当前商品 [%v %v-%v %v] 与期望处理的商品 [%v %v-%v %v] 不匹配，跳过",
 					product.CardVersionID, product.CardVersionNumber, product.CardNameCn, product.CardVersionRarity,
 					card.CardVersionID, card.Serial, card.ScName, card.AlternativeArt)
 				updateSkip++
