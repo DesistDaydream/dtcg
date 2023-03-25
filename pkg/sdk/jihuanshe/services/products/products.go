@@ -47,7 +47,8 @@ func (p *ProductsClient) List(page string, keyword string, onSale string) (*mode
 			Keyword:    keyword,
 			OnSale:     onSale,
 			Page:       page,
-			Sorting:    "published_at_desc",
+			Sorting:    "",
+			Rarity:     "",
 		}),
 	}
 

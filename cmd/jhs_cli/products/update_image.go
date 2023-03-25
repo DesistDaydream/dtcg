@@ -33,7 +33,6 @@ func UpdateImageCommand() *cobra.Command {
 
 // 更新商品卡图
 func updateImage(cmd *cobra.Command, args []string) {
-
 	if updateImageFlags.noImage {
 		updateNoImage()
 	} else {
