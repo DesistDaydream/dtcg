@@ -12,8 +12,6 @@ import (
 
 type UpdatePriceFlags struct {
 	UpdatePolicy UpdatePricePolicy
-	Remark       string // 商品备注
-
 }
 
 type UpdatePricePolicy struct {
@@ -46,11 +44,10 @@ func UpdatePriceCommand() *cobra.Command {
 		Run:   updatePrice,
 	}
 
-	UpdateProductsPriceCmd.Flags().Float64SliceVarP(&updatePriceFlags.UpdatePolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
-	UpdateProductsPriceCmd.Flags().Float64VarP(&updatePriceFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
+	UpdateProductsPriceCmd.Flags().Float64SliceVarP(&updatePriceFlags.UpdatePolicy.PriceRange, "price-range", "r", []float64{0, 10000}, "更新策略，卡牌价格区间。")
 	UpdateProductsPriceCmd.Flags().StringVarP(&updatePriceFlags.UpdatePolicy.Operator, "operator", "o", "+", "卡牌价格变化的计算方式，乘法还是加法。")
+	UpdateProductsPriceCmd.Flags().Float64VarP(&updatePriceFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.UpdatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
-	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.Remark, "remark", "", "商品备注信息")
 
 	return UpdateProductsPriceCmd
 }
@@ -62,12 +59,12 @@ func updatePrice(cmd *cobra.Command, args []string) {
 	}
 
 	// 生成待处理的卡牌信息
-	cards, err := GenNeedHandleCards(updatePriceFlags.UpdatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt)
+	cards, err := GenNeedHandleCards(updatePriceFlags.UpdatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt, updateFlags.CardVersionID)
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return
 	}
-	logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", updatePriceFlags.UpdatePolicy.PriceRange, len(cards.Data))
+	logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要更新", productsFlags.SetPrefix, updatePriceFlags.UpdatePolicy.PriceRange, len(cards.Data))
 
 	// 根据更新策略更新卡牌价格
 	genNeedHandleProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
@@ -129,11 +126,13 @@ func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 }
 
 func updateRun(product *models.ProductListData, imageUrl, newPrice string) {
+	// 这个是给 genNeedHandleProducts() 用的
 	// func updateRun(product *models.ProductData, cardPrice *dbmodels.CardPrice, newPrice string) {
+
 	// 生成备注信息
 	var remark string
-	if updatePriceFlags.Remark != "" {
-		remark = updatePriceFlags.Remark
+	if updateFlags.Remark != "" {
+		remark = updateFlags.Remark
 	} else {
 		remark = product.Remark
 	}

@@ -21,12 +21,14 @@
       "program": "cmd/jhs_cli/main.go",
       "args": [
         "products",
-        "update",
-        "price",
+        "add",
         "-s",
         "BTC-04",
         "-r",
-        "0,3",
+        "0,10000",
+        "--log-level",
+        "debug",
+        "--log-caller"
       ]
     },
     {

@@ -51,12 +51,12 @@ func updateSaleState(cmd *cobra.Command, args []string) {
 		}
 	} else {
 		// 生成待处理的卡牌信息
-		cards, err := GenNeedHandleCards(updateSaleStateFlags.UpdateSaleStatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt)
+		cards, err := GenNeedHandleCards(updateSaleStateFlags.UpdateSaleStatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt, 0)
 		if err != nil {
 			logrus.Errorf("%v", err)
 			return
 		}
-		logrus.Infof("%v 价格区间中共有 %v 张卡牌需要更新", updatePriceFlags.UpdatePolicy.PriceRange, len(cards.Data))
+		logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要更新", productsFlags.SetPrefix, updatePriceFlags.UpdatePolicy.PriceRange, len(cards.Data))
 
 		// 根据更新策略更新卡牌价格
 		genNeedUpdateSaleStateProducts(cards, updateSaleStateFlags.UpdateSaleStatePolicy.isArt)
