@@ -8,9 +8,10 @@ import (
 	"github.com/spf13/pflag"
 
 	"github.com/DesistDaydream/dtcg/cmd/jihuanshe_order/fileparse"
-	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/orders"
+
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
 )
 
 func checkFile(rrFile string) {
@@ -90,13 +91,13 @@ func GetSellerOrderList(client *orders.OrdersClient) ([]int64, error) {
 func main() {
 	var (
 		flags    Flags
-		logFlags logging.LoggingFlags
+		logFlags logging.LogrusFlags
 	)
 	AddFlsgs(&flags)
 	logging.AddFlags(&logFlags)
 	pflag.Parse()
 
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 

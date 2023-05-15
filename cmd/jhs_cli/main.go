@@ -9,7 +9,9 @@ import (
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/wishes"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
-	"github.com/DesistDaydream/dtcg/pkg/logging"
+
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -22,7 +24,7 @@ type Flags struct {
 
 var (
 	flags    Flags
-	logFlags logging.LoggingFlags
+	logFlags logging.LogrusFlags
 )
 
 func main() {
@@ -65,7 +67,7 @@ func newApp() *cobra.Command {
 
 // 执行每个 root 下的子命令时，都需要执行的函数
 func initConfig() {
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 

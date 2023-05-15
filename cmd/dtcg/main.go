@@ -5,7 +5,7 @@ import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/router"
-	"github.com/DesistDaydream/dtcg/pkg/logging"
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
@@ -22,12 +22,12 @@ func AddFlags(f *Flags) {
 func main() {
 	var (
 		flags    Flags
-		logFlags logging.LoggingFlags
+		logFlags logging.LogrusFlags
 	)
 	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
 	pflag.Parse()
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatalf("初始化日志失败: %v", err)
 	}
 

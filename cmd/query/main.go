@@ -4,12 +4,14 @@ import (
 	"log"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/pflag"
+
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/logging"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/pflag"
+
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
 )
 
 type Flags struct {
@@ -46,12 +48,12 @@ func EffectKey(cardDesc models.CardDesc, flags Flags, cardSet string) {
 func main() {
 	var (
 		flags    Flags
-		logFlags logging.LoggingFlags
+		logFlags logging.LogrusFlags
 	)
 	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
 	pflag.Parse()
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatalf("初始化日志失败: %v", err)
 	}
 

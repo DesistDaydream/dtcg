@@ -10,10 +10,11 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/xuri/excelize/v2"
 
-	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
+
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
 )
 
 func checkFile(rrFile string) {
@@ -40,13 +41,13 @@ type Orders struct {
 func main() {
 	var (
 		flags    Flags
-		logFlags logging.LoggingFlags
+		logFlags logging.LogrusFlags
 	)
 	AddFlsgs(&flags)
 	logging.AddFlags(&logFlags)
 	pflag.Parse()
 
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 

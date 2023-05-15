@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"runtime"
 
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
+
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler"
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/cn"
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/en"
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/jp"
-	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -26,7 +27,7 @@ func AddFlags(f *Flags) {
 func main() {
 	var (
 		flags    Flags
-		logFlags logging.LoggingFlags
+		logFlags logging.LogrusFlags
 	)
 	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
@@ -35,7 +36,7 @@ func main() {
 	pflag.Parse()
 
 	// 初始化日志
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 

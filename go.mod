@@ -1,8 +1,9 @@
 module github.com/DesistDaydream/dtcg
 
-go 1.19
+go 1.20
 
 require (
+	github.com/DesistDaydream/logging v0.0.1
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/gin-gonic/gin v1.8.1
 	github.com/jinzhu/copier v0.3.5

@@ -5,9 +5,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/DesistDaydream/dtcg/pkg/logging"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
+
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/xuri/excelize/v2"
@@ -17,13 +19,13 @@ import (
 func main() {
 	var (
 		// flags    Flags
-		logFlags logging.LoggingFlags
+		logFlags logging.LogrusFlags
 	)
 	// AddFlsgs(&flags)
 	logging.AddFlags(&logFlags)
 	pflag.Parse()
 
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/DesistDaydream/dtcg/pkg/logging"
-
 	"github.com/DesistDaydream/dtcg/pkg/collector"
+
+	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
+
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -30,7 +31,7 @@ func main() {
 
 	// 设置日志相关命令行标志
 	var (
-		logFlags logging.LoggingFlags
+		logFlags logging.LogrusFlags
 	)
 	logging.AddFlags(&logFlags)
 
@@ -60,7 +61,7 @@ func main() {
 	// ####################################
 
 	// 初始化日志
-	if err := logging.LogInit(&logFlags); err != nil {
+	if err := logging.LogrusInit(&logFlags); err != nil {
 		logrus.Fatal("初始化日志失败", err)
 	}
 
