@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -30,6 +31,7 @@ func NewImageHandler(dirPrefix string) handler.ImageHandler {
 // 获取卡集列表
 func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 	var allCardPackageInfo []*handler.CardSetInfo
+	var setSerial string
 
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", first_url, nil)
@@ -41,22 +43,33 @@ func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 
 	// 选择 id 为 snaviList 的 div 元素下的所有 li 元素
 	doc.Find("#snaviList li").Each(func(i int, s *goquery.Selection) {
-		// 从 li 元素中获取 a 元素的 href 属性值
+		// 从 li 元素下获取 a 元素的 href 属性值
+		// 样例：<a href="?search=true&amp;category=507018">
 		href, _ := s.Find("a").Attr("href")
-		// 从 li 元素中获取 span 元素的文本内容
-		text := s.Find("span.title").Text()
 		// 使用字符串切片操作提取出 = 后面的数字
-		lastIndex := strings.LastIndex(href, "=")
-		number := href[lastIndex+1:]
+		setID := href[strings.LastIndex(href, "=")+1:]
+
+		// 从 li 元素下获取 span 元素的文本内容
+		// 样例：<span class="title">重啟補充包上升氣流[RB-01]</span>
+		setTitel := s.Find("span.title").Text()
+		// 提取出 [] 中的字符串
+		re := regexp.MustCompile(`\[(.*?)\]`)
+		subMatch := re.FindStringSubmatch(setTitel)
+		if len(subMatch) > 1 {
+			setSerial = subMatch[1]
+		} else {
+			setSerial = setTitel
+		}
 
 		logrus.WithFields(logrus.Fields{
-			"名称": text,
-			"ID": number,
+			"描述": setTitel,
+			"名称": setSerial,
+			"ID": setID,
 		}).Infof("")
 
 		allCardPackageInfo = append(allCardPackageInfo, &handler.CardSetInfo{
-			Name:  text,
-			ID:    number,
+			Name:  setSerial,
+			ID:    setID,
 			State: "",
 		})
 	})
@@ -92,14 +105,18 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardSets []*handler.CardSet
 		var wg sync.WaitGroup
 		defer wg.Wait()
 
+		concurrencyControl := make(chan bool, 10)
+
 		// 下载图片
 		for _, url := range urls {
+			concurrencyControl <- true
+			wg.Add(1)
+
 			// 从 URL 中提取文件名
 			fileName := i.GenFileName(url)
 			// 生成保存图片的绝对路径
 			filePath := filepath.Join(dir, fileName)
 
-			wg.Add(1)
 			go func(url string) {
 				defer wg.Done()
 
@@ -107,9 +124,11 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardSets []*handler.CardSet
 				if err != nil {
 					handler.FailCount++
 					logrus.Errorf("下载图片失败: %v", err)
+					<-concurrencyControl
 				} else {
 					logrus.Debugf("下载到【%v】完成", filePath)
 					handler.SuccessCount++
+					<-concurrencyControl
 				}
 			}(url)
 		}
@@ -126,13 +145,15 @@ func (i *ImageHandler) GetImagesURL(cardSetID string) ([]string, error) {
 	resp, _ := client.Do(req)
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		logrus.Fatal(err)
+		logrus.Fatal("获取网站 HTML 数据失败: ", err)
 	}
 	doc.Find("a.card_img").Each(func(i int, s *goquery.Selection) {
+		// <a class="card_img">
+		// 	<img src="../images/cardlist/card/BT13-001.png" alt="BT13-001皮那獸">
+		// </a>
 		urlSuffix, _ := s.Find("img").Attr("src")
 		// 使用字符串切片操作提取出 / 后面的所有字符
-		lastIndex := strings.LastIndex(urlSuffix, "/")
-		serial := urlSuffix[lastIndex+1:]
+		serial := urlSuffix[strings.LastIndex(urlSuffix, "/")+1:]
 
 		urls = append(urls, fmt.Sprintf("https://hk.digimoncard.com/images/cardlist/card/%v", serial))
 	})

@@ -5,6 +5,19 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "下载图片",
+      "type": "go",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "mode": "auto",
+      "cwd": "${workspaceRoot}",
+      "program": "cmd/download_images/main.go",
+      "args": [
+        "-l",
+        "jp_hk",
+      ]
+    },
+    {
       "name": "dtcg",
       "type": "go",
       "request": "launch",

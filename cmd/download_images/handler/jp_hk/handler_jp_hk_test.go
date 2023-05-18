@@ -11,14 +11,8 @@ func TestImageHandler_GetCardSets(t *testing.T) {
 		Lang:      "jp_hk",
 		DirPrefix: "",
 	}
-	cardSets := i.GetCardSets()
+	i.GetCardSets()
 
-	for _, cardSet := range cardSets {
-		logrus.WithFields(logrus.Fields{
-			"名称": cardSet.Name,
-			"id": cardSet.ID,
-		}).Info("")
-	}
 }
 
 func TestImageHandler_GetImagesURL(t *testing.T) {
