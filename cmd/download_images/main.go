@@ -10,6 +10,7 @@ import (
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/cn"
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/en"
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/jp"
+	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/jp_hk"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -54,15 +55,17 @@ func main() {
 		imageHandler = en.NewImageHandler(flags.DirPrefix)
 	case "jp":
 		imageHandler = jp.NewImageHandler(flags.DirPrefix)
+	case "jp_hk":
+		imageHandler = jp_hk.NewImageHandler(flags.DirPrefix)
 	default:
 		logrus.Fatalln("不支持的语言")
 	}
 
 	imageHandler.GetLang(flags.Lang)
 	// 获取卡包列表
-	cardInfo := imageHandler.GetCardGroups()
+	cardSetInfo := imageHandler.GetCardSets()
 	// 确认是否要下载
-	for _, p := range cardInfo {
+	for _, p := range cardSetInfo {
 		logrus.WithField("卡包名称", p.Name).Infof("待下载卡包名称")
 	}
 	fmt.Printf("需要下载上述卡包，是否继续？(y/n) ")
@@ -74,7 +77,7 @@ func main() {
 	}
 
 	// 下载
-	imageHandler.DownloadCardImage(cardInfo)
+	imageHandler.DownloadCardImage(cardSetInfo)
 
 	logrus.WithFields(logrus.Fields{
 		"总数": handler.Total,

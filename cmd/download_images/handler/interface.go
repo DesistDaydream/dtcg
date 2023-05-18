@@ -11,11 +11,11 @@ import (
 
 type ImageHandler interface {
 	GetLang(string)
-	GetCardGroups() []*CardPackageInfo
-	DownloadCardImage([]*CardPackageInfo)
+	GetCardSets() []*CardSetInfo
+	DownloadCardImage([]*CardSetInfo)
 }
 
-type CardPackageInfo struct {
+type CardSetInfo struct {
 	Lang  string
 	Name  string
 	ID    string
@@ -44,12 +44,12 @@ func CreateDir(dir string) error {
 }
 
 // 根据用户输入获取需要下载图片的卡包
-func GetNeedDownloadCardPackages(allCardPackageInfo []*CardPackageInfo) []*CardPackageInfo {
+func GetNeedDownloadCardPackages(allCardPackageInfo []*CardSetInfo) []*CardSetInfo {
 	fmt.Printf("请选择需要下载图片的卡包，多个卡包用逗号分隔(使用 all 下载所有): ")
 
 	// 读取用户输入
 	var userInputCardPackage string
-	var someCardPackageInfo []*CardPackageInfo
+	var someCardPackageInfo []*CardSetInfo
 
 	fmt.Scanln(&userInputCardPackage)
 	userInputCardPackageSlice := strings.Split(userInputCardPackage, ",")

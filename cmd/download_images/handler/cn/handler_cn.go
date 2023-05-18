@@ -26,14 +26,14 @@ func NewImageHandler(dirPrefix string) handler.ImageHandler {
 }
 
 // 获取卡包列表
-func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
+func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 	// 获取 cardGroup 列表。即获取所有卡包的名称
 	cardPackages, err := services.GetCardGroups()
 	if err != nil {
 		logrus.Errorf("获取卡牌集合失败: %v", err)
 	}
 
-	var allCardPackageInfo []*handler.CardPackageInfo
+	var allCardPackageInfo []*handler.CardSetInfo
 
 	// 排序
 	sort.Slice(cardPackages.List, func(i, j int) bool {
@@ -46,7 +46,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 			"状态": cardPackage.State,
 		}).Infof("创建于 %v 更新于 %v 的卡包信息", cardPackage.CreateTime, cardPackage.UpdateTime)
 
-		allCardPackageInfo = append(allCardPackageInfo, &handler.CardPackageInfo{
+		allCardPackageInfo = append(allCardPackageInfo, &handler.CardSetInfo{
 			Name:  cardPackage.Name,
 			State: cardPackage.State,
 		})
@@ -59,7 +59,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 }
 
 // 下载卡图
-func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardPackageInfo) {
+func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardSetInfo) {
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.FilterConditionReq{
 		Page:             "",

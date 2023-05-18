@@ -28,8 +28,8 @@ func NewImageHandler(dirPrefix string) handler.ImageHandler {
 }
 
 // 获取卡包列表
-func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
-	var allCardPackageInfo []*handler.CardPackageInfo
+func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
+	var allCardPackageInfo []*handler.CardSetInfo
 
 	// 获取所有卡包的名称
 	client = cdb.NewCdbClient(core.NewClient("", 10))
@@ -49,7 +49,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 
 				packID := fmt.Sprintf("%v", pack.PackID)
 
-				allCardPackageInfo = append(allCardPackageInfo, &handler.CardPackageInfo{
+				allCardPackageInfo = append(allCardPackageInfo, &handler.CardSetInfo{
 					Name: pack.PackPrefix,
 					ID:   packID,
 				})
@@ -69,7 +69,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 }
 
 // 下载卡图
-func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardPackageInfo) {
+func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardSetInfo) {
 	// 循环遍历卡包列表，获取卡包中的卡片
 	for _, cardPackage := range needDownloadCardPackages {
 		// 生成目录

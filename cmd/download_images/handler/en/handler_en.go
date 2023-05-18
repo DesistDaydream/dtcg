@@ -25,7 +25,7 @@ func NewImageHandler(dirPrefix string) handler.ImageHandler {
 }
 
 // 获取卡包列表
-func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
+func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 	// 获取所有卡包的名称
 	cardPackages, err := services.GetCardFilterInfo(&models.CardFilterInfoReq{
 		GameTitleID:  "2",
@@ -36,7 +36,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 		logrus.Errorf("GetGameCard error: %v", err)
 	}
 
-	var allCardPackageInfo []*handler.CardPackageInfo
+	var allCardPackageInfo []*handler.CardSetInfo
 
 	// 排序
 	sort.Slice(cardPackages.Success.CardSetList, func(i, j int) bool {
@@ -55,7 +55,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 		// ID 转为 string
 		cardPackageID := fmt.Sprintf("%v", cardSet.ID)
 
-		allCardPackageInfo = append(allCardPackageInfo, &handler.CardPackageInfo{
+		allCardPackageInfo = append(allCardPackageInfo, &handler.CardSetInfo{
 			Name: cardSet.Number,
 			ID:   cardPackageID,
 		})
@@ -68,7 +68,7 @@ func (i *ImageHandler) GetCardGroups() []*handler.CardPackageInfo {
 }
 
 // 下载卡图
-func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardPackageInfo) {
+func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardSetInfo) {
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.CardListReq{
 		CardSet:     "",
