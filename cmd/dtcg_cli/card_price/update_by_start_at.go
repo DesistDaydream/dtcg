@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// 从指定的卡牌开始更新，指定 card_id_from_db
 func UpdateByStartAtCommand() *cobra.Command {
 	updateStartAtCmd := &cobra.Command{
 		Use:   "start-at",
@@ -16,7 +17,6 @@ func UpdateByStartAtCommand() *cobra.Command {
 	return updateStartAtCmd
 }
 
-// 从指定的卡牌开始更新
 func updateStartAt(cmd *cobra.Command, args []string) {
 	cardsDesc, err := database.ListCardDesc()
 	if err != nil {
@@ -36,6 +36,8 @@ func updateStartAt(cmd *cobra.Command, args []string) {
 			logrus.Errorf("获取 card_id_from_db 为 %v 的卡牌信息失败: %v", args[0], err)
 		}
 		startAt = cardDesc.ID - 1
+	default:
+		logrus.Fatalln("参数异常，使用一个参数")
 	}
 
 	for i := startAt; i < len(cardsDesc.Data); i++ {

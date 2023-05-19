@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// 更新指定卡牌集合的卡牌价格
 func UpdateBySetsNameCommand() *cobra.Command {
 	updateSetsNameCmd := &cobra.Command{
 		Use:   "sets-name",

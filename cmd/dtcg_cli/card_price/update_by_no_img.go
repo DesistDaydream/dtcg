@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// 更新没有卡图的卡牌价格
 func UpdateByNoImgCommand() *cobra.Command {
 	updateNoImgCardPriceCmd := &cobra.Command{
 		Use:   "no-img",
@@ -17,7 +18,6 @@ func UpdateByNoImgCommand() *cobra.Command {
 	return updateNoImgCardPriceCmd
 }
 
-// 更新没有卡图的卡牌价格
 func updateNoImageCard(cmd *cobra.Command, args []string) {
 	cardsPrice, err := database.ListCardsPrice()
 	if err != nil {

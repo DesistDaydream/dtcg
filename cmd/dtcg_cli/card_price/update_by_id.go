@@ -7,10 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// 更新指定卡牌 ID 的价格
 func UpdateByIDCommand() *cobra.Command {
 	updateIDCmd := &cobra.Command{
 		Use:   "id",
-		Short: "更新指定卡牌ID的价格。这里面的ID是 card_id_from_db 的值，多个 ID 以逗号分隔",
+		Short: "更新指定卡牌 ID 的价格。这里面的 ID 是 card_id_from_db 的值，多个 ID 以逗号分隔",
 		Run:   updateID,
 	}
 
