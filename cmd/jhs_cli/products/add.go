@@ -17,10 +17,8 @@ type AddFlags struct {
 }
 
 type AddPolicy struct {
-	PriceRange  []float64
 	PriceChange float64
 	Operator    string
-	isArt       string
 }
 
 var (
@@ -43,10 +41,8 @@ func AddCommand() *cobra.Command {
 		Run:   addProducts,
 	}
 
-	addProdcutCmd.Flags().Float64SliceVarP(&addFlags.AddPolicy.PriceRange, "price-range", "r", nil, "更新策略，卡牌价格区间。")
 	addProdcutCmd.Flags().Float64VarP(&addFlags.AddPolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 	addProdcutCmd.Flags().StringVarP(&addFlags.AddPolicy.Operator, "operator", "o", "+", "卡牌价格变化的计算方式，乘法还是加法。")
-	addProdcutCmd.Flags().StringVar(&addFlags.AddPolicy.isArt, "art", "", "是否添加异画卡，可用的值有两个：是、否。空值为更新所有卡牌")
 	addProdcutCmd.Flags().StringVar(&addFlags.Remark, "remark", "拍之前请联系确认库存", "商品备注信息")
 
 	return addProdcutCmd
@@ -59,18 +55,13 @@ func addProducts(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	if addFlags.AddPolicy.PriceRange == nil {
-		logrus.Error("请指定要添加的卡牌价格区间。比如 -r 0,2.99 表示将所有价格在 0-2.99 之间卡牌。")
-		return
-	}
-
 	// 生成待处理的卡牌信息
-	cards, err := GenNeedHandleCards(addFlags.AddPolicy.PriceRange, addFlags.AddPolicy.isArt, 0)
+	cards, err := GenNeedHandleCards(0)
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return
 	}
-	logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要添加", productsFlags.SetPrefix, addFlags.AddPolicy.PriceRange, len(cards.Data))
+	logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要添加", productsFlags.SetPrefix, productsFlags.PriceRange, len(cards.Data))
 
 	genNeedAddProducts(cards, addFlags.AddPolicy.PriceChange)
 }

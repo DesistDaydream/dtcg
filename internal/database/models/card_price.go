@@ -36,7 +36,7 @@ type CardPriceQuery struct {
 	Language       string   `json:"language"`
 	QField         []string `json:"qField"` // 通过 Keyword 进行查询的字段
 	Rarity         []string `json:"rarity"`
-	AlternativeArt string   `json:"alternative_art"`
+	AlternativeArt string   `json:"alternative_art"` // 是否是异画。可用的值有两个：是、否
 	// 最低价范围
 	MinPriceRange string `json:"min_price_range"`
 	// 集换价范围

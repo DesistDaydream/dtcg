@@ -17,8 +17,7 @@ type UpdateSaleStateFlags struct {
 }
 
 type UpdateSaleStatePolicy struct {
-	PriceRange []float64
-	isArt      string
+	isArt string
 }
 
 var updateSaleStateFlags UpdateSaleStateFlags
@@ -35,7 +34,6 @@ func UpdateSaleStateCommand() *cobra.Command {
 		Run:   updateSaleState,
 	}
 
-	updateProductsSaleStateCmd.Flags().Float64SliceVarP(&updateSaleStateFlags.UpdateSaleStatePolicy.PriceRange, "price-change", "c", []float64{0, 10000}, "卡牌需要变化的价格。")
 	updateProductsSaleStateCmd.Flags().StringVar(&updateSaleStateFlags.UpdateSaleStatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
 
 	updateProductsSaleStateCmd.Flags().BoolVar(&updateSaleStateFlags.OneByOne, "one-by-one", false, "是否一条一条得变更所有商品的价格")
@@ -51,12 +49,12 @@ func updateSaleState(cmd *cobra.Command, args []string) {
 		}
 	} else {
 		// 生成待处理的卡牌信息
-		cards, err := GenNeedHandleCards(updateSaleStateFlags.UpdateSaleStatePolicy.PriceRange, updatePriceFlags.UpdatePolicy.isArt, 0)
+		cards, err := GenNeedHandleCards(0)
 		if err != nil {
 			logrus.Errorf("%v", err)
 			return
 		}
-		logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要更新", productsFlags.SetPrefix, updatePriceFlags.UpdatePolicy.PriceRange, len(cards.Data))
+		logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要更新", productsFlags.SetPrefix, productsFlags.PriceRange, len(cards.Data))
 
 		// 根据更新策略更新卡牌价格
 		genNeedUpdateSaleStateProducts(cards, updateSaleStateFlags.UpdateSaleStatePolicy.isArt)

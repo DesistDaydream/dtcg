@@ -5,6 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 // 添加卡牌价格
@@ -137,6 +138,21 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 	// 根据卡牌集合前缀查询
 	if len(cardPriceQuery.SetsPrefix) > 0 {
 		result = result.Where("set_prefix IN ?", cardPriceQuery.SetsPrefix)
+	}
+
+	// 根据卡牌稀有度查询
+	if len(cardPriceQuery.Rarity) > 0 {
+		f := func(cardPriceQuery *models.CardPriceQuery, result *gorm.DB) *gorm.DB {
+			// 通过 Session() 创建一个新的 DB 实例，避免影响原来的 DB 实例。用以实现为多个 Or 分组的功能
+			newResult := result.Session(&gorm.Session{NewDB: true})
+			for _, rarity := range cardPriceQuery.Rarity {
+				newResult = newResult.Or("rarity LIKE ?", rarity+"%")
+			}
+			return newResult
+		}(cardPriceQuery, result)
+
+		// 通过 Group Conditions(组条件) 功能将查询分组
+		result = result.Debug().Where(f)
 	}
 
 	// 关键字多列模糊查询

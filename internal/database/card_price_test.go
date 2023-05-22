@@ -74,15 +74,16 @@ func TestGetCardPriceWhereSetPrefix(t *testing.T) {
 func TestGetCardPriceByCondition(t *testing.T) {
 	initDB()
 
-	got, err := GetCardPriceByCondition(3, 1, &models.CardPriceQuery{
-		CardVersionID:  0,
-		SetsPrefix:     []string{"BTC-02", "BTC-03"},
-		Keyword:        "奥米加",
+	got, err := GetCardPriceByCondition(10, 1, &models.CardPriceQuery{
+		CardVersionID: 0,
+		// SetsPrefix:     []string{"BTC-02", "BTC-03"},
+		SetsPrefix:     []string{"BTC-05"},
+		Keyword:        "",
 		QField:         []string{},
-		Rarity:         []string{},
+		Rarity:         []string{"u", "r"},
 		AlternativeArt: "",
 		MinPriceRange:  "",
-		AvgPriceRange:  "100-200",
+		AvgPriceRange:  "",
 	})
 	if err != nil {
 		logrus.Errorln(err)
