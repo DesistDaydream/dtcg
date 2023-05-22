@@ -50,7 +50,7 @@ func UpdatePriceCommand() *cobra.Command {
 
 func updatePrice(cmd *cobra.Command, args []string) {
 	// 生成待处理的卡牌信息
-	cards, err := GenNeedHandleCards(updateFlags.CardVersionID)
+	cards, err := GenNeedHandleCards()
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return

@@ -6,11 +6,10 @@ import (
 )
 
 type UpdateFlags struct {
-	CardVersionID int    // 更新哪张卡牌
-	SellerUserID  string // 集换社卖家 ID
-	CurSaleState  string // 当前商品的售卖状态
-	ExpSaleState  string // 期望商品变成哪种售卖状态
-	Remark        string // 商品备注
+	SellerUserID string // 集换社卖家 ID
+	CurSaleState string // 当前商品的售卖状态
+	ExpSaleState string // 期望商品变成哪种售卖状态
+	Remark       string // 商品备注
 }
 
 var updateFlags UpdateFlags
@@ -25,7 +24,6 @@ func UpdateCommand() *cobra.Command {
 	}
 
 	updateProductsCmd.PersistentFlags().StringVarP(&updateFlags.SellerUserID, "seller-user-id", "u", "934972", "卖家用户ID。")
-	updateProductsCmd.PersistentFlags().IntVarP(&updateFlags.CardVersionID, "card-version-id", "i", 0, "集换社的卡牌 ID。")
 	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.CurSaleState, "cur-sale-state", "1", "当前售卖状态。即获取什么状态的商品。1: 售卖。0: 下架")
 	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.ExpSaleState, "exp-sale-state", "1", "期望的售卖状态。")
 	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.Remark, "remark", "", "商品备注信息")
@@ -40,7 +38,7 @@ func UpdateCommand() *cobra.Command {
 }
 
 func updatePersistentPreRun(cmd *cobra.Command, args []string) {
-	if productsFlags.SetPrefix == nil && updateFlags.CardVersionID == 0 {
+	if productsFlags.SetPrefix == nil && productsFlags.CardVersionID == 0 {
 		logrus.Fatalln("请指定要更新的卡牌，可以使用 dtcg_cli card-set list 子命令获取卡包名称；或者直接指定卡牌的 card_version_id。")
 	}
 }

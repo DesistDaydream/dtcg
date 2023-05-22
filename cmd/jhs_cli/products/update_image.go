@@ -37,7 +37,7 @@ func updateImage(cmd *cobra.Command, args []string) {
 		updateNoImage()
 	} else {
 		// 生成待处理的卡牌信息
-		cards, err := GenNeedHandleCards(0)
+		cards, err := GenNeedHandleCards()
 		if err != nil {
 			logrus.Errorf("%v", err)
 			return

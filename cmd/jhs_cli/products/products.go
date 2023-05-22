@@ -12,10 +12,11 @@ type ProductsFlags struct {
 	isRealRun bool
 
 	// 卡牌的信息
-	SetPrefix  []string  // 要处理哪些卡集中的卡
-	Rarity     []string  // 卡牌的稀有度。U、R、C、SR、SEC
-	PriceRange []float64 // 卡牌的价格范围
-	IsArt      string
+	CardVersionID int
+	SetPrefix     []string  // 要处理哪些卡集中的卡
+	Rarity        []string  // 卡牌的稀有度。U、R、C、SR、SEC
+	PriceRange    []float64 // 卡牌的价格范围
+	IsArt         string
 }
 
 type Policy struct {
@@ -37,6 +38,7 @@ func CreateCommand() *cobra.Command {
 	)
 
 	productsCmd.PersistentFlags().BoolVarP(&productsFlags.isRealRun, "yes", "y", false, "是否真正执行处理商品的逻辑，默认值只检查商品的增删改查而不真的去调用集换社接口。")
+	productsCmd.PersistentFlags().IntVarP(&productsFlags.CardVersionID, "card-version-id", "i", 0, "卡牌在集换社中的 ID。指定该标志时，将只筛选到这一张卡牌")
 	productsCmd.PersistentFlags().StringSliceVarP(&productsFlags.SetPrefix, "sets-name", "s", nil, "要处理哪些卡集的卡牌，使用 dtcg_cli card-set list 子命令获取卡包名称。")
 	productsCmd.PersistentFlags().StringSliceVar(&productsFlags.Rarity, "rarity", nil, "卡牌的稀有度。")
 	productsCmd.PersistentFlags().Float64SliceVarP(&productsFlags.PriceRange, "price-range", "r", nil, "卡牌价格区间。")
@@ -46,7 +48,7 @@ func CreateCommand() *cobra.Command {
 }
 
 // 生成待处理的卡牌信息
-func GenNeedHandleCards(cardVersionID int) (*dbmodels.CardsPrice, error) {
+func GenNeedHandleCards() (*dbmodels.CardsPrice, error) {
 	var (
 		cards         *dbmodels.CardsPrice
 		err           error
@@ -58,7 +60,7 @@ func GenNeedHandleCards(cardVersionID int) (*dbmodels.CardsPrice, error) {
 	}
 
 	cards, err = database.GetCardPriceByCondition(300, 1, &dbmodels.CardPriceQuery{
-		CardVersionID:  cardVersionID,
+		CardVersionID:  productsFlags.CardVersionID,
 		SetsPrefix:     productsFlags.SetPrefix,
 		Keyword:        "",
 		Language:       "",

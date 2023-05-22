@@ -50,13 +50,12 @@ func AddCommand() *cobra.Command {
 
 // 添加商品
 func addProducts(cmd *cobra.Command, args []string) {
-	if productsFlags.SetPrefix == nil {
-		logrus.Error("请指定要添加的卡牌集合，使用 dtcg_cli card-set list 子命令获取卡包名称。")
-		return
+	if productsFlags.SetPrefix == nil && productsFlags.CardVersionID == 0 {
+		logrus.Fatalln("请指定要更新的卡牌，可以使用 dtcg_cli card-set list 子命令获取卡包名称；或者直接指定卡牌的 card_version_id。")
 	}
 
 	// 生成待处理的卡牌信息
-	cards, err := GenNeedHandleCards(0)
+	cards, err := GenNeedHandleCards()
 	if err != nil {
 		logrus.Errorf("%v", err)
 		return
