@@ -30,17 +30,15 @@ type CardPrice struct {
 
 // 卡牌价格的查询条件
 type CardPriceQuery struct {
-	CardVersionID  int      `json:"card_version_id"`
-	SetsPrefix     []string `json:"set_prefix"`
-	Keyword        string   `json:"keyword"`
-	Language       string   `json:"language"`
-	QField         []string `json:"qField"` // 通过 Keyword 进行查询的字段
-	Rarity         []string `json:"rarity"`
+	CardVersionID  int      `json:"card_version_id"` // 卡牌在集换社中的 ID
+	SetsPrefix     []string `json:"set_prefix"`      // 卡牌集合
+	Keyword        string   `json:"keyword"`         // 关键字
+	Language       string   `json:"language"`        // 语言
+	QField         []string `json:"qField"`          // 通过 Keyword 进行查询的字段
+	Rarity         []string `json:"rarity"`          // 卡牌稀有度
 	AlternativeArt string   `json:"alternative_art"` // 是否是异画。可用的值有两个：是、否
-	// 最低价范围
-	MinPriceRange string `json:"min_price_range"`
-	// 集换价范围
-	AvgPriceRange string `json:"avg_price_range"`
+	MinPriceRange  string   `json:"min_price_range"` // 最低价范围
+	AvgPriceRange  string   `json:"avg_price_range"` // 集换价范围
 }
 
 // 带有dtcg数据库中图片的卡牌价格
