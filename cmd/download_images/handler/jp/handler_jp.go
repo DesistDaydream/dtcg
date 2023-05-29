@@ -2,18 +2,19 @@ package jp
 
 import (
 	"fmt"
+	"net/http"
 	"path/filepath"
-	"strconv"
+	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb"
-
+	"github.com/PuerkitoBio/goquery"
 	"github.com/sirupsen/logrus"
 )
 
-var client *cdb.CdbClient
+var first_url = "https://hk.digimoncard.com/cardlist/?search=true&category=507018"
+var base_url = "https://hk.digimoncard.com/cardlist"
 
 type ImageHandler struct {
 	Lang      string
@@ -27,113 +28,135 @@ func NewImageHandler(dirPrefix string) handler.ImageHandler {
 	}
 }
 
-// 获取卡包列表
+// 获取卡集列表
 func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 	var allCardPackageInfo []*handler.CardSetInfo
+	var setSerial string
 
-	// 获取所有卡包的名称
-	client = cdb.NewCdbClient(core.NewClient("", 10))
-	series, err := client.GetSeries()
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", first_url, nil)
+	resp, _ := client.Do(req)
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		logrus.Fatalln(err)
+		logrus.Fatal(err)
 	}
 
-	for _, serie := range series.Data {
-		for _, pack := range serie.SeriesPack {
-			if pack.Language == "ja" {
-				logrus.WithFields(logrus.Fields{
-					"前缀": pack.PackPrefix,
-					"名称": pack.PackName,
-					"ID": pack.PackID,
-				}).Infof("%v 中的卡包信息", serie.SeriesName)
+	// 选择 id 为 snaviList 的 div 元素下的所有 li 元素
+	doc.Find("#snaviList li").Each(func(i int, s *goquery.Selection) {
+		// 从 li 元素下获取 a 元素的 href 属性值
+		// 样例：<a href="?search=true&amp;category=507018">
+		href, _ := s.Find("a").Attr("href")
+		// 使用字符串切片操作提取出 = 后面的数字
+		setID := href[strings.LastIndex(href, "=")+1:]
 
-				packID := fmt.Sprintf("%v", pack.PackID)
-
-				allCardPackageInfo = append(allCardPackageInfo, &handler.CardSetInfo{
-					Name: pack.PackPrefix,
-					ID:   packID,
-				})
-			}
+		// 从 li 元素下获取 span 元素的文本内容
+		// 样例：<span class="title">重啟補充包上升氣流[RB-01]</span>
+		setTitel := s.Find("span.title").Text()
+		// 提取出 [] 中的字符串
+		re := regexp.MustCompile(`\[(.*?)\]`)
+		subMatch := re.FindStringSubmatch(setTitel)
+		if len(subMatch) > 1 {
+			setSerial = subMatch[1]
+		} else {
+			setSerial = setTitel
 		}
-	}
 
-	// 排序
-	// sort.Slice(cardPackages.Success.CardSetList, func(i, j int) bool {
-	// 	return cardPackages.Success.CardSetList[i].UpdatedAt.String() < cardPackages.Success.CardSetList[j].UpdatedAt.String()
-	// })
+		logrus.WithFields(logrus.Fields{
+			"描述": setTitel,
+			"名称": setSerial,
+			"ID": setID,
+		}).Infof("")
+
+		allCardPackageInfo = append(allCardPackageInfo, &handler.CardSetInfo{
+			Name:  setSerial,
+			ID:    setID,
+			State: "",
+		})
+	})
 
 	// 获取需要下载图片的卡包
-	needDownloadCardPackages := handler.GetNeedDownloadCardPackages(allCardPackageInfo)
+	needDownloadCardSets := handler.GetNeedDownloadCardPackages(allCardPackageInfo)
 
-	return needDownloadCardPackages
+	return needDownloadCardSets
 }
 
 // 下载卡图
-func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardSetInfo) {
+func (i *ImageHandler) DownloadCardImage(needDownloadCardSets []*handler.CardSetInfo) {
 	// 循环遍历卡包列表，获取卡包中的卡片
-	for _, cardPackage := range needDownloadCardPackages {
+	for _, cardSet := range needDownloadCardSets {
 		// 生成目录
-		dir := handler.GenerateDir(i.DirPrefix, i.Lang, cardPackage.Name)
+		dir := handler.GenerateDir(i.DirPrefix, i.Lang, cardSet.Name)
 		// 创建目录
 		err := handler.CreateDir(dir)
 		if err != nil {
-			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackage.Name, err)
+			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardSet, err)
 		}
 
-		cardSet, _ := strconv.Atoi(cardPackage.ID)
 		// 获取下载图片的 URL
-		urls, err := i.GetImagesURL(cardSet)
+		urls, err := i.GetImagesURL(cardSet.ID)
 		if err != nil {
-			panic(err)
+			logrus.Fatalf("获取下载图片的 URL 失败：%v", err)
 		}
-		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage.Name, len(urls))
+		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardSet.Name, len(urls))
 
 		// 统计需要下载的图片总量
 		handler.Total = handler.Total + len(urls)
 
+		var wg sync.WaitGroup
+		defer wg.Wait()
+
+		concurrencyControl := make(chan bool, 10)
+
 		// 下载图片
 		for _, url := range urls {
+			concurrencyControl <- true
+			wg.Add(1)
+
 			// 从 URL 中提取文件名
-			fileName := i.GenFileName(url.fileName)
+			fileName := i.GenFileName(url)
 			// 生成保存图片的绝对路径
 			filePath := filepath.Join(dir, fileName)
-			err := handler.DownloadImage(url.url, filePath)
-			if err != nil {
-				handler.FailCount++
-				logrus.Errorf("下载图片失败: %v", err)
-			} else {
-				logrus.Debugf("下载到【%v】完成", filePath)
-				handler.SuccessCount++
-			}
+
+			go func(url string) {
+				defer wg.Done()
+
+				err := handler.DownloadImage(url, filePath)
+				if err != nil {
+					handler.FailCount++
+					logrus.Errorf("下载图片失败: %v", err)
+					<-concurrencyControl
+				} else {
+					logrus.Debugf("下载到【%v】完成", filePath)
+					handler.SuccessCount++
+					<-concurrencyControl
+				}
+			}(url)
 		}
-
 	}
-}
-
-type cardImgInfo struct {
-	url      string
-	fileName string
 }
 
 // 从卡片详情中获取下载图片所需的 URL
-func (i *ImageHandler) GetImagesURL(cardSet int) ([]cardImgInfo, error) {
-	var urls []cardImgInfo
+func (i *ImageHandler) GetImagesURL(cardSetID string) ([]string, error) {
+	var urls []string
 
-	// 根据过滤条件获取卡片详情
-	resp, err := client.PostCardSearch(cardSet, "300", "ja", "")
+	url := fmt.Sprintf("%v?search=true&category=%v", base_url, cardSetID)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", url, nil)
+	resp, _ := client.Do(req)
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return nil, err
+		logrus.Fatal("获取网站 HTML 数据失败: ", err)
 	}
+	doc.Find("a.card_img").Each(func(i int, s *goquery.Selection) {
+		// <a class="card_img">
+		// 	<img src="../images/cardlist/card/BT13-001.png" alt="BT13-001皮那獸">
+		// </a>
+		urlSuffix, _ := s.Find("img").Attr("src")
+		// 使用字符串切片操作提取出 / 后面的所有字符
+		serial := urlSuffix[strings.LastIndex(urlSuffix, "/")+1:]
 
-	for _, l := range resp.Data.List {
-		image := fmt.Sprintf("https://dtcg-pics.moecard.cn/img/%s~thumb.jpg", l.Images[0].ImgPath)
-
-		// logrus.Debugln(mon.ImageCover)
-		urls = append(urls, cardImgInfo{
-			url:      image,
-			fileName: fmt.Sprintf("jp_%v%v.jpg", l.Serial, l.Rarity),
-		})
-	}
+		urls = append(urls, fmt.Sprintf("https://hk.digimoncard.com/images/cardlist/card/%v", serial))
+	})
 
 	return urls, nil
 }

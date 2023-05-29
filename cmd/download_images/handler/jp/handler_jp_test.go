@@ -1,4 +1,4 @@
-package jp_hk
+package jp
 
 import (
 	"testing"
@@ -16,7 +16,6 @@ func TestImageHandler_GetCardSets(t *testing.T) {
 }
 
 func TestImageHandler_GetImagesURL(t *testing.T) {
-
 	i := &ImageHandler{
 		Lang:      "jp_hk",
 		DirPrefix: "",
