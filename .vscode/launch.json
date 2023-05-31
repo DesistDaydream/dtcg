@@ -23,7 +23,11 @@
       "request": "launch",
       "mode": "auto",
       "cwd": "${workspaceRoot}",
-      "program": "cmd/dtcg/main.go"
+      "program": "cmd/dtcg/main.go",
+      "args": [
+        "--log-level",
+        "debug",
+      ]
     },
     {
       "name": "jhs cli",

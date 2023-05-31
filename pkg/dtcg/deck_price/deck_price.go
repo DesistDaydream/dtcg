@@ -9,6 +9,7 @@ import (
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 )
 
+// TODO: 如何用泛型改写？
 // type fanxing interface {
 // 	m2.Egg | m2.Main
 // }
@@ -115,33 +116,42 @@ func GetRespWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeck
 	return &resp, nil
 }
 
+// 根据从 DTCG DB 中获取到的所有卡牌的 card_id_from_db，从本地数据库查找对应的卡牌，并生成结构化的卡牌信息。
+// 类似于：从 ["A","A","A","B","B"] 这种结构转换为类似 [{"number":3,"name":"A"},{"number":2,"name":"B"}] 这种。
+// 这种结构化的数据对于前端或者其他地方使用起来，更加方便和友好。
 func transform(ids string) (*models.PostDeckPriceWithIDReqTransform, error) {
 	var (
-		cards      models.PostDeckPriceWithIDReqTransform
-		cardsID    []string
-		cardsIndex int
-		count      int
+		cards         models.PostDeckPriceWithIDReqTransform
+		cardIDFromDBs []string
+		cardsIndex    int
+		count         int = 1
 	)
 
-	json.Unmarshal([]byte(ids), &cardsID)
+	json.Unmarshal([]byte(ids), &cardIDFromDBs)
 
-	for i := 0; i < len(cardsID); i++ {
+	for i := 0; i < len(cardIDFromDBs); i++ {
 		// 第一条数据不需要判断
 		if i == 0 {
 			count = 1
-			cardDesc, _ := database.GetCardDescByCardIDFromDB(cardsID[i])
+			cardDesc, err := database.GetCardDescByCardIDFromDB(cardIDFromDBs[i])
+			if err != nil {
+				return nil, fmt.Errorf("card_id_from_db 为 %v 的卡牌在数据库中未找到，错误原因: %v", cardIDFromDBs[i], err)
+			}
 			cards.CardsInfo = append(cards.CardsInfo, models.CardInfo{
 				Count:        count,
-				CardIDFromDB: cardsID[i],
+				CardIDFromDB: cardIDFromDBs[i],
 				ScName:       cardDesc.ScName,
 				Serial:       cardDesc.Serial,
 			})
-		} else if cardsID[i] != cardsID[i-1] {
+		} else if cardIDFromDBs[i] != cardIDFromDBs[i-1] {
 			count = 1
-			cardDesc, _ := database.GetCardDescByCardIDFromDB(cardsID[i])
+			cardDesc, err := database.GetCardDescByCardIDFromDB(cardIDFromDBs[i])
+			if err != nil {
+				return nil, fmt.Errorf("card_id_from_db 为 %v 的卡牌在数据库中未找到，错误原因: %v", cardIDFromDBs[i], err)
+			}
 			cards.CardsInfo = append(cards.CardsInfo, models.CardInfo{
 				Count:        count,
-				CardIDFromDB: cardsID[i],
+				CardIDFromDB: cardIDFromDBs[i],
 				ScName:       cardDesc.ScName,
 				Serial:       cardDesc.Serial,
 			})
@@ -155,6 +165,7 @@ func transform(ids string) (*models.PostDeckPriceWithIDReqTransform, error) {
 	return &cards, nil
 }
 
+// 根据卡牌 ID 计算卡组价格
 func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceResp, error) {
 	var (
 		resp        models.PostDeckPriceResp
@@ -162,7 +173,10 @@ func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceRes
 		allAvgPrice float64
 	)
 
-	cardsInfo, _ := transform(req.IDs)
+	cardsInfo, err := transform(req.IDs)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, card := range cardsInfo.CardsInfo {
 		cardPrice, err := database.GetCardPrice(fmt.Sprint(card.CardIDFromDB))
