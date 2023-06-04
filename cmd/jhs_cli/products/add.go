@@ -60,7 +60,6 @@ func addProducts(cmd *cobra.Command, args []string) {
 		logrus.Errorf("%v", err)
 		return
 	}
-	logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要添加", productsFlags.SetPrefix, productsFlags.PriceRange, len(cards.Data))
 
 	genNeedAddProducts(cards, addFlags.AddPolicy.PriceChange)
 }
