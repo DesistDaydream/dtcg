@@ -17,9 +17,7 @@ func GetCardGroups() (*models.CardGroupsResponse, error) {
 	}
 	defer resp.Body.Close()
 
-	// body, _ := io.ReadAll(resp.Body)
 	var cardGroups models.CardGroupsResponse
-	// err = json.Unmarshal(body, &cardGroups)
 	err = json.NewDecoder(resp.Body).Decode(&cardGroups)
 	if err != nil {
 		return nil, fmt.Errorf("解析卡牌系列列表失败: %v", err)
