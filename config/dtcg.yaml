@@ -1,7 +1,7 @@
-listen: ":2205"
+listen: "0.0.0.0:2205"
 mysql:
-  server: ""
-  password: ""
+  server: "0.0.0.0:3306"
+  password: "mysql"
 sqlite:
   filePath: "internal/database/my_dtcg.db"
 dtcgDB:
