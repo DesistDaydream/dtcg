@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 
-	"github.com/DesistDaydream/dtcg/cmd/jihuanshe_order/fileparse"
+	"github.com/DesistDaydream/dtcg/cmd/old_cmd/jihuanshe_order/fileparse"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/orders"
 

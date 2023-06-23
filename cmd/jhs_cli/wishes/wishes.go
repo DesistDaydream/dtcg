@@ -13,6 +13,7 @@ func CreateCommand() *cobra.Command {
 
 	wishesCmd.AddCommand(
 		AddCommand(),
+		CompareCommand(),
 	)
 
 	return wishesCmd
