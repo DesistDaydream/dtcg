@@ -34,7 +34,7 @@ func (p *ProductsClient) Add(productsAddRequestBody *models.ProductsAddReqBody) 
 }
 
 // 列出我在卖的商品
-func (p *ProductsClient) List(page string, keyword string, onSale string) (*models.ProductsListResp, error) {
+func (p *ProductsClient) List(page, keyword, onSale, sorting string) (*models.ProductsListResp, error) {
 	var productsResp models.ProductsListResp
 
 	uri := "/api/market/sellers/products"

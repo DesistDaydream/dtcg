@@ -64,7 +64,7 @@ func updateSaleState(cmd *cobra.Command, args []string) {
 func genNeedUpdateSaleStateProducts(cards *dbmodels.CardsPrice, alternativeArt string) {
 	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
 	for _, card := range cards.Data {
-		products, err := handler.H.JhsServices.Products.List("1", card.Serial, updateFlags.CurSaleState)
+		products, err := handler.H.JhsServices.Products.List("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -104,7 +104,7 @@ func updateSaleStateRun(product *models.ProductListData, onSaleState string) {
 func updateSaleStateOneByOne() {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", updateFlags.CurSaleState)
+		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", updateFlags.CurSaleState, "published_at_desc")
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}

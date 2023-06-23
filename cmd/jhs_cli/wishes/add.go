@@ -41,7 +41,7 @@ func addProducts(cmd *cobra.Command, args []string) {
 		logrus.Fatalln(err)
 	}
 
-	wishList, err := handler.H.JhsServices.Wishes.CreateList(addFlags.CDID)
+	wishList, err := handler.H.JhsServices.Wishes.CreateWashList(addFlags.CDID)
 	if err != nil {
 		logrus.Fatalf("创建我想收清单失败: %v", err)
 	}

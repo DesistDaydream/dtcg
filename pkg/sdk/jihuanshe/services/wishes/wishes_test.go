@@ -12,7 +12,8 @@ import (
 
 // var sellerUserID string = "609077"
 var token string = ""
-var wishListID string = ""
+var wishListID string = "2610301"
+var client *WishesClient
 
 // var cardVersionID string = "3982"
 
@@ -32,12 +33,14 @@ func initConfig() {
 	token = c.JHS.Token
 }
 
+func init() {
+	initConfig()
+	client = NewWishesClient(core.NewClient(token))
+}
+
 // 创建清单测试
 func TestWishesClient_CreateList(t *testing.T) {
-	initConfig()
-	client := NewWishesClient(core.NewClient(token))
-
-	resp, err := client.CreateList("测试清单")
+	resp, err := client.CreateWashList("测试清单")
 	if err != nil {
 		logrus.Fatalln(err)
 	}
@@ -49,9 +52,6 @@ func TestWishesClient_CreateList(t *testing.T) {
 
 // 向清单中添加卡牌测试
 func TestWishesClient_Add(t *testing.T) {
-	initConfig()
-	client := NewWishesClient(core.NewClient(token))
-
 	wishListID = "1794222"
 	resp, err := client.Add("3850", "0", "4", "", wishListID)
 	if err != nil {
@@ -59,4 +59,41 @@ func TestWishesClient_Add(t *testing.T) {
 	}
 
 	logrus.Infoln(resp)
+}
+
+// 列出官方推荐的清单测试
+func TestWishesClient_GetRecommendList(t *testing.T) {
+	resp, err := client.ListWishListRecommend()
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	for _, wishListRecommendData := range resp.Data {
+		logrus.Infof("%v,%v", wishListRecommendData.WishListID, wishListRecommendData.Name)
+	}
+}
+
+// 获取清单详情测试
+func TestWishesClient_Get(t *testing.T) {
+	resp, err := client.Get(wishListID)
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	logrus.Infoln(resp)
+}
+
+// 一键匹配清单测试
+func TestWishesClient_WishListMatch(t *testing.T) {
+	resp, err := client.WishListMatch(wishListID)
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	logrus.Infoln(resp)
+}
+
+// 通用测试
+func TestCommon(t *testing.T) {
+
 }

@@ -80,7 +80,7 @@ func main() {
 	page := 1 // 从获取到的数据的第一页开始
 	row := 2  // 从 Excel 表的第二行开始写入数据
 	for {
-		products, err := client.List(strconv.Itoa(page), "", "1")
+		products, err := client.List(strconv.Itoa(page), "", "1", "published_at_desc")
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}

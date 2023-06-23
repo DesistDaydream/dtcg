@@ -31,7 +31,7 @@ func DelCommand() *cobra.Command {
 func delProducts(cmd *cobra.Command, args []string) {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", delFlags.SaleState)
+		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", delFlags.SaleState, "published_at_desc")
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
