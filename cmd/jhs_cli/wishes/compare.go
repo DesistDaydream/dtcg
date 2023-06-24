@@ -2,9 +2,10 @@
 package wishes
 
 import (
-	"fmt"
 	"os"
-	"text/tabwriter"
+	"strconv"
+
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/sirupsen/logrus"
@@ -34,8 +35,9 @@ func CompareCommand() *cobra.Command {
 }
 
 func compare(cmd *cobra.Command, args []string) {
-	w := tabwriter.NewWriter(os.Stdout, 4, 8, 4, ' ', 0)
-	fmt.Fprintf(w, "Serial\tMy Price\tPrice\tMy Quantity\tQuantity\tCard Name\n")
+	// 注意，这里使用 go 标准库中的 text/tbwriter
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"卡名", "编号", "我的价格", "ta的价格", "我的数量", "ta的数量"})
 
 	resp, err := handler.H.JhsServices.Wishes.WishListMatch(compareFlags.WishListID)
 	if err != nil {
@@ -49,10 +51,10 @@ func compare(cmd *cobra.Command, args []string) {
 		}
 
 		if len(products.Data) > 0 {
-			fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\t%v\t\n", card.Number, products.Data[0].Price, card.Price, products.Data[0].Quantity, card.Quantity, card.CardName)
+			table.Append([]string{card.CardName, card.Number, products.Data[0].Price, card.Price, strconv.Itoa(products.Data[0].Quantity), strconv.FormatInt(card.Quantity, 10)})
 		} else {
-			fmt.Fprintf(w, "%v\t%v\t%v\t%v\t%v\t%v\t\n", card.Number, "0", card.Price, 0, card.Quantity, card.CardName)
+			table.Append([]string{card.CardName, card.Number, "0", card.Price, "0", strconv.FormatInt(card.Quantity, 10)})
 		}
 	}
-	w.Flush()
+	table.Render()
 }

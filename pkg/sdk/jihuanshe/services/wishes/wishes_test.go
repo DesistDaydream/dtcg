@@ -2,11 +2,14 @@ package wishes
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
+	"github.com/olekukonko/tablewriter"
 	"github.com/sirupsen/logrus"
 )
 
@@ -63,14 +66,18 @@ func TestWishesClient_Add(t *testing.T) {
 
 // 列出官方推荐的清单测试
 func TestWishesClient_GetRecommendList(t *testing.T) {
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"名称", "清单ID"})
+
 	resp, err := client.ListWishListRecommend()
 	if err != nil {
 		logrus.Fatalln(err)
 	}
 
 	for _, wishListRecommendData := range resp.Data {
-		logrus.Infof("%v,%v", wishListRecommendData.WishListID, wishListRecommendData.Name)
+		table.Append([]string{wishListRecommendData.Name, strconv.FormatInt(wishListRecommendData.WishListID, 10)})
 	}
+	table.Render()
 }
 
 // 获取清单详情测试
