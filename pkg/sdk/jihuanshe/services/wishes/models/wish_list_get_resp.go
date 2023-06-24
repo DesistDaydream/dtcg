@@ -32,5 +32,5 @@ type WishListGetData struct {
 	Remark            string      `json:"remark"`
 	UserID            int64       `json:"user_id"`
 	WishID            int64       `json:"wish_id"`
-	WishPrice         interface{} `json:"wish_price"`
+	WishPrice         string      `json:"wish_price"`
 }
