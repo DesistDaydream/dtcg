@@ -33,6 +33,7 @@ func AddCommand() *cobra.Command {
 根据策略添加商品。
 比如：
   jhs_cli products add -s BTC-03 -r 0,1000 -c 20 表示将所有价格在 0-1000 之间卡牌的价格增加 20 块售卖。
+  jhs_cli products add -s EXC-02 --rarity C,U,R --art 否 -o "*" -c 1.03 表示表示将所有 EXC-02 的 U、R、C 稀有度的原画卡的价格乘以 1.03 倍的价格上架
 `
 	addProdcutCmd := &cobra.Command{
 		Use:   "add",
