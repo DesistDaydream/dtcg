@@ -14,9 +14,12 @@ import (
 )
 
 // var sellerUserID string = "609077"
-var token string = ""
-var wishListID string = "2610132"
-var client *WishesClient
+var (
+	token      string = ""
+	wishListID string = "2610132"
+	client     *WishesClient
+	table      *tablewriter.Table
+)
 
 // var cardVersionID string = "3982"
 
@@ -39,6 +42,7 @@ func initConfig() {
 func init() {
 	initConfig()
 	client = NewWishesClient(core.NewClient(token))
+	table = tablewriter.NewWriter(os.Stdout)
 }
 
 // 创建清单测试
@@ -66,7 +70,6 @@ func TestWishesClient_Add(t *testing.T) {
 
 // 列出官方推荐的清单
 func TestWishesClient_GetRecommendList(t *testing.T) {
-	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"名称", "清单ID"})
 
 	resp, err := client.ListWishListRecommend()
@@ -83,8 +86,6 @@ func TestWishesClient_GetRecommendList(t *testing.T) {
 
 // 获取清单详情
 func TestWishesClient_Get(t *testing.T) {
-	table := tablewriter.NewWriter(os.Stdout)
-
 	resp, err := client.Get(wishListID)
 	if err != nil {
 		logrus.Fatalln(err)
@@ -95,13 +96,10 @@ func TestWishesClient_Get(t *testing.T) {
 	}
 
 	table.Render()
-
 }
 
 // 一键匹配清单
 func TestWishesClient_WishListMatch(t *testing.T) {
-	table := tablewriter.NewWriter(os.Stdout)
-
 	resp, err := client.WishListMatch(wishListID)
 	if err != nil {
 		logrus.Fatalln(err)
