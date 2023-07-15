@@ -10,7 +10,8 @@ import (
 )
 
 type DelFlags struct {
-	SaleState string
+	SaleState  string
+	productIDs []string
 }
 
 var delFlags DelFlags
@@ -22,13 +23,35 @@ func DelCommand() *cobra.Command {
 		Run:   delProducts,
 	}
 
-	delProdcutCmd.Flags().StringVarP(&delFlags.SaleState, "sale-state", "s", "0", "商品的售卖状态。删除指定状态的商品")
+	delProdcutCmd.Flags().StringVar(&delFlags.SaleState, "sale-state", "", "商品的售卖状态。删除指定状态的商品，一般使用 0 ，即下架的商品")
+	delProdcutCmd.Flags().StringSliceVar(&delFlags.productIDs, "ids", nil, "要删除的商品 ID 列表")
 
 	return delProdcutCmd
 }
 
 // 删除商品
 func delProducts(cmd *cobra.Command, args []string) {
+	if delFlags.productIDs != nil {
+		delProductsForIDs()
+	} else if delFlags.SaleState != "" {
+		delProdcutsForSaleState()
+	} else {
+		logrus.Fatalln("请指至少一种命令行标志以获取商品 ID 的信息")
+	}
+}
+
+func delProductsForIDs() {
+	for _, productID := range delFlags.productIDs {
+		resp, err := handler.H.JhsServices.Sellers.ProductDel(productID)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+
+		logrus.Infof("%v 删除成功：%v", productID, resp)
+	}
+}
+
+func delProdcutsForSaleState() {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
 		products, err := handler.H.JhsServices.Sellers.ProductList(strconv.Itoa(page), "", delFlags.SaleState, "published_at_desc")

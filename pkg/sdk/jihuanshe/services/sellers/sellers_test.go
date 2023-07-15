@@ -13,14 +13,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// var sellerUserID string = "609077"
 var (
 	token  string = ""
 	client *SellersClient
 	table  *tablewriter.Table
 	// sellerUserID  string = "609077"
 	cardVersionID string = "4282"
-	productID     string = "33553834"
+	productID     string = "33597830"
 )
 
 func initConfig() {
@@ -92,14 +91,12 @@ func TestProductsClientList(t *testing.T) {
 			"卡牌ID":   products.Data[0].CardVersionID,
 			"卡牌名称":   products.Data[0].CardNameCn,
 			"售卖价格":   products.Data[0].Price,
-			"评级公司ID": products.Data[1].AuthenticatorID,
-			"评级公司名称": products.Data[1].AuthenticatorName,
-			"评分":     products.Data[1].Grading,
+			"评级公司ID": products.Data[0].AuthenticatorID,
+			"评级公司名称": products.Data[0].AuthenticatorName,
+			"评分":     products.Data[0].Grading,
 		}).Infof("第一个商品的信息，即刚刚添加的商品信息")
 
-		logrus.Infof("完整信息: %v", products.Data[1])
-
-		productID = fmt.Sprint(products.Data[0].ProductID)
+		logrus.Infof("完整信息: %v", products.Data[0])
 	}
 }
 
@@ -134,15 +131,20 @@ func TestProductsClientDel(t *testing.T) {
 	initConfig()
 	client := NewSellersClient(core.NewClient(token))
 
-	ProductIDs := []string{productID}
-	for _, ProductID := range ProductIDs {
-		resp, err := client.ProductDel(ProductID)
-		if err != nil {
-			logrus.Fatal(err)
-		}
-
-		logrus.Infof("%v 删除成功：%v", productID, resp)
+	products, err := client.ProductList("1", "", "1", "published_at_desc")
+	if err != nil {
+		logrus.Fatal(err)
 	}
+
+	productID = fmt.Sprint(products.Data[0].ProductID)
+
+	resp, err := client.ProductDel(productID)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	logrus.Infof("%v 删除成功：%v", productID, resp)
+
 }
 
 // 获取提现信息
