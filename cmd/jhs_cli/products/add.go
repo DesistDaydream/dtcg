@@ -6,7 +6,7 @@ import (
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/sellers/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -110,7 +110,7 @@ func genNeedAddProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 
 func addRun(cardPrice *dbmodels.CardPrice, cardVersionID string, newPrice string) {
 	// 开始上架
-	resp, err := handler.H.JhsServices.Products.Add(&models.ProductsAddReqBody{
+	resp, err := handler.H.JhsServices.Sellers.ProductAdd(&models.ProductsAddReqBody{
 		AuthenticatorID:         "",
 		Grading:                 "",
 		CardVersionID:           cardVersionID,

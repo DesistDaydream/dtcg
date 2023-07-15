@@ -6,7 +6,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/sellers/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -64,7 +64,7 @@ func updateSaleState(cmd *cobra.Command, args []string) {
 func genNeedUpdateSaleStateProducts(cards *dbmodels.CardsPrice, alternativeArt string) {
 	// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到商品信息
 	for _, card := range cards.Data {
-		products, err := handler.H.JhsServices.Products.List("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
+		products, err := handler.H.JhsServices.Sellers.ProductList("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -82,8 +82,7 @@ func genNeedUpdateSaleStateProducts(cards *dbmodels.CardsPrice, alternativeArt s
 }
 
 func updateSaleStateRun(product *models.ProductListData, onSaleState string) {
-	// func updateSaleStateRun(product *models.ProductData, priceChange float64) {
-	resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
+	resp, err := handler.H.JhsServices.Sellers.ProductUpdate(&models.ProductsUpdateReqBody{
 		AuthenticatorID:         "",
 		Grading:                 "",
 		Condition:               fmt.Sprint(product.Condition),
@@ -104,13 +103,13 @@ func updateSaleStateRun(product *models.ProductListData, onSaleState string) {
 func updateSaleStateOneByOne() {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Products.List(strconv.Itoa(page), "", updateFlags.CurSaleState, "published_at_desc")
+		products, err := handler.H.JhsServices.Sellers.ProductList(strconv.Itoa(page), "", updateFlags.CurSaleState, "published_at_desc")
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
 		for _, product := range products.Data {
 			if product.Quantity != 0 {
-				resp, err := handler.H.JhsServices.Products.Update(&models.ProductsUpdateReqBody{
+				resp, err := handler.H.JhsServices.Sellers.ProductUpdate(&models.ProductsUpdateReqBody{
 					AuthenticatorID:         "",
 					Grading:                 "",
 					Condition:               fmt.Sprint(product.Condition),

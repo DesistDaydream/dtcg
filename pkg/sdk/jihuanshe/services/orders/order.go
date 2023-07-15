@@ -26,7 +26,7 @@ func (o *OrdersClient) GetBuyerOrders(page string) (*models.BuyerOrdersResponse,
 		Method: "GET",
 		ReqQuery: core.StructToMapStr(&models.BuyerOrdersQuery{
 			Page:   page,
-			Status: "complete,waiting_to_confirm,waiting_to_pay,waiting_to_send,waiting_to_receive,waiting_to_refund,waiting_to_return_goods",
+			Status: "complete",
 			Token:  o.client.Token,
 		}),
 	}
@@ -70,7 +70,7 @@ func (o *OrdersClient) GetSellerOrders(page string) (*models.SellerOrdersRespons
 		Method: "GET",
 		ReqQuery: core.StructToMapStr(&models.BuyerOrdersQuery{
 			Page:   page,
-			Status: "complete,waiting_to_confirm,waiting_to_pay,waiting_to_send,waiting_to_receive,waiting_to_refund,waiting_to_return_goods",
+			Status: "complete",
 			Token:  o.client.Token,
 		}),
 	}
