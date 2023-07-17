@@ -42,7 +42,7 @@ func delProducts(cmd *cobra.Command, args []string) {
 
 func delProductsForIDs() {
 	for _, productID := range delFlags.productIDs {
-		resp, err := handler.H.JhsServices.Sellers.ProductDel(productID)
+		resp, err := handler.H.JhsServices.Market.SellersProductsDel(productID)
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -54,13 +54,13 @@ func delProductsForIDs() {
 func delProdcutsForSaleState() {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Sellers.ProductList(strconv.Itoa(page), "", delFlags.SaleState, "published_at_desc")
+		products, err := handler.H.JhsServices.Market.SellersProductsList(strconv.Itoa(page), "", delFlags.SaleState, "published_at_desc")
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
 
 		for _, product := range products.Data {
-			resp, err := handler.H.JhsServices.Sellers.ProductDel(fmt.Sprint(product.ProductID))
+			resp, err := handler.H.JhsServices.Market.SellersProductsDel(fmt.Sprint(product.ProductID))
 			if err != nil {
 				logrus.Errorf("商品 %v %v 删除失败：%v", product.ProductID, product.CardNameCN, err)
 			} else {

@@ -5,7 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/sellers/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -73,7 +73,7 @@ func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 	// 逐一更新待处理卡牌的商品信息
 	for _, card := range cards.Data {
 		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
-		products, err := handler.H.JhsServices.Sellers.ProductList("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
+		products, err := handler.H.JhsServices.Market.SellersProductsList("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -128,7 +128,7 @@ func updateRun(product *models.ProductListData, imageUrl, newPrice string) {
 		remark = product.Remark
 	}
 
-	resp, err := handler.H.JhsServices.Sellers.ProductUpdate(&models.ProductsUpdateReqBody{
+	resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
 		AuthenticatorID:         "",
 		Grading:                 "",
 		Condition:               fmt.Sprint(product.Condition),

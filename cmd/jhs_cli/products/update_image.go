@@ -8,7 +8,7 @@ import (
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/sellers/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -52,7 +52,7 @@ func updateImage(cmd *cobra.Command, args []string) {
 func genNeedHandleImgProducts(cards *dbmodels.CardsPrice) {
 	for _, card := range cards.Data {
 		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
-		products, err := handler.H.JhsServices.Sellers.ProductList("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
+		products, err := handler.H.JhsServices.Market.SellersProductsList("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
 		if err != nil {
 			logrus.Fatal(err)
 		}
@@ -64,7 +64,7 @@ func genNeedHandleImgProducts(cards *dbmodels.CardsPrice) {
 			logrus.Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCN)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
-				resp, err := handler.H.JhsServices.Sellers.ProductUpdate(&models.ProductsUpdateReqBody{
+				resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
 					Condition:               fmt.Sprint(product.Condition),
 					OnSale:                  fmt.Sprint(product.OnSale),
 					Price:                   product.Price,
@@ -85,7 +85,7 @@ func genNeedHandleImgProducts(cards *dbmodels.CardsPrice) {
 func updateNoImage() {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Sellers.ProductList(strconv.Itoa(page), "", updateFlags.CurSaleState, "published_at_desc")
+		products, err := handler.H.JhsServices.Market.SellersProductsList(strconv.Itoa(page), "", updateFlags.CurSaleState, "published_at_desc")
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
@@ -98,7 +98,7 @@ func updateNoImage() {
 					continue
 				}
 
-				resp, err := handler.H.JhsServices.Sellers.ProductUpdate(&models.ProductsUpdateReqBody{
+				resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
 					Condition:               fmt.Sprint(product.Condition),
 					OnSale:                  fmt.Sprint(product.OnSale),
 					Price:                   product.Price,

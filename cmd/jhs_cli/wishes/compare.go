@@ -45,7 +45,7 @@ func compare(cmd *cobra.Command, args []string) {
 	}
 
 	for _, card := range resp[0].MatchCards {
-		products, err := handler.H.JhsServices.Sellers.ProductList("1", card.Number, "1", "price_asc")
+		products, err := handler.H.JhsServices.Market.SellersProductsList("1", card.Number, "1", "price_asc")
 		if err != nil {
 			logrus.Fatal(err)
 		}
