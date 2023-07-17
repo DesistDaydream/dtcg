@@ -1,7 +1,11 @@
 package cardset
 
 import (
+	"os"
+	"strconv"
+
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/olekukonko/tablewriter"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -22,10 +26,12 @@ func listCardSets(cmd *cobra.Command, args []string) {
 		logrus.Fatalln(err)
 	}
 
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"包名", "编号", "发布时间"})
+
 	for _, cardSet := range allCardSets.Data {
-		logrus.WithFields(logrus.Fields{
-			"名称": cardSet.SetPrefix,
-			"编号": cardSet.SetID,
-		}).Infof("卡包信息")
+		table.Append([]string{cardSet.SetPrefix, strconv.Itoa(cardSet.SetID), cardSet.SetReleaseDate})
 	}
+
+	table.Render()
 }
