@@ -98,7 +98,7 @@ func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 			// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
 			if product.CardVersionID != card.CardVersionID {
 				logrus.Errorf("当前商品 [%v %v-%v %v] 与期望处理的商品 [%v %v-%v %v] 不匹配，跳过",
-					product.CardVersionID, product.CardVersionNumber, product.CardNameCn, product.CardVersionRarity,
+					product.CardVersionID, product.CardVersionNumber, product.CardNameCN, product.CardVersionRarity,
 					card.CardVersionID, card.Serial, card.ScName, card.AlternativeArt)
 				updateSkip++
 				continue
@@ -107,7 +107,7 @@ func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 				"原始价格": card.AvgPrice,
 				"更新价格": newPrice,
 				"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, priceChange),
-			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
+			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCN)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
 				updateRun(&product, card.ImageUrl, newPrice)
@@ -139,10 +139,10 @@ func updateRun(product *models.ProductListData, imageUrl, newPrice string) {
 		Remark:                  remark,
 	}, fmt.Sprint(product.ProductID))
 	if err != nil {
-		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)
+		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
 		updateFailCount++
 	} else {
-		logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCn, resp)
+		logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
 		updateSuccessCount++
 	}
 }
@@ -173,7 +173,7 @@ func updateRun(product *models.ProductListData, imageUrl, newPrice string) {
 // 				"原始价格": cardPrice.AvgPrice,
 // 				"更新价格": newPrice,
 // 				"调整价格": priceChange,
-// 			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCn, updatePriceFlags.UpdatePolicy.Operator)
+// 			}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, product.CardNameCN, updatePriceFlags.UpdatePolicy.Operator)
 // 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 // 			if productsFlags.isRealRun {
 // 				updateRun(&product, cardPrice, newPrice)

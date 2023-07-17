@@ -61,7 +61,7 @@ func genNeedHandleImgProducts(cards *dbmodels.CardsPrice) {
 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
 		}
 		for _, product := range products.Data {
-			logrus.Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
+			logrus.Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCN)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
 				resp, err := handler.H.JhsServices.Sellers.ProductUpdate(&models.ProductsUpdateReqBody{
@@ -73,9 +73,9 @@ func genNeedHandleImgProducts(cards *dbmodels.CardsPrice) {
 					ProductCardVersionImage: cardPrice.ImageUrl,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
-					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)
+					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
 				} else {
-					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCn, resp)
+					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
 				}
 			}
 		}
@@ -94,7 +94,7 @@ func updateNoImage() {
 			if !strings.Contains(product.CardVersionImage, "cdn-client") {
 				cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
 				if err != nil {
-					logrus.Errorf("获取卡牌 %v 价格详情失败: %v", product.CardNameCn, err)
+					logrus.Errorf("获取卡牌 %v 价格详情失败: %v", product.CardNameCN, err)
 					continue
 				}
 
@@ -107,9 +107,9 @@ func updateNoImage() {
 					ProductCardVersionImage: cardPrice.ImageUrl,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
-					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)
+					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
 				} else {
-					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCn, resp)
+					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
 				}
 			}
 		}

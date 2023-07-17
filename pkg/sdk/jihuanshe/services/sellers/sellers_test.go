@@ -89,7 +89,7 @@ func TestProductsClientList(t *testing.T) {
 		logrus.WithFields(logrus.Fields{
 			"商品ID":   products.Data[0].ProductID,
 			"卡牌ID":   products.Data[0].CardVersionID,
-			"卡牌名称":   products.Data[0].CardNameCn,
+			"卡牌名称":   products.Data[0].CardNameCN,
 			"售卖价格":   products.Data[0].Price,
 			"评级公司ID": products.Data[0].AuthenticatorID,
 			"评级公司名称": products.Data[0].AuthenticatorName,

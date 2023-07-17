@@ -72,7 +72,7 @@ func genNeedUpdateSaleStateProducts(cards *dbmodels.CardsPrice, alternativeArt s
 			logrus.WithFields(logrus.Fields{
 				"当前状态": updateFlags.CurSaleState,
 				"预期状态": updateFlags.ExpSaleState,
-			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCn)
+			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCN)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
 				updateSaleStateRun(&product, updateFlags.ExpSaleState)
@@ -93,9 +93,9 @@ func updateSaleStateRun(product *models.ProductListData, onSaleState string) {
 		Remark:                  product.Remark,
 	}, fmt.Sprint(product.ProductID))
 	if err != nil {
-		logrus.Errorf("商品 %v %v 更新失败：%v", product.ProductID, product.CardNameCn, err)
+		logrus.Errorf("商品 %v %v 更新失败：%v", product.ProductID, product.CardNameCN, err)
 	} else {
-		logrus.Infof("商品 %v %v 更新成功：%v", product.ProductID, product.CardNameCn, resp)
+		logrus.Infof("商品 %v %v 更新成功：%v", product.ProductID, product.CardNameCN, resp)
 	}
 }
 
@@ -120,9 +120,9 @@ func updateSaleStateOneByOne() {
 					Remark:                  product.Remark,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
-					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCn, err)
+					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
 				} else {
-					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCn, resp)
+					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
 				}
 			}
 		}

@@ -62,9 +62,9 @@ func delProdcutsForSaleState() {
 		for _, product := range products.Data {
 			resp, err := handler.H.JhsServices.Sellers.ProductDel(fmt.Sprint(product.ProductID))
 			if err != nil {
-				logrus.Errorf("商品 %v %v 删除失败：%v", product.ProductID, product.CardNameCn, err)
+				logrus.Errorf("商品 %v %v 删除失败：%v", product.ProductID, product.CardNameCN, err)
 			} else {
-				logrus.Infof("商品 %v %v 删除成功：%v", product.ProductID, product.CardNameCn, resp)
+				logrus.Infof("商品 %v %v 删除成功：%v", product.ProductID, product.CardNameCN, resp)
 			}
 		}
 

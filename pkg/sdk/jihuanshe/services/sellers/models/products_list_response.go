@@ -14,24 +14,30 @@ type ProductsListResp struct {
 }
 
 type ProductListData struct {
-	ProductID         int    `json:"product_id"`
-	Price             string `json:"price"`
-	Quantity          int    `json:"quantity"`
-	OnSale            int    `json:"on_sale"`   // 售卖状态。1: 在售，0: 下架
-	Condition         int    `json:"condition"` // 商品的品相。1: 流通品相，2: 有瑕疵，3: 有损伤
-	Remark            string `json:"remark"`
-	CardID            int    `json:"card_id"`
-	CardVersionID     int    `json:"card_version_id"`
-	CardNameCn        string `json:"card_name_cn"`
-	CardNameCnCnocg   string `json:"card_name_cn_cnocg"`
-	CardVersionNumber string `json:"card_version_number"`
-	NumberAlias       string `json:"number_alias"`
-	CardVersionRarity string `json:"card_version_rarity"`
-	CardVersionImage  string `json:"card_version_image"`
-	ProductLanguage   string `json:"product_language"`
-	MinPrice          string `json:"min_price"`
-	AvgPrice          string `json:"avg_price"`
-	AuthenticatorID   int    `json:"authenticator_id"`
-	AuthenticatorName string `json:"authenticator_name"`
-	Grading           string `json:"grading"`
+	AuthenticatorID   string     `json:"authenticator_id"`
+	AuthenticatorName string     `json:"authenticator_name"`
+	AvgPrice          string     `json:"avg_price"`
+	CardID            int        `json:"card_id"`
+	CardNameCN        string     `json:"card_name_cn"`
+	CardNameCNCnocg   string     `json:"card_name_cn_cnocg"`
+	CardNames         []CardName `json:"card_names"`
+	CardVersionID     int        `json:"card_version_id"`
+	CardVersionImage  string     `json:"card_version_image"`
+	CardVersionNumber string     `json:"card_version_number"`
+	CardVersionRarity string     `json:"card_version_rarity"`
+	Condition         int        `json:"condition"` // 商品的品相。1: 流通品相，2: 有瑕疵，3: 有损伤
+	Grading           string     `json:"grading"`
+	MinPrice          string     `json:"min_price"`
+	NumberAlias       string     `json:"number_alias"`
+	OnSale            int        `json:"on_sale"` // 售卖状态。1: 在售，0: 下架
+	Price             string     `json:"price"`
+	ProductID         int        `json:"product_id"`
+	ProductLanguage   string     `json:"product_language"`
+	Quantity          int        `json:"quantity"`
+	Remark            string     `json:"remark"`
+}
+
+type CardName struct {
+	NameKey   string `json:"name_key"`
+	NameValue string `json:"name_value"`
 }
