@@ -1,6 +1,6 @@
 package models
 
-type SellerOrderProductsResponse struct {
+type OrderBySellerGetResp struct {
 	OrderID                 int            `json:"order_id"`
 	OrderUUID               string         `json:"order_uuid"`
 	OrderName               string         `json:"order_name"`
@@ -11,7 +11,7 @@ type SellerOrderProductsResponse struct {
 	ReceiveLeftSecond       int            `json:"receive_left_second"`
 	CanDeferReceiveDeadline bool           `json:"can_defer_receive_deadline"`
 	CreatedAt               string         `json:"created_at"`
-	PayDeadlineLeft         interface{}    `json:"pay_deadline_left"`
+	PayDeadlineLeft         string         `json:"pay_deadline_left"`
 	TotalPrice              float64        `json:"total_price"`
 	ProductPrice            string         `json:"product_price"`
 	ShippingPrice           string         `json:"shipping_price"`
@@ -31,7 +31,7 @@ type SellerOrderProductsResponse struct {
 	ExpressType             int            `json:"express_type"`
 	ExpressName             string         `json:"express_name"`
 	ExpressNumber           string         `json:"express_number"`
-	ExpressOrderCode        interface{}    `json:"express_order_code"`
+	ExpressOrderCode        string         `json:"express_order_code"`
 	BuyerUserID             int            `json:"buyer_user_id"`
 	BuyerUsername           string         `json:"buyer_username"`
 	BuyerUserAvatar         string         `json:"buyer_user_avatar"`
@@ -39,7 +39,7 @@ type SellerOrderProductsResponse struct {
 	OrderProducts           []OrderProduct `json:"order_products"`
 }
 
-type BuyerOrderProductsResponse struct {
+type OrderByBuyerGetResp struct {
 	OrderID                 int            `json:"order_id"`
 	OrderUUID               string         `json:"order_uuid"`
 	OrderName               string         `json:"order_name"`
@@ -50,7 +50,7 @@ type BuyerOrderProductsResponse struct {
 	ReceiveLeftSecond       int            `json:"receive_left_second"`
 	CanDeferReceiveDeadline bool           `json:"can_defer_receive_deadline"`
 	CreatedAt               string         `json:"created_at"`
-	PayDeadlineLeft         interface{}    `json:"pay_deadline_left"`
+	PayDeadlineLeft         string         `json:"pay_deadline_left"`
 	IsWarehouse             bool           `json:"is_warehouse"`
 	TotalPrice              float64        `json:"total_price"`
 	ProductPrice            string         `json:"product_price"`
@@ -67,7 +67,7 @@ type BuyerOrderProductsResponse struct {
 	ExpressType             int            `json:"express_type"`
 	ExpressName             string         `json:"express_name"`
 	ExpressNumber           string         `json:"express_number"`
-	ExpressOrderCode        interface{}    `json:"express_order_code"`
+	ExpressOrderCode        string         `json:"express_order_code"`
 	SellerUserID            int            `json:"seller_user_id"`
 	SellerUsername          string         `json:"seller_username"`
 	SellerUserAvatar        string         `json:"seller_user_avatar"`
@@ -76,16 +76,16 @@ type BuyerOrderProductsResponse struct {
 }
 
 type OrderProduct struct {
-	Price                  string      `json:"price"`
-	Quantity               int         `json:"quantity"`
-	ProductGameKey         string      `json:"product_game_key"`
-	ProductGameSubKey      string      `json:"product_game_sub_key"`
-	CardNameCn             string      `json:"card_name_cn"`
-	CardVersionNumber      string      `json:"card_version_number"`
-	CardVersionRarity      string      `json:"card_version_rarity"`
-	CardVersionImage       string      `json:"card_version_image"`
-	ProductCondition       int         `json:"product_condition"`
-	ProductRemark          string      `json:"product_remark"`
-	ProductPublishLocation interface{} `json:"product_publish_location"`
-	ProductLanguage        string      `json:"product_language"`
+	Price                  string `json:"price"`
+	Quantity               int    `json:"quantity"`
+	ProductGameKey         string `json:"product_game_key"`
+	ProductGameSubKey      string `json:"product_game_sub_key"`
+	CardNameCn             string `json:"card_name_cn"`
+	CardVersionNumber      string `json:"card_version_number"`
+	CardVersionRarity      string `json:"card_version_rarity"`
+	CardVersionImage       string `json:"card_version_image"`
+	ProductCondition       int    `json:"product_condition"`
+	ProductRemark          string `json:"product_remark"`
+	ProductPublishLocation string `json:"product_publish_location"`
+	ProductLanguage        string `json:"product_language"`
 }

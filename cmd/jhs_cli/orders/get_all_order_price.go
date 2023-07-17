@@ -26,7 +26,7 @@ func getAllOrderPriceRun(cmd *cobra.Command, args []string) {
 	sellerPage := 1
 
 	for {
-		buyerOrders, err := handler.H.JhsServices.Orders.GetBuyerOrders(strconv.Itoa(buyerPage))
+		buyerOrders, err := handler.H.JhsServices.Market.OrderList(strconv.Itoa(buyerPage))
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -46,7 +46,7 @@ func getAllOrderPriceRun(cmd *cobra.Command, args []string) {
 
 	// 分页
 	for {
-		sellerOrders, err := handler.H.JhsServices.Orders.GetSellerOrders(strconv.Itoa(sellerPage))
+		sellerOrders, err := handler.H.JhsServices.Market.SellerOrderList(strconv.Itoa(sellerPage))
 		if err != nil {
 			logrus.Error(err)
 		}
