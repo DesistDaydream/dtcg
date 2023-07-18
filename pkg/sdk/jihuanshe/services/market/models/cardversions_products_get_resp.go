@@ -13,15 +13,15 @@ type ProductSellersGetResp struct {
 }
 
 type ProductSellers struct {
-	CardVersionImage string      `json:"card_version_image"`
-	EcommerceVerify  bool        `json:"ecommerce_verify"`
-	MinPrice         string      `json:"min_price"`
-	Quantity         string      `json:"quantity"`
-	SellerCity       string      `json:"seller_city"`
-	SellerCreditRank string      `json:"seller_credit_rank"`
-	SellerProvince   string      `json:"seller_province"`
-	SellerUserAvatar string      `json:"seller_user_avatar"`
-	SellerUserID     int64       `json:"seller_user_id"`
-	SellerUsername   string      `json:"seller_username"`
-	VerifyStatus     interface{} `json:"verify_status"`
+	CardVersionImage string `json:"card_version_image"`
+	EcommerceVerify  bool   `json:"ecommerce_verify"`
+	MinPrice         string `json:"min_price"`
+	Quantity         string `json:"quantity"`
+	SellerCity       string `json:"seller_city"`
+	SellerCreditRank string `json:"seller_credit_rank"`
+	SellerProvince   string `json:"seller_province"`
+	SellerUserAvatar string `json:"seller_user_avatar"`
+	SellerUserID     int64  `json:"seller_user_id"`
+	SellerUsername   string `json:"seller_username"`
+	VerifyStatus     string `json:"verify_status"`
 }
