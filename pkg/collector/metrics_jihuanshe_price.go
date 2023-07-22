@@ -67,7 +67,7 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 			if cardPrice.AvgPrice >= client.Opts.minPrice && cardPrice.AvgPrice <= client.Opts.maxPrice {
 				priceInfo, err := c.Get(fmt.Sprint(cardPrice.CardVersionID), "1")
 				if err != nil {
-					logrus.Errorf("获取卡片 %v 信息异常：%v", cardPrice.CardVersionID, err)
+					logrus.Errorf("获取卡片 %v-%v %v 信息异常：%v", cardPrice.Serial, cardPrice.ScName, cardPrice.CardVersionID, err)
 					return
 				}
 
