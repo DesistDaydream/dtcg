@@ -13,7 +13,7 @@ COPY go.sum go.sum
 RUN go mod download
 
 COPY ./ /dtcg
-RUN go build -o jihuanshe-exporter ./cmd/jihuanshe_exporter/*.go
+RUN go build -o jhs-exporter ./cmd/jhs_exporter/*.go
 
 FROM alpine
 # org.opencontainers.image.source 用于为 GitHub Package 提供标识符，以识别该镜像应该属于哪个仓库
@@ -24,5 +24,5 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     apk add --no-cache tzdata && \
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 ENV TZ=Asia/Shanghai
-COPY --from=builder /dtcg/jihuanshe-exporter /dtcg/jihuanshe-exporter
-ENTRYPOINT  [ "/dtcg/jihuanshe-exporter" ]
+COPY --from=builder /dtcg/jhs-exporter /dtcg/jhs-exporter
+ENTRYPOINT  [ "/dtcg/jhs-exporter" ]
