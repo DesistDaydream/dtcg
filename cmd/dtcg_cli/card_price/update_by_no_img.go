@@ -26,7 +26,7 @@ func updateNoImageCard(cmd *cobra.Command, args []string) {
 
 	for _, cardPrice := range cardsPrice.Data {
 		if cardPrice.ImageUrl == "" {
-			logrus.Infof("开始处理 ", cardPrice.ScName)
+			logrus.Infof("开始处理 %v", cardPrice.ScName)
 			imageUrl := GetImageURL(cardPrice.CardVersionID)
 			database.UpdateCardPrice(&models.CardPrice{CardIDFromDB: cardPrice.CardIDFromDB}, map[string]interface{}{
 				"set_id":          cardPrice.SetID,
