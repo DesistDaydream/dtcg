@@ -60,6 +60,7 @@ func updatePrice(cmd *cobra.Command, args []string) {
 	// 根据更新策略更新卡牌价格
 	genNeedHandleProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
 
+	// 注意：总数不等于任何数量之和。
 	logrus.WithFields(logrus.Fields{
 		"总数": cards.Count,
 		"成功": updateSuccessCount,
@@ -72,6 +73,9 @@ func updatePrice(cmd *cobra.Command, args []string) {
 func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 	// 逐一更新待处理卡牌的商品信息
 	for _, card := range cards.Data {
+		// 用于记录待处理的卡牌的商品是否已更新
+		isUpdate := 0
+
 		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
 		products, err := handler.H.JhsServices.Market.SellersProductsList("1", card.Serial, updateFlags.CurSaleState, "published_at_desc")
 		if err != nil {
@@ -96,22 +100,31 @@ func genNeedHandleProducts(cards *dbmodels.CardsPrice, priceChange float64) {
 		for _, product := range products.Data {
 			// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
 			// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
-			if product.CardVersionID != card.CardVersionID {
-				logrus.Errorf("当前商品 [%v %v-%v %v] 与期望处理的商品 [%v %v-%v %v] 不匹配，跳过",
+			if product.CardVersionID == card.CardVersionID {
+				logrus.WithFields(logrus.Fields{
+					"原始价格": card.AvgPrice,
+					"更新价格": newPrice,
+					"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, priceChange),
+				}).Infof("更新前检查商品: 【%v】【%v】【%v %v】", product.CardVersionID, card.AlternativeArt, card.Serial, product.CardNameCN)
+				// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+				if productsFlags.isRealRun {
+					updateRun(&product, card.ImageUrl, newPrice)
+				}
+				isUpdate = 1
+				break
+			} else {
+				logrus.Debugf("当前商品 [%v %v %v %v] 与期望处理的商品 [%v %v %v %v] 不匹配，跳过",
 					product.CardVersionID, product.CardVersionNumber, product.CardNameCN, product.CardVersionRarity,
-					card.CardVersionID, card.Serial, card.ScName, card.AlternativeArt)
+					card.CardVersionID, card.Serial, card.ScName, card.Rarity)
 				updateSkip++
-				continue
 			}
-			logrus.WithFields(logrus.Fields{
-				"原始价格": card.AvgPrice,
-				"更新价格": newPrice,
-				"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, priceChange),
-			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCN)
-			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-			if productsFlags.isRealRun {
-				updateRun(&product, card.ImageUrl, newPrice)
-			}
+		}
+
+		// 挺尴尬的做法，获取到需要更新的卡牌列表后，只能通过名字获取商品，但是通过名称获取到的商品可能是其他卡牌的商品(各种异画)。。。o(╯□╰)o
+		// 所以需要一个有状态的数据来记录待更新卡牌是否获取到商品并成功更新
+		if isUpdate == 0 {
+			logrus.Errorf("%v 卡牌没有商品可以更新", card.ScName)
+			updateFailCount++
 		}
 	}
 }
