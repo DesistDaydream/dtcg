@@ -12,10 +12,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var sellerUserID string = "609077"
+var sellerUserID string = "934972"
 var token string = ""
-var cardVersionID string = "4282"
-var productID string = ""
+var cardVersionID string = "4510"
 
 func initConfig() {
 	// 初始化配置文件

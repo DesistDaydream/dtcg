@@ -32,6 +32,7 @@ func UpdateCommand() *cobra.Command {
 		UpdatePriceCommand(),
 		UpdateImageCommand(),
 		UpdateSaleStateCommand(),
+		UpdateQuantityCommand(),
 	)
 
 	return updateProductsCmd
