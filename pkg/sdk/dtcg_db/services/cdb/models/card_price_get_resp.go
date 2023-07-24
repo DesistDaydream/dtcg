@@ -7,17 +7,16 @@ type CardPriceGetResp struct {
 }
 
 type CardPriceGetData struct {
-	AvgPrice string    `json:"avg_price"`
-	CardID   string    `json:"card_id"`
-	Products []Product `json:"data"`
-	Enabled  bool      `json:"enabled"`
-	Total    int64     `json:"total"`
-	// 新增了两个字段
-	CardVersionID int    `json:"cv_id"`
-	Link          string `json:"link"`
+	AvgPrice      string        `json:"avg_price"`
+	CardID        string        `json:"card_id"`
+	CardVersionID int           `json:"cv_id"`
+	Data          []ProductData `json:"data"`
+	Enabled       bool          `json:"enabled"`
+	Link          string        `json:"link"`
+	Total         int64         `json:"total"`
 }
 
-type Product struct {
+type ProductData struct {
 	CardVersionID    int    `json:"card_version_id"`
 	MinPrice         string `json:"min_price"`
 	Quantity         string `json:"quantity"`

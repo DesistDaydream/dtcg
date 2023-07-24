@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/DesistDaydream/dtcg/config"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core/models"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )

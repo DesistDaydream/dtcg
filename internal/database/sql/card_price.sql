@@ -3,12 +3,21 @@ SET @i=0;
 UPDATE `card_descs` SET `id`=(@i:=@i+1);
 ALTER TABLE `card_descs` AUTO_INCREMENT=0
 
---- 获取所有卡牌价格的总和
+--- 获取所有原画卡牌价格的总和
 SELECT
     SUM(min_price) AS all_min_price,
     SUM(avg_price) AS all_avg_price
 FROM
     card_prices
+WHERE alternative_art = '否'
+
+--- 获取指定卡包中的所有卡牌的价格的总和
+SELECT
+    ROUND(SUM(min_price),2) AS all_min_price,
+    ROUND(SUM(avg_price),2) AS all_avg_price
+FROM
+    card_prices
+WHERE set_prefix = 'SPC-1A';
 
 --- 查询价格低于 500 的所有卡牌价格的总和
 SELECT

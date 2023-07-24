@@ -56,7 +56,7 @@ func GetPriceFromDtcgdb(cardDesc *models.CardDesc) (int, float64, float64) {
 	if cardPrice.Data.Total == 0 {
 		minPrice = 0
 	} else {
-		minPrice, _ = strconv.ParseFloat(cardPrice.Data.Products[0].MinPrice, 64)
+		minPrice, _ = strconv.ParseFloat(cardPrice.Data.Data[0].MinPrice, 64)
 	}
 
 	if avgPrice == 0 {

@@ -67,10 +67,10 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 		}
 
 		var fMin float64
-		if len(cardPrice.Data.Products) == 0 {
+		if len(cardPrice.Data.Data) == 0 {
 			fMin = 0
 		} else {
-			fMin, _ = strconv.ParseFloat(cardPrice.Data.Products[0].MinPrice, 64)
+			fMin, _ = strconv.ParseFloat(cardPrice.Data.Data[0].MinPrice, 64)
 		}
 
 		fAvg, _ := strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
