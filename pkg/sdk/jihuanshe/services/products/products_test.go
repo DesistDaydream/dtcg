@@ -29,7 +29,8 @@ func initConfig() {
 
 	database.InitDB(dbInfo)
 
-	token = c.JHS.Token
+	user, _ := database.GetUser("1")
+	token = user.JhsToken
 }
 
 // 测试将结构体转为 map

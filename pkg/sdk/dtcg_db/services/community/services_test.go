@@ -30,8 +30,9 @@ func initTest() {
 	}
 
 	database.InitDB(dbInfo)
+	user, _ := database.GetUser("1")
 
-	token = c.DtcgDB.Token
+	token = user.MoecardToken
 
 	client = NewCommunityClient(core.NewClient(token, 1))
 }

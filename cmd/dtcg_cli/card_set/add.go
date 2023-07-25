@@ -23,7 +23,7 @@ func AddCardSetCommand() *cobra.Command {
 func addCardSet(cmd *cobra.Command, args []string) {
 	var cardSets models.CardSets
 
-	series, err := handler.H.DtcgDBServices.Cdb.GetSeries()
+	series, err := handler.H.MoecardServices.Cdb.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)
 	}

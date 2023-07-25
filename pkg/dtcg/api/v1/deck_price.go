@@ -51,7 +51,7 @@ func GetDeckPriceWithHID(c *gin.Context) {
 
 	hid := c.Param("hid")
 
-	decks, err := handler.H.DtcgDBServices.Community.GetDeck(hid)
+	decks, err := handler.H.MoecardServices.Community.GetDeck(hid)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -101,7 +101,7 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 
 	cloudDeckID := c.Param("cdid")
 
-	decks, err := handler.H.DtcgDBServices.Community.GetDeckCloud(cloudDeckID)
+	decks, err := handler.H.MoecardServices.Community.GetDeckCloud(cloudDeckID)
 	if err != nil {
 		logrus.Errorln(err)
 	}

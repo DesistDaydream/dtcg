@@ -51,7 +51,7 @@ func GetRespWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeck
 
 	// client := community.NewCommunityClient(core.NewClient("", 10))
 	// decks, err := client.PostDeckConvert(req.Deck)
-	decks, err := handler.H.DtcgDBServices.Community.PostDeckConvert(req.Deck)
+	decks, err := handler.H.MoecardServices.Community.PostDeckConvert(req.Deck)
 	if err != nil {
 		return nil, fmt.Errorf("从 dtcg db 网站获取卡组详情失败: %v", err)
 	}

@@ -5,11 +5,11 @@ import "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 var H *Handler
 
 type Handler struct {
-	DtcgDBServices *services.Services
+	MoecardServices *services.Services
 }
 
 func NewHandler(username, password, token string, retry int) *Handler {
 	return &Handler{
-		DtcgDBServices: services.NewServices(true, username, password, token, retry),
+		MoecardServices: services.NewServices(true, username, password, token, retry),
 	}
 }

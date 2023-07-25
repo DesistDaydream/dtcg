@@ -36,7 +36,7 @@ func addProducts(cmd *cobra.Command, args []string) {
 	if addFlags.CDID == "" {
 		logrus.Fatalln("请使用 -c 指定 CDID")
 	}
-	deck, err := handler.H.DtcgDBServices.Community.GetDeckCloud(addFlags.CDID)
+	deck, err := handler.H.MoecardServices.Community.GetDeckCloud(addFlags.CDID)
 	if err != nil {
 		logrus.Fatalln(err)
 	}

@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	token  string = ""
-	client *MarketClient
-	table  *tablewriter.Table
+	client     *MarketClient
+	coreClient *core.Client
+	table      *tablewriter.Table
 	// sellerUserID  string = "609077"
 	cardVersionID string = "4282"
 	productID     string = "33597830"
@@ -36,12 +36,14 @@ func initConfig() {
 
 	database.InitDB(dbInfo)
 
-	token = c.JHS.Token
+	user, _ := database.GetUser("1")
+	token := user.JhsToken
+	coreClient = core.NewClient(token)
 }
 
 func init() {
 	initConfig()
-	client = NewMarketClient(core.NewClient(token))
+	client = NewMarketClient(coreClient)
 	table = tablewriter.NewWriter(os.Stdout)
 }
 
@@ -176,7 +178,7 @@ func TestProductsClientDel(t *testing.T) {
 // 获取用户订单列表（买入）
 func TestOrdersClientGetBuyerOrders(t *testing.T) {
 	initConfig()
-	client := NewMarketClient(core.NewClient(token))
+	client := NewMarketClient(coreClient)
 
 	resp, err := client.OrderList("1")
 	if err != nil {
@@ -189,7 +191,7 @@ func TestOrdersClientGetBuyerOrders(t *testing.T) {
 
 func TestOrdersClientGetBuyerOrderProducts(t *testing.T) {
 	initConfig()
-	client := NewMarketClient(core.NewClient(token))
+	client := NewMarketClient(coreClient)
 	resp, err := client.OrderGet(2479030)
 	if err != nil {
 		logrus.Errorln(err)
@@ -200,7 +202,7 @@ func TestOrdersClientGetBuyerOrderProducts(t *testing.T) {
 // 获取用户订单列表（卖出）
 func TestOrdersClientGetSellerOrders(t *testing.T) {
 	initConfig()
-	client := NewMarketClient(core.NewClient(token))
+	client := NewMarketClient(coreClient)
 
 	resp, err := client.SellerOrderList("1")
 	if err != nil {
@@ -213,7 +215,7 @@ func TestOrdersClientGetSellerOrders(t *testing.T) {
 
 func TestOrdersClientGetSellerOrderProducts(t *testing.T) {
 	initConfig()
-	client := NewMarketClient(core.NewClient(token))
+	client := NewMarketClient(coreClient)
 	resp, err := client.SellerOrderGet(2475268)
 	if err != nil {
 		logrus.Errorln(err)
@@ -222,7 +224,7 @@ func TestOrdersClientGetSellerOrderProducts(t *testing.T) {
 }
 
 func TestMarketClientGetProductSellers(t *testing.T) {
-	client := NewMarketClient(core.NewClient(""))
+	client := NewMarketClient(coreClient)
 	got, err := client.CardVersionsProductsGet("2676", "1")
 	if err != nil {
 		logrus.Errorln(err)

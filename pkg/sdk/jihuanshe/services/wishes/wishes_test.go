@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/config"
-	"github.com/DesistDaydream/dtcg/pkg/database"
+	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/olekukonko/tablewriter"
 	"github.com/sirupsen/logrus"
@@ -15,7 +15,6 @@ import (
 
 // var sellerUserID string = "609077"
 var (
-	token      string = ""
 	wishListID string = "2610132"
 	client     *WishesClient
 	table      *tablewriter.Table
@@ -36,12 +35,15 @@ func initConfig() {
 
 	database.InitDB(dbInfo)
 
-	token = c.JHS.Token
+	user, err := database.GetUser("1")
+	if err != nil {
+		logrus.Fatalf("%v", err)
+	}
+	client = NewWishesClient(core.NewClient(user.JhsToken))
 }
 
 func init() {
 	initConfig()
-	client = NewWishesClient(core.NewClient(token))
 	table = tablewriter.NewWriter(os.Stdout)
 }
 
@@ -59,7 +61,7 @@ func TestWishesClient_CreateList(t *testing.T) {
 
 // 向清单中添加卡牌测试
 func TestWishesClient_Add(t *testing.T) {
-	wishListID = "1794222"
+	wishListID = "2820298"
 	resp, err := client.Add("3850", "0", "4", "", wishListID)
 	if err != nil {
 		logrus.Fatalln(err)

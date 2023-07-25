@@ -6,11 +6,11 @@ import (
 )
 
 type Config struct {
-	Listen string `yaml:"listen"`
-	Mysql  MySQL  `yaml:"mysql"`
-	SQLite SQLite `yaml:"sqlite"`
-	DtcgDB DtcgDB `yaml:"dtcgDB"`
-	JHS    JHS    `yaml:"jhs"`
+	Listen  string  `yaml:"listen"`
+	Mysql   MySQL   `yaml:"mysql"`
+	SQLite  SQLite  `yaml:"sqlite"`
+	Moecard Moecard `yaml:"moecard"`
+	JHS     JHS     `yaml:"jhs"`
 }
 
 type MySQL struct {
@@ -22,15 +22,14 @@ type SQLite struct {
 	FilePath string `yaml:"filePath"`
 }
 
-type DtcgDB struct {
+type Moecard struct {
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
-	Token    string `yaml:"token"`
 	Retry    int    `yaml:"retry"`
 }
 
 type JHS struct {
-	Token string `yaml:"token"`
+	UserName string `yaml: username`
 }
 
 func NewConfig(path, name string) (*Config, string) {

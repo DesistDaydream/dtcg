@@ -46,7 +46,12 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	handler.H = handler.NewHandler(c.DtcgDB.Username, c.DtcgDB.Password, c.DtcgDB.Token, c.DtcgDB.Retry)
+	user, err := database.GetUser("1")
+	if err != nil {
+		logrus.Fatalf("获取用户信息异常，原因: %v", err)
+	}
+
+	handler.H = handler.NewHandler(c.Moecard.Username, c.Moecard.Password, user.MoecardToken, c.Moecard.Retry)
 
 	r := router.InitRouter()
 	r.Run(c.Listen)

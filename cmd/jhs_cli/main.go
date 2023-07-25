@@ -51,7 +51,7 @@ func newApp() *cobra.Command {
 	cobra.OnInitialize(initConfig)
 
 	logging.AddFlags(&logFlags)
-	RootCmd.PersistentFlags().BoolVar(&flags.enable_dtcgdb_auth, "enable-dtcgdb-auth", false, "DTCG DB 中我的卡组的 ID")
+	RootCmd.PersistentFlags().BoolVar(&flags.enable_dtcgdb_auth, "enable-dtcgdb-auth", false, "是否使用卡查网站的 TOKEN 以获取私密信息")
 	RootCmd.PersistentFlags().StringVar(&flags.ConfigPath, "config-path", "", "配置文件路径")
 	RootCmd.PersistentFlags().StringVar(&flags.ConfigName, "config-name", "", "配置文件名称")
 
@@ -84,8 +84,8 @@ func initConfig() {
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
 	if flags.enable_dtcgdb_auth {
-		handler.H = handler.NewHandler(true, c.JHS.Token, c.DtcgDB.Username, c.DtcgDB.Password, c.DtcgDB.Token)
+		handler.H = handler.NewHandler(true, "1", c.Moecard.Username, c.Moecard.Password)
 	} else {
-		handler.H = handler.NewHandler(false, c.JHS.Token, "", "", "")
+		handler.H = handler.NewHandler(false, "1", "", "")
 	}
 }

@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/internal/database"
+	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core/models"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -42,7 +42,7 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 		"URI":   uri,
 		"请求体":   reqOpts.ReqBody,
 		"URL参数": reqOpts.ReqQuery,
-	}).Debugf("检查请求")
+	}).Debugf("Moecard API 检查请求")
 
 	statusCode, body, err := c.request(uri, reqOpts)
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 	if statusCode >= 500 {
 		logrus.Errorf("DTCGDB 服务器异常，响应码：%v，重新获取 token", statusCode)
 		cfg, _ := config.NewConfig("", "")
-		c.Token = Login(cfg.DtcgDB.Username, cfg.DtcgDB.Password)
+		c.Token = Login(cfg.Moecard.Username, cfg.Moecard.Password)
 		statusCode, body, err = c.request(uri, reqOpts)
 		if err != nil {
 			return err
@@ -213,16 +213,10 @@ func Login(username, password string) string {
 		logrus.Errorf("登录失败，解析响应体异常: %v", err)
 	}
 
-	// 将刚取得的 TOKEN 写入文件中
-	cfg, filePath := config.NewConfig("", "")
-	cfg.DtcgDB.Token = loginPostResp.Data.Token
-
-	yamlData, err := yaml.Marshal(&cfg)
-	if err != nil {
-		logrus.Errorf("Marshal YAML 格式失败: %v", err)
-	}
-
-	os.WriteFile(filePath, yamlData, 0666)
+	// 将刚取得的 TOKEN 更新到数据库中
+	database.UpdateUser(&dbmodels.User{ID: 1}, map[string]interface{}{
+		"moecard_token": loginPostResp.Data.Token,
+	})
 
 	return loginPostResp.Data.Token
 }

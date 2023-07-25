@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/config"
-	"github.com/DesistDaydream/dtcg/pkg/database"
+	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/sirupsen/logrus"
 )
 
 func TestNewServices(t *testing.T) {
@@ -21,8 +22,12 @@ func TestNewServices(t *testing.T) {
 
 	database.InitDB(dbInfo)
 
-	got := NewServices(true, c.DtcgDB.Username, c.DtcgDB.Password, "", 2)
+	user, err := database.GetUser("1")
+	if err != nil {
+		logrus.Fatalf("获取用户信息异常，原因: %v", err)
+	}
 
-	fmt.Println(got.CoreClient)
+	services := NewServices(true, c.Moecard.Username, c.Moecard.Password, user.MoecardToken, 2)
 
+	fmt.Println(services.Cdb, services.Community)
 }

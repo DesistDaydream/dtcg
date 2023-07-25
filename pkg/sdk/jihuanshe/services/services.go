@@ -8,10 +8,9 @@ import (
 )
 
 type Services struct {
-	CoreClient *core.Client
-	Market     *market.MarketClient
-	Products   *products.ProductsClient
-	Wishes     *wishes.WishesClient
+	Market   *market.MarketClient
+	Products *products.ProductsClient
+	Wishes   *wishes.WishesClient
 }
 
 func NewServices(token string) *Services {
@@ -21,8 +20,8 @@ func NewServices(token string) *Services {
 }
 
 func (s *Services) init(token string) {
-	s.CoreClient = core.NewClient(token)
-	s.Market = market.NewMarketClient(s.CoreClient)
-	s.Products = products.NewProductsClient(s.CoreClient)
-	s.Wishes = wishes.NewWishesClient(s.CoreClient)
+	coreClient := core.NewClient(token)
+	s.Market = market.NewMarketClient(coreClient)
+	s.Products = products.NewProductsClient(coreClient)
+	s.Wishes = wishes.NewWishesClient(coreClient)
 }

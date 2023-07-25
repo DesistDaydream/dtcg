@@ -9,7 +9,7 @@ import (
 )
 
 func GetResp(hID string) (string, error) {
-	decks, err := handler.H.DtcgDBServices.Community.GetDeck(hID)
+	decks, err := handler.H.MoecardServices.Community.GetDeck(hID)
 	if err != nil {
 		logrus.Errorln(err)
 	}
