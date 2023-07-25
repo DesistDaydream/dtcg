@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.0.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.1.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.0.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.1.0
 
 # ChangeLog
 
@@ -60,3 +60,11 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 ## 2.0.0
 
 集换社和卡查的 TOKEN 放到数据库中保存
+
+## 2.1.0
+
+1. 添加 /user/info/:userid 接口，以获取存到数据库中的用户信息，包括各种 TOKEN。
+
+## 2.2.0
+
+TODO: 添加集换社更新推送 Token 的逻辑以刷新数据库中的 Token，避免过期。

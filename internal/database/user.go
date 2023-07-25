@@ -17,14 +17,16 @@ func GetUser(userID string) (*models.User, error) {
 }
 
 // 更新用户信息
-func UpdateUser(user *models.User, condition map[string]interface{}) {
+func UpdateUser(user *models.User, condition map[string]interface{}) error {
 	result := DB.Model(user).Where("id = ?", user.ID).Updates(condition)
 
 	if result.Error != nil {
-		logrus.Errorf("更新 %v 信息异常: %v", user.Username, result.Error)
+		return result.Error
 	}
 
 	logrus.Debugf("已更新 %v 条数据", result.RowsAffected)
+
+	return nil
 }
 
 // 创建管理员账户
@@ -46,7 +48,7 @@ func CraetAdminUser() error {
 
 		result := DB.FirstOrCreate(user, models.User{ID: user.ID})
 		if result.Error != nil {
-			logrus.Errorf("创建管理员账户失败，原因: %v", result.Error)
+			return result.Error
 		}
 	}
 

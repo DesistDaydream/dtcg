@@ -12,6 +12,8 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	rr := r.Group("/api/v1")
+	rr.GET("/user/info/:uid", v1.GetUser)
+
 	rr.POST("/set/desc", v1.PostCardSets)
 
 	rr.GET("/card/desc", v1.GetCardsDesc)
