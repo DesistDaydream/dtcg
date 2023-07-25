@@ -16,7 +16,7 @@ type Flags struct {
 }
 
 func AddFlags(f *Flags) {
-	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 debug 模式")
+	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 Gin 的 debug 模式")
 }
 
 func main() {
@@ -42,16 +42,16 @@ func main() {
 	}
 	database.InitDB(dbInfo)
 
-	if !flags.Debug {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
 	user, err := database.GetUser("1")
 	if err != nil {
 		logrus.Fatalf("获取用户信息异常，原因: %v", err)
 	}
 
 	handler.H = handler.NewHandler(c.Moecard.Username, c.Moecard.Password, user.MoecardToken, c.Moecard.Retry)
+
+	if !flags.Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	r := router.InitRouter()
 	r.Run(c.Listen)
