@@ -17,9 +17,30 @@ func NewMarketClient(client *core.Client) *MarketClient {
 	}
 }
 
+// 更新 Token
+func (m *MarketClient) AuthUpdateTokenPost() (*models.CommonSuccessResp, error) {
+	var commonSuccessResp models.CommonSuccessResp
+	uri := "/api/market/auth/update-push-token"
+
+	reqOpts := &core.RequestOption{
+		Method: "POST",
+		ReqBody: &models.UpdateTokenPostReqBody{
+			PushDevice: "ios",
+			Token:      m.client.Token,
+		},
+	}
+
+	err := m.client.Request(uri, &commonSuccessResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &commonSuccessResp, nil
+}
+
 // 添加我在卖的商品
-func (m *MarketClient) SellersProductsAdd(productsAddRequestBody *models.ProductsAddReqBody) (*models.ProductsAddResp, error) {
-	var productsAddResp models.ProductsAddResp
+func (m *MarketClient) SellersProductsAdd(productsAddRequestBody *models.ProductsAddReqBody) (*models.CommonSuccessResp, error) {
+	var productsAddResp models.CommonSuccessResp
 	uri := "/api/market/sellers/products"
 
 	reqOpts := &core.RequestOption{
@@ -81,8 +102,8 @@ func (m *MarketClient) SellersProductsUpdate(productsUpdateRequestBody *models.P
 }
 
 // 删除我在卖的商品
-func (m *MarketClient) SellersProductsDel(productID string) (*models.ProductsDelResp, error) {
-	var productsDelResp models.ProductsDelResp
+func (m *MarketClient) SellersProductsDel(productID string) (*models.CommonSuccessResp, error) {
+	var productsDelResp models.CommonSuccessResp
 
 	uri := "/api/market/sellers/products/" + productID
 

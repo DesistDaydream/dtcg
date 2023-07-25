@@ -5,13 +5,12 @@ import (
 	"os"
 	"testing"
 
+	"github.com/DesistDaydream/dtcg/config"
+	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 	"github.com/olekukonko/tablewriter"
 	"github.com/sirupsen/logrus"
-
-	"github.com/DesistDaydream/dtcg/config"
-	"github.com/DesistDaydream/dtcg/internal/database"
 )
 
 var (
@@ -233,4 +232,14 @@ func TestMarketClientGetProductSellers(t *testing.T) {
 	for _, data := range got.Data {
 		fmt.Println(data.CardVersionImage)
 	}
+}
+
+func TestMarketClient_AuthUpdateTokenPost(t *testing.T) {
+	client := NewMarketClient(coreClient)
+	got, err := client.AuthUpdateTokenPost()
+	if err != nil {
+		logrus.Errorln(err)
+	}
+
+	logrus.Infoln(got)
 }
