@@ -1,16 +1,19 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Listen  string  `yaml:"listen"`
-	Mysql   MySQL   `yaml:"mysql"`
-	SQLite  SQLite  `yaml:"sqlite"`
-	Moecard Moecard `yaml:"moecard"`
-	JHS     JHS     `yaml:"jhs"`
+	Listen         string  `yaml:"listen"`
+	TokenExpiresAt string  `yaml:"tokenExpiresAt"` // Token 过期时间
+	Mysql          MySQL   `yaml:"mysql"`
+	SQLite         SQLite  `yaml:"sqlite"`
+	Moecard        Moecard `yaml:"moecard"`
+	JHS            JHS     `yaml:"jhs"`
 }
 
 type MySQL struct {
@@ -29,8 +32,11 @@ type Moecard struct {
 }
 
 type JHS struct {
-	UserName string `yaml: username`
+	AutoUpdateTokenDuration string `yaml:"autoUpdateTokenDuration"` // 每次更新集换社 Token 的间隔时间
+	UserName                string `yaml:"username"`
 }
+
+var Conf *Config
 
 func NewConfig(path, name string) (*Config, string) {
 	logrus.Debugf("检查手动指定的配置文件信息: %s/%s", path, name)
@@ -56,6 +62,10 @@ func NewConfig(path, name string) (*Config, string) {
 	}
 
 	logrus.Debugf("读取到的配置文件绝对路径: %v", viper.ConfigFileUsed())
+
+	Conf = &config
+
+	fmt.Println(Conf)
 
 	return &config, viper.ConfigFileUsed()
 }

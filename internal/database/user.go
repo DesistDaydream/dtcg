@@ -16,6 +16,16 @@ func GetUser(userID string) (*models.User, error) {
 	return &user, nil
 }
 
+func GetUserByName(username string) (*models.User, error) {
+	var user models.User
+	result := DB.Where("username = ?", username).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &user, nil
+}
+
 // 更新用户信息
 func UpdateUser(user *models.User, condition map[string]interface{}) error {
 	result := DB.Model(user).Where("id = ?", user.ID).Updates(condition)

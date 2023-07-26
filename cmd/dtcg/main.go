@@ -5,6 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/pkg/dtcg/flags"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/router"
 	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
@@ -13,22 +14,12 @@ import (
 	"github.com/spf13/pflag"
 )
 
-type Flags struct {
-	Debug                   bool
-	AutoUpdateTokenDuration time.Duration
-}
-
-func AddFlags(f *Flags) {
-	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 Gin 的 debug 模式")
-	pflag.DurationVar(&f.AutoUpdateTokenDuration, "duration", 60*time.Minute, "每次更新集换社 Token 的间隔时间")
-}
-
 func main() {
 	var (
-		flags    Flags
+		f        flags.Flags
 		logFlags logging.LogrusFlags
 	)
-	AddFlags(&flags)
+	flags.AddFlags(&f)
 	logging.AddFlags(&logFlags)
 	pflag.Parse()
 	if err := logging.LogrusInit(&logFlags); err != nil {
@@ -36,23 +27,27 @@ func main() {
 	}
 
 	// 初始化配置文件
-	c, _ := config.NewConfig("", "")
+	config.NewConfig("", "")
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{
-		FilePath: c.SQLite.FilePath,
-		Server:   c.Mysql.Server,
-		Password: c.Mysql.Password,
+		FilePath: config.Conf.SQLite.FilePath,
+		Server:   config.Conf.Mysql.Server,
+		Password: config.Conf.Mysql.Password,
 	}
 	database.InitDB(dbInfo)
 
-	handler.H = handler.NewHandler(c.Moecard.Username, c.Moecard.Password, c.Moecard.Retry)
+	handler.H = handler.NewHandler(config.Conf.Moecard.Username, config.Conf.Moecard.Password, config.Conf.Moecard.Retry)
 
-	if !flags.Debug {
+	if !f.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	ticker := time.NewTicker(flags.AutoUpdateTokenDuration)
+	duration, err := time.ParseDuration(config.Conf.JHS.AutoUpdateTokenDuration)
+	if err != nil {
+		logrus.Fatalf("解析自动更新 Token 时间失败: %v", err)
+	}
+	ticker := time.NewTicker(duration)
 	go func() {
 		for range ticker.C {
 			_, err := handler.H.JhsServices.Market.AuthUpdateTokenPost()
@@ -64,5 +59,5 @@ func main() {
 	}()
 
 	r := router.InitRouter()
-	r.Run(c.Listen)
+	r.Run(config.Conf.Listen)
 }

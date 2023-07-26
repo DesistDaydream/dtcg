@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/DesistDaydream/dtcg/config"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/sirupsen/logrus"
 )
@@ -16,25 +17,28 @@ type UserClaims struct {
 }
 
 func GenerateToken(username string) (tokenString string, err error) {
+	tokenExpiresAt, err := time.ParseDuration(config.Conf.TokenExpiresAt)
+	if err != nil {
+		logrus.Fatalln("解析 Token 过期时间失败", err)
+	}
+
 	claim := UserClaims{
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Second)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExpiresAt)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 		}}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
 
-	logrus.Debugf("检查生成的 Token 信息: %v", token)
+	logrus.Debugf("检查生成的 Token 信息: %v,%v", token.Claims.(UserClaims).Username, token.Claims.(UserClaims).ExpiresAt.Time)
 
 	tokenString, err = token.SignedString(SecretKey)
 	return tokenString, err
 }
 
 func ParseToken(tokenString string) (*UserClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return SecretKey, nil
-	})
+	token, err := jwt.ParseWithClaims(tokenString, &UserClaims{}, func(token *jwt.Token) (interface{}, error) { return SecretKey, nil })
 	if err != nil {
 		if ve, ok := err.(*jwt.ValidationError); ok {
 			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
@@ -48,8 +52,10 @@ func ParseToken(tokenString string) (*UserClaims, error) {
 			}
 		}
 	}
+
 	if claims, ok := token.Claims.(*UserClaims); ok && token.Valid {
 		return claims, nil
 	}
+
 	return nil, errors.New("couldn't handle this token")
 }

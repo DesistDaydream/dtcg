@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.2.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.3.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.2.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.3.0
 
 # ChangeLog
 
@@ -68,3 +68,11 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 ## 2.2.0
 
 1. 添加周期性更新数据库中集换社的 Token 的逻辑，以避免过期。
+
+## 2.3.0
+
+1. 添加了认证中间件、登录逻辑、登录验证逻辑。
+2. 配置文件中添加两个字段: tokenExpiresAt 和 jsh.autoUpdateTokenDuration
+3. 将全局 Flags 相关逻辑放到单独的目录中
+
+TODO: 需要将数据库中的密码加密

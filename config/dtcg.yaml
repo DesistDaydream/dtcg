@@ -1,4 +1,5 @@
 listen: "0.0.0.0:2205"
+tokenExpiresAt: 48h
 mysql:
   server: "0.0.0.0:3306"
   password: "mysql"
@@ -9,4 +10,5 @@ moecard:
   password: ""
   retry: 2 # 向 DtcgDB 服务器发送请求时的重试次数
 jhs:
+  autoUpdateTokenDuration: 12h
   username: ""

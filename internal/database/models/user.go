@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // 数据库模型。用户信息
 type Users struct {
@@ -19,4 +22,14 @@ type User struct {
 	JhsToken     string    `json:"jhs_token"`
 	CreatedAt    time.Time `json:"create_at"`
 	UpdatedAt    time.Time `json:"update_at"`
+}
+
+func (u *User) ValidatePassword(password string) error {
+	if password == "" {
+		return fmt.Errorf("password is empty")
+	}
+	if u.Password != password {
+		return fmt.Errorf("password is wrong")
+	}
+	return nil
 }
