@@ -18,7 +18,7 @@ func main() {
 	// 无限制：空，简中：chs，日文：ja
 	gameEnv := "chs"
 	// 需要统计晚于该日志的卡组
-	createAt := "2023-06-01 00:00:00"
+	createAt := "2023-07-01 00:00:00"
 
 	var cardColor string
 

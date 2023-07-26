@@ -7,6 +7,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/gin-gonic/gin v1.9.1
+	github.com/golang-jwt/jwt/v4 v4.3.0
 	github.com/jinzhu/copier v0.3.5
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/prometheus/client_golang v1.16.0
