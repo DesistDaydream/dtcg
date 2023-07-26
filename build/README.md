@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.1.1 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.2.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.1.1
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.2.0
 
 # ChangeLog
 
@@ -67,4 +67,4 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 
 ## 2.2.0
 
-TODO: 添加集换社更新推送 Token 的逻辑以刷新数据库中的 Token，避免过期。
+1. 添加周期性更新数据库中集换社的 Token 的逻辑，以避免过期。

@@ -3,7 +3,7 @@ package cardgroup
 import (
 	"sort"
 
-	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli_data_to_db/handler"
+	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
 	"github.com/DesistDaydream/dtcg/pkg/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/cn/services"
 	"github.com/sirupsen/logrus"
@@ -36,7 +36,7 @@ func AddCardGroupFromOfficial() {
 func AddCardGroupFromDtcgDB() {
 	var cardGroupsFromDtcgDB database.CardGroupsFromDtcgDB
 
-	series, err := handler.H.DtcgDBServices.Cdb.GetSeries()
+	series, err := handler.H.MoecardServices.Cdb.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)
 	}

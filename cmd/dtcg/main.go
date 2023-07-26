@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
@@ -12,11 +14,13 @@ import (
 )
 
 type Flags struct {
-	Debug bool
+	Debug                   bool
+	AutoUpdateTokenDuration time.Duration
 }
 
 func AddFlags(f *Flags) {
 	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 Gin 的 debug 模式")
+	pflag.DurationVar(&f.AutoUpdateTokenDuration, "duration", 60*time.Second, "每次更新集换社 Token 的间隔时间")
 }
 
 func main() {
@@ -42,16 +46,22 @@ func main() {
 	}
 	database.InitDB(dbInfo)
 
-	user, err := database.GetUser("1")
-	if err != nil {
-		logrus.Fatalf("获取用户信息异常，原因: %v", err)
-	}
-
-	handler.H = handler.NewHandler(c.Moecard.Username, c.Moecard.Password, user.MoecardToken, c.Moecard.Retry)
+	handler.H = handler.NewHandler(c.Moecard.Username, c.Moecard.Password, c.Moecard.Retry)
 
 	if !flags.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
+	ticker := time.NewTicker(flags.AutoUpdateTokenDuration)
+	go func() {
+		for range ticker.C {
+			_, err := handler.H.JhsServices.Market.AuthUpdateTokenPost()
+			if err != nil {
+				logrus.Errorf("更新集换社 Token 失败，原因: %v", err)
+			}
+			logrus.Infof("更新集换社 Token 成功")
+		}
+	}()
 
 	r := router.InitRouter()
 	r.Run(c.Listen)

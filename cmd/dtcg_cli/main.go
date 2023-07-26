@@ -5,6 +5,7 @@ import (
 
 	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
 
+	adddatatodb "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/add_data_to_db"
 	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_desc"
 	cardprice "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_price"
 	cardset "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_set"
@@ -17,8 +18,9 @@ import (
 )
 
 type Flags struct {
-	FilePath string
-	FileName string
+	FilePath       string
+	FileName       string
+	IsLoginMoecard bool
 }
 
 func AddFlags(f *Flags) {
@@ -57,6 +59,7 @@ func newApp() *cobra.Command {
 
 	rootCmd.PersistentFlags().StringVar(&flags.FilePath, "path", "", "配置文件路径")
 	rootCmd.PersistentFlags().StringVar(&flags.FileName, "name", "", "配置文件名称")
+	rootCmd.PersistentFlags().BoolVar(&flags.IsLoginMoecard, "is-login-moecoard", false, "是否使用 Token 登录 Moecard")
 	AddFlags(&flags)
 	logging.AddFlags(&logFlags)
 
@@ -65,6 +68,7 @@ func newApp() *cobra.Command {
 		cardset.CreateCommand(),
 		carddesc.CreateCommand(),
 		cardprice.CreateCommand(),
+		adddatatodb.CreateCommand(),
 	)
 
 	return rootCmd
@@ -90,5 +94,5 @@ func initConfig() {
 	database.InitDB(dbInfo)
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
-	handler.H = handler.NewHandler()
+	handler.H = handler.NewHandler(flags.IsLoginMoecard)
 }

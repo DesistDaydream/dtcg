@@ -14,14 +14,14 @@ type Handler struct {
 	JhsServices     *js.Services
 }
 
-func NewHandler() *Handler {
+func NewHandler(isLoginMoecard bool) *Handler {
 	user, err := database.GetUser("1")
 	if err != nil {
 		logrus.Fatalf("获取用户信息失败，原因: %v", err)
 	}
 
 	return &Handler{
-		MoecardServices: ms.NewServices(false, "", "", user.MoecardToken, 10),
+		MoecardServices: ms.NewServices(isLoginMoecard, "", "", user.MoecardToken, 10),
 		JhsServices:     js.NewServices(user.JhsToken),
 	}
 }
