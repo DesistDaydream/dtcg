@@ -20,7 +20,7 @@ type Flags struct {
 
 func AddFlags(f *Flags) {
 	pflag.BoolVarP(&f.Debug, "debug", "d", false, "是否开启 Gin 的 debug 模式")
-	pflag.DurationVar(&f.AutoUpdateTokenDuration, "duration", 60*time.Second, "每次更新集换社 Token 的间隔时间")
+	pflag.DurationVar(&f.AutoUpdateTokenDuration, "duration", 60*time.Minute, "每次更新集换社 Token 的间隔时间")
 }
 
 func main() {
