@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
@@ -33,6 +34,14 @@ func InitDB(dbInfo *DBInfo) {
 	// 当结构体中增加字段时，会自动在表中增加列；但是删除结构体中的属性时，并不会删除列
 	DB.AutoMigrate(&models.CardDesc{}, &models.CardSet{}, &models.CardPrice{}, &models.User{})
 
+	// 设置连接池信息
+	sqlDB, err := DB.DB()
+	if err != nil {
+		logrus.Fatalf("%v", err)
+	}
+	sqlDB.SetConnMaxLifetime(2 * time.Hour)
+
+	// 创建 Admin 用户
 	err = CraetAdminUser()
 	if err != nil {
 		logrus.Fatalf("创建 Admin 用户失败，原因: %v", err)
