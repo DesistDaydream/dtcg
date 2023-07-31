@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

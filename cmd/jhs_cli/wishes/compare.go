@@ -7,7 +7,7 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 
-	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

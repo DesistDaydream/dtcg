@@ -9,9 +9,9 @@ import (
 	carddesc "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_desc"
 	cardprice "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_price"
 	cardset "github.com/DesistDaydream/dtcg/cmd/dtcg_cli/card_set"
-	"github.com/DesistDaydream/dtcg/cmd/dtcg_cli/handler"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -94,5 +94,5 @@ func initConfig() {
 	database.InitDB(dbInfo)
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
-	handler.H = handler.NewHandler(flags.IsLoginMoecard)
+	handler.H = handler.NewHandler(flags.IsLoginMoecard, "1", "", "", 10)
 }

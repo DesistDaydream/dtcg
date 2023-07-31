@@ -6,7 +6,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
-	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 )
 
 // TODO: 如何用泛型改写？

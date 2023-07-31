@@ -6,8 +6,8 @@ import (
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/flags"
-	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/router"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -37,7 +37,7 @@ func main() {
 	}
 	database.InitDB(dbInfo)
 
-	handler.H = handler.NewHandler(config.Conf.Moecard.Username, config.Conf.Moecard.Password, config.Conf.Moecard.Retry)
+	handler.H = handler.NewHandler(true, "1", config.Conf.Moecard.Username, config.Conf.Moecard.Password, config.Conf.Moecard.Retry)
 
 	if !f.Debug {
 		gin.SetMode(gin.ReleaseMode)

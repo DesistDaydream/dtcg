@@ -3,12 +3,12 @@ package main
 import (
 	"os"
 
-	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/orders"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/products"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/wishes"
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 
 	logging "github.com/DesistDaydream/logging/pkg/logrus_init"
 
@@ -17,9 +17,9 @@ import (
 )
 
 type Flags struct {
-	enable_dtcgdb_auth bool
-	ConfigPath         string
-	ConfigName         string
+	enableMoecardAuth bool
+	ConfigPath        string
+	ConfigName        string
 }
 
 var (
@@ -51,7 +51,7 @@ func newApp() *cobra.Command {
 	cobra.OnInitialize(initConfig)
 
 	logging.AddFlags(&logFlags)
-	RootCmd.PersistentFlags().BoolVar(&flags.enable_dtcgdb_auth, "enable-dtcgdb-auth", false, "是否使用卡查网站的 TOKEN 以获取私密信息")
+	RootCmd.PersistentFlags().BoolVar(&flags.enableMoecardAuth, "enable-moecard-auth", false, "是否使用卡查网站的 TOKEN。")
 	RootCmd.PersistentFlags().StringVar(&flags.ConfigPath, "config-path", "", "配置文件路径")
 	RootCmd.PersistentFlags().StringVar(&flags.ConfigName, "config-name", "", "配置文件名称")
 
@@ -83,9 +83,9 @@ func initConfig() {
 	database.InitDB(dbInfo)
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
-	if flags.enable_dtcgdb_auth {
-		handler.H = handler.NewHandler(true, "1", c.Moecard.Username, c.Moecard.Password)
+	if flags.enableMoecardAuth {
+		handler.H = handler.NewHandler(true, "1", c.Moecard.Username, c.Moecard.Password, 1)
 	} else {
-		handler.H = handler.NewHandler(false, "1", "", "")
+		handler.H = handler.NewHandler(false, "1", "", "", 1)
 	}
 }

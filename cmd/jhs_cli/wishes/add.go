@@ -3,8 +3,8 @@ package wishes
 import (
 	"fmt"
 
-	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/handler"
 	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

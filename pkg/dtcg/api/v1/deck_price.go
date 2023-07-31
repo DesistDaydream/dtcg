@@ -7,7 +7,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
 	deckprice "github.com/DesistDaydream/dtcg/pkg/dtcg/deck_price"
-	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )

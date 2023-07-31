@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/DesistDaydream/dtcg/pkg/dtcg/handler"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/sirupsen/logrus"
 )
 
