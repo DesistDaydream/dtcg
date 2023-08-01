@@ -16,6 +16,7 @@ type PostDeckPriceRespData struct {
 	Count          int    `json:"count"`
 	Serial         string `json:"serial"`
 	ScName         string `json:"sc_name"`
+	Rarity         string `json:"rarity"`
 	AlternativeArt string `json:"alternative_art"`
 	MinPrice       string `json:"min_price"`
 	AvgPrice       string `json:"avg_price"`
