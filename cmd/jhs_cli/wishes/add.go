@@ -15,7 +15,7 @@ type AddFlags struct {
 
 var addFlags AddFlags
 
-func AddCommand() *cobra.Command {
+func AddWishListCmd() *cobra.Command {
 	long := `
 从 dtcg db 的 云卡组 获取卡牌列表，添加到我想收清单中
 `
@@ -23,7 +23,7 @@ func AddCommand() *cobra.Command {
 		Use:   "add",
 		Short: "从 dtcg db 的 云卡组 获取卡牌列表，添加到我想收清单中",
 		Long:  long,
-		Run:   addProducts,
+		Run:   addWishList,
 	}
 
 	addProdcutCmd.Flags().StringVarP(&addFlags.CDID, "cdid", "c", "", "DTCG DB 中我的卡组的 ID")
@@ -32,7 +32,7 @@ func AddCommand() *cobra.Command {
 }
 
 // 添加商品
-func addProducts(cmd *cobra.Command, args []string) {
+func addWishList(cmd *cobra.Command, args []string) {
 	if addFlags.CDID == "" {
 		logrus.Fatalln("请使用 -c 指定 CDID")
 	}

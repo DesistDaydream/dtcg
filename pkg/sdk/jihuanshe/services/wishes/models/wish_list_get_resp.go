@@ -15,8 +15,8 @@ type WishListGetResp struct {
 
 type WishListGetData struct {
 	AvgPrice          string      `json:"avg_price"`
-	CardID            int64       `json:"card_id"`
-	CardVersionID     int64       `json:"card_version_id"`
+	CardID            int         `json:"card_id"`
+	CardVersionID     int         `json:"card_version_id"`
 	GameKey           string      `json:"game_key"`
 	IgnoreCardVersion int64       `json:"ignore_card_version"`
 	ImageURL          string      `json:"image_url"`
@@ -27,7 +27,7 @@ type WishListGetData struct {
 	NameCNCnocg       interface{} `json:"name_cn_cnocg"`
 	Number            string      `json:"number"`
 	NumberAlias       string      `json:"number_alias"`
-	Quantity          int64       `json:"quantity"`
+	Quantity          int         `json:"quantity"`
 	Rarity            string      `json:"rarity"`
 	Remark            string      `json:"remark"`
 	UserID            int64       `json:"user_id"`

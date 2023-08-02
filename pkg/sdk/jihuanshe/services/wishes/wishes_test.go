@@ -94,7 +94,7 @@ func TestWishesClient_Get(t *testing.T) {
 	}
 
 	for _, data := range resp.Data {
-		table.Append([]string{data.NameCN, data.Number, strconv.FormatInt(data.Quantity, 10), data.MinPrice})
+		table.Append([]string{data.NameCN, data.Number, strconv.Itoa(data.Quantity), data.MinPrice})
 	}
 
 	table.Render()

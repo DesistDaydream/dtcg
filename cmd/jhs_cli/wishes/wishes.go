@@ -12,8 +12,9 @@ func CreateCommand() *cobra.Command {
 	}
 
 	wishesCmd.AddCommand(
-		AddCommand(),
-		CompareCommand(),
+		AddWishListCmd(),
+		CompareCmd(),
+		GetWishListPriceCmd(),
 	)
 
 	return wishesCmd

@@ -18,7 +18,7 @@ type CompareFlags struct {
 
 var compareFlags CompareFlags
 
-func CompareCommand() *cobra.Command {
+func CompareCmd() *cobra.Command {
 	long := `
 匹配官方推荐的清单的最低价，与自己的库存进行比较
 `
