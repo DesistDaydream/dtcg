@@ -27,6 +27,7 @@ func InitRouter() *gin.Engine {
 	api.POST("/deck/price/json", v1.PostDeckPriceWithJSON)
 	api.GET("/deck/price/hid/:hid", v1.GetDeckPriceWithHID)
 	api.GET("/deck/price/cdid/:cdid", v1.GetDeckPriceWithCloudDeckID)
+	api.GET("/deck/price/wlid/:wlid", v1.GetDeckPriceWithJHSWishListID)
 
 	// 将 DTCG DB 卡组广场中卡组的 URL 中最后的 HID，转变为由 card_id_from_db 组成的纯字符串格式。
 	api.GET("/deck/converter/:hid", v1.GetDeckConverter)

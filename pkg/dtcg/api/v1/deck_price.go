@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
 	deckprice "github.com/DesistDaydream/dtcg/pkg/dtcg/deck_price"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
@@ -117,6 +119,53 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 	for _, card := range decks.Data.DeckInfo.Main {
 		for i := 0; i < card.Number; i++ {
 			cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
+		}
+	}
+
+	cardsIDString, _ := json.Marshal(&cardsID)
+
+	req := models.PostDeckPriceWithIDReq{
+		IDs: string(cardsIDString),
+	}
+
+	resp, err := deckprice.GetRespWithID(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "获取响应失败",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"最低价": resp.MinPrice,
+		"集换价": resp.AvgPrice,
+	}).Debugf("卡组价格")
+
+	c.JSON(200, &resp)
+}
+
+// 根据集换社的心愿单 ID 获取卡组价格，可以通过分享心愿单中的风险链接找到心愿单 ID
+func GetDeckPriceWithJHSWishListID(c *gin.Context) {
+	// 允许跨域
+	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+
+	wishListID := c.Param("wlid")
+
+	wishListGetResp, err := handler.H.JhsServices.Wishes.Get(wishListID)
+	if err != nil {
+		logrus.Errorf("获取我想收清单失败，原因: %v", err)
+	}
+
+	var cardsID []string
+
+	for _, card := range wishListGetResp.Data {
+		cardPrice, err := database.GetCardPriceWhereCardVersionID(strconv.Itoa(card.CardVersionID))
+		if err != nil {
+			logrus.Errorf("%v", err)
+		}
+		for i := 0; i < card.Quantity; i++ {
+			cardsID = append(cardsID, fmt.Sprint(cardPrice.CardIDFromDB))
 		}
 	}
 
