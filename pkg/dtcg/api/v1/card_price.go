@@ -13,8 +13,6 @@ import (
 
 // 获取所有卡牌价格详情
 func GetCardsPrice(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// 绑定 url query
 	var req models.GetCardsPriceReqQuery
@@ -39,8 +37,6 @@ func GetCardsPrice(c *gin.Context) {
 
 // 根据条件获取卡牌价格详情
 func PostCardsPrice(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// 绑定 url query
 	var reqQuery models.GetCardsPriceReqQuery
@@ -75,9 +71,6 @@ func PostCardsPrice(c *gin.Context) {
 
 // 根据条件获取带有数码宝贝数据库中卡图的卡牌价格数据
 func PostCardsPriceWithDtcgDBImg(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	// 绑定 url query
 	var reqQuery models.GetCardsPriceReqQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {

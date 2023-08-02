@@ -76,3 +76,7 @@ nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtc
 3. 将全局 Flags 相关逻辑放到单独的目录中
 
 TODO: 需要将数据库中的密码加密
+
+## 2.4.0
+
+1. 添加 /deck/price/wlid/:wlid 接口，可以通过集换社心愿单 ID 获取整个清单的价格。

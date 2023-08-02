@@ -13,6 +13,11 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	api := r.Group("/api/v1")
+	api.Use(func(ctx *gin.Context) {
+		// 允许跨域
+		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		ctx.Next()
+	})
 	api.GET("/user/info/:uid", v1.GetUser)
 
 	api.POST("/set/desc", v1.PostCardSets)

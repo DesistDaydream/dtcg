@@ -9,9 +9,6 @@ import (
 
 // 根据 User ID 获取指定用户的信息
 func GetUser(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	uid := c.Param("uid")
 
 	userInfo, err := database.GetUser(uid)

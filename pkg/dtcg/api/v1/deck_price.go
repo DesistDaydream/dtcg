@@ -16,9 +16,6 @@ import (
 
 // 根据 DTCG_DB 导出的 JSON 格式卡组信息获取卡组价格
 func PostDeckPriceWithJSON(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	// 绑定请求体
 	var req models.PostDeckPriceWithJSONReqBody
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -48,9 +45,6 @@ func PostDeckPriceWithJSON(c *gin.Context) {
 
 // 根据 HID 获取卡组价格
 func GetDeckPriceWithHID(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	hid := c.Param("hid")
 
 	decks, err := handler.H.MoecardServices.Community.GetDeck(hid)
@@ -98,9 +92,6 @@ func GetDeckPriceWithHID(c *gin.Context) {
 // 根据云 Cloud Deck ID(云卡组ID) 获取卡组价格，云卡组ID是个人页面的卡组ID，必须携带登录 Token 才可以获取到
 // 这种获取方式是最完整的，但是也是很麻烦的，因为需要登录，而且只能是自己的卡组。
 func GetDeckPriceWithCloudDeckID(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	cloudDeckID := c.Param("cdid")
 
 	decks, err := handler.H.MoecardServices.Community.GetDeckCloud(cloudDeckID)
@@ -147,9 +138,6 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 
 // 根据集换社的心愿单 ID 获取卡组价格，可以通过分享心愿单中的风险链接找到心愿单 ID
 func GetDeckPriceWithJHSWishListID(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	wishListID := c.Param("wlid")
 
 	wishListGetResp, err := handler.H.JhsServices.Wishes.Get(wishListID)
@@ -194,9 +182,6 @@ func GetDeckPriceWithJHSWishListID(c *gin.Context) {
 
 // 根据所有卡牌的 card_id_from_db 获取卡组价格。这里的 card_id_from_db 是通过 GetDeckConverter() 函数获取的，也就是 /deck/converter/:hid 接口
 func PostDeckPriceWithIDS(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	// 绑定请求体
 	var req models.PostDeckPriceWithIDReq
 	if err := c.ShouldBindJSON(&req); err != nil {

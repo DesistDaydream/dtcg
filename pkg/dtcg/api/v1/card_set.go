@@ -11,9 +11,6 @@ import (
 
 // 获取所有卡牌集合的信息
 func PostCardSets(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	var req models.PostCardSetsReq
 
 	// 绑定请求体

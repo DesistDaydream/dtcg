@@ -13,8 +13,6 @@ import (
 
 // 获取所有卡牌的描述
 func GetCardsDesc(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 
 	// 绑定 url query
 	var req models.GetCardsDescReqQuery
@@ -40,9 +38,6 @@ func GetCardsDesc(c *gin.Context) {
 
 // 根据条件获取卡牌描述详情
 func PostCardsDesc(c *gin.Context) {
-	// 允许跨域
-	c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-
 	// 绑定 url query
 	var reqQuery models.PostCardsDescReqQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
