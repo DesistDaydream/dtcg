@@ -15,9 +15,9 @@ type Services struct {
 func NewServices(isLogin bool, username, password, token string, retry int) *Services {
 	if isLogin {
 		if core.CheckToken(token) {
-			logrus.Infoln("TOKEN 可用，不用重新获取")
+			logrus.Infoln("Moecard TOKEN 可用，不用重新获取")
 		} else {
-			logrus.Warnln("TOKEN 不可用，开始重新获取")
+			logrus.Warnln("Moecard TOKEN 不可用，开始重新获取")
 			token = core.Login(username, password)
 		}
 	} else {
