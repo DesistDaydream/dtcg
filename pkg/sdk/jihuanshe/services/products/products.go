@@ -3,6 +3,7 @@ package products
 import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/utils"
 )
 
 type ProductsClient struct {
@@ -24,7 +25,7 @@ func (p *ProductsClient) Get(cardVersionID string, sellerUserID string) (*models
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.ProductsGetReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.ProductsGetReqQuery{
 			GameKey:       "dgm",
 			SellerUserID:  sellerUserID,
 			CardVersionID: cardVersionID,

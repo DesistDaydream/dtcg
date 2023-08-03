@@ -4,5 +4,5 @@ type ProductsDelReqBody struct {
 }
 
 // type ProductsDelReqQuery struct {
-// 	Token string `query:"token"`
+// 	Token string `form:"token"`
 // }

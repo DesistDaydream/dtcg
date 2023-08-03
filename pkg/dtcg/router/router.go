@@ -55,6 +55,10 @@ func InitRouter() *gin.Engine {
 	api.POST("/deck/price/ids", v1.PostDeckPriceWithIDS)
 	api.GET("/user/info/:uid", v1.GetUser)
 
+	jhsAPI := api.Group("/jhs")
+	jhsAPI.GET("/market/sellers/products", v1.SellersProductsList)
+	jhsAPI.PUT("/market/sellers/products/:productid", v1.SellersProductsUpdate)
+
 	auth := api.Group("", middlewares.Auth)
 	auth.GET("/auth/test", v1.TestAuth)
 	return r

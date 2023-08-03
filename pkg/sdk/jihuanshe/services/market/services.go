@@ -5,6 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/utils"
 )
 
 type MarketClient struct {
@@ -64,7 +65,7 @@ func (m *MarketClient) SellersProductsList(page, keyword, onSale, sorting string
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.ProductsListReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.ProductsListReqQuery{
 			GameKey:    "dgm",
 			GameSubKey: "sc",
 			Keyword:    keyword,
@@ -145,7 +146,7 @@ func (m *MarketClient) OrderList(page string) (*models.BuyerOrdersListResp, erro
 	uri := "/api/market/orders"
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.OrderListReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.OrderListReqQuery{
 			Page:   page,
 			Status: "complete",
 			Token:  m.client.Token,
@@ -168,7 +169,7 @@ func (m *MarketClient) OrderGet(orderID int) (*models.OrderByBuyerGetResp, error
 	uri := "/api/market/orders/" + orderIDStr
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.OrderGetReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.OrderGetReqQuery{
 			Token: m.client.Token,
 		}),
 	}
@@ -189,7 +190,7 @@ func (m *MarketClient) SellerOrderList(page string) (*models.SellerOrderListResp
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.OrderListReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.OrderListReqQuery{
 			Page:   page,
 			Status: "complete",
 			Token:  m.client.Token,
@@ -212,7 +213,7 @@ func (m *MarketClient) SellerOrderGet(orderID int) (*models.OrderBySellerGetResp
 	uri := "/api/market/sellers/orders/" + orderIDStr
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.OrderGetReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.OrderGetReqQuery{
 			Token: m.client.Token,
 		}),
 	}
@@ -232,7 +233,7 @@ func (m *MarketClient) CardVersionsProductsGet(cardVersionID string, page string
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.ProductSellersGetReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.ProductSellersGetReqQuery{
 			CardVersionID: cardVersionID,
 			Condition:     "1",
 			GameKey:       "dgm",

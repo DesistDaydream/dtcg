@@ -1,14 +1,12 @@
 package products
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,25 +29,6 @@ func initConfig() {
 
 	user, _ := database.GetUser("1")
 	token = user.JhsToken
-}
-
-// 测试将结构体转为 map
-func TestStructToMapStr(t *testing.T) {
-	obj := models.ProductsGetReqQuery{
-		GameKey:       "dgm",
-		SellerUserID:  sellerUserID,
-		CardVersionID: cardVersionID,
-	}
-
-	got := core.StructToMapStr(&obj)
-
-	fmt.Println(len(got))
-
-	gotByte, _ := json.Marshal(got)
-	fmt.Println(string(gotByte))
-	for k, v := range got {
-		fmt.Println(k, v)
-	}
 }
 
 // 获取商品信息

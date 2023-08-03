@@ -1,8 +1,8 @@
 package models
 
 type CardSearchReqQuery struct {
-	Limit string `query:"limit"`
-	Page  string `query:"page"`
+	Limit string `form:"limit"`
+	Page  string `form:"page"`
 }
 
 type CardSearchReqBody struct {

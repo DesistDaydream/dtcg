@@ -1,7 +1,7 @@
 package models
 
 type OrderListReqQuery struct {
-	Page   string `query:"page"`
-	Status string `query:"status"`
-	Token  string `query:"token"`
+	Page   string `form:"page"`
+	Status string `form:"status"`
+	Token  string `form:"token"`
 }

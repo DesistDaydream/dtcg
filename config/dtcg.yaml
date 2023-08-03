@@ -6,9 +6,6 @@ mysql:
 sqlite:
   filePath: "internal/database/my_dtcg.db"
 moecard:
-  username: ""
-  password: ""
   retry: 2 # 向 DtcgDB 服务器发送请求时的重试次数
 jhs:
   autoUpdateTokenDuration: 12h
-  username: ""

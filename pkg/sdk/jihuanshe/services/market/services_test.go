@@ -19,7 +19,7 @@ var (
 	table      *tablewriter.Table
 	// sellerUserID  string = "609077"
 	cardVersionID string = "4282"
-	productID     string = "33597830"
+	productID     string = "35103047"
 )
 
 func initConfig() {

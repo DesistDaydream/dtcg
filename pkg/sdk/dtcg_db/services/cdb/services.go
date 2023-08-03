@@ -5,6 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/cdb/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/utils"
 )
 
 type CdbClient struct {
@@ -58,7 +59,7 @@ func (s *CdbClient) PostCardSearch(cardPack int, limit string, language string, 
 
 	reqOpts := &core.RequestOption{
 		Method: "POST",
-		ReqQuery: core.StructToMapStr(&models.CardSearchReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.CardSearchReqQuery{
 			Limit: limit,
 			Page:  "1",
 		}),
@@ -91,7 +92,7 @@ func (s *CdbClient) GetCardPrice(cardID string) (*models.CardPriceGetResp, error
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.CardsPriceGetReq{
+		ReqQuery: utils.StructToMapStr(&models.CardsPriceGetReq{
 			CardID: cardID,
 		}),
 		ReqBody: nil,

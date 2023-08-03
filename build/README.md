@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.5.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.6.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.5.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.6.0
 
 # ChangeLog
 
@@ -89,3 +89,8 @@ TODO: 需要将数据库中的密码加密
 4. 将 dtcg 的 NewHandler 逻辑放到中间件中
 5. database 添加列出用户信息逻辑
 6. 删除 dtcg api models 中的重复内容，将各种借口所需的 reqQuery 和 reqBody 统一到一个结构体中
+
+## 2.6.0
+
+1. StructToMapStr 功能的 Tag 改为 form，与 Gin 的 ShouldBindQuery 中的转换 map 逻辑中使用的 Tag 保持一致；并且将集换社和dtcgdb 中的 StructToMapStr 功能提出来合并到一起。
+2. 添加用于集换社的列出商品和更新商品两个接口，让前端直接从本程序获取商品信息，避免跨域问题。

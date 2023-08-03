@@ -5,6 +5,7 @@ import (
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/utils"
 )
 
 type CommunityClient struct {
@@ -24,7 +25,7 @@ func (c *CommunityClient) PostDeckSearch(reqBody *models.DeckSearchReqBody, reqQ
 
 	reqOpts := &core.RequestOption{
 		Method:   "POST",
-		ReqQuery: core.StructToMapStr(reqQuery),
+		ReqQuery: utils.StructToMapStr(reqQuery),
 		ReqBody:  reqBody,
 	}
 

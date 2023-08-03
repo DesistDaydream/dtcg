@@ -1,7 +1,8 @@
 package models
 
 type ProductsUpdateResp struct {
-	Message string `json:"message"`
+	Message        string `json:"message"`
+	OnSaleQuantity int    `json:"on_sale_quantity"`
 }
 
 type ProductUpdateErrorResp struct {

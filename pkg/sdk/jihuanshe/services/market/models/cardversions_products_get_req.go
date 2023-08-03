@@ -1,8 +1,8 @@
 package models
 
 type ProductSellersGetReqQuery struct {
-	CardVersionID string `query:"card_version_id"`
-	Condition     string `query:"condition"` // 1 为在售，0 为下架
-	GameKey       string `query:"game_key"`
-	Page          string `query:"page"`
+	CardVersionID string `form:"card_version_id"`
+	Condition     string `form:"condition"` // 1 为在售，0 为下架
+	GameKey       string `form:"game_key"`
+	Page          string `form:"page"`
 }

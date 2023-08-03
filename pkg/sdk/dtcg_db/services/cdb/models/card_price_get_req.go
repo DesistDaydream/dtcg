@@ -1,5 +1,5 @@
 package models
 
 type CardsPriceGetReq struct {
-	CardID string `query:"card_id"`
+	CardID string `form:"card_id"`
 }

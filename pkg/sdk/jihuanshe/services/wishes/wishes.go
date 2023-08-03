@@ -3,6 +3,7 @@ package wishes
 import (
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/wishes/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/utils"
 )
 
 type WishesClient struct {
@@ -55,7 +56,7 @@ func (w *WishesClient) Get(wishListID string) (*models.WishListGetResp, error) {
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.WishListGetReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.WishListGetReqQuery{
 			GameKey:    "dgm",
 			GameSubKey: "sc",
 			Page:       "1",
@@ -103,7 +104,7 @@ func (w *WishesClient) ListWishListRecommend() (*models.WishListRecommendResp, e
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.WishListRecommendReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.WishListRecommendReqQuery{
 			GameKey:     "dgm",
 			GameSubKey:  "sc",
 			IsRecommend: "0",
@@ -126,7 +127,7 @@ func (w *WishesClient) WishListMatch(wishListID string) (models.WishListMatchRes
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqQuery: core.StructToMapStr(&models.WishListMatchResultsReqQuery{
+		ReqQuery: utils.StructToMapStr(&models.WishListMatchResultsReqQuery{
 			GameKey:           "dgm",
 			GameSubKey:        "sc",
 			IgnoreCardVersion: "0",
