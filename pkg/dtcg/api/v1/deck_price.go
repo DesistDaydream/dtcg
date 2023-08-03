@@ -99,6 +99,14 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 		logrus.Errorln(err)
 	}
 
+	if len(decks.Data.DeckInfo.Eggs) == 0 && len(decks.Data.DeckInfo.Main) == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "卡组为空，请添加至少一张卡牌",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
+	}
+
 	var cardsID []string
 
 	for _, card := range decks.Data.DeckInfo.Eggs {

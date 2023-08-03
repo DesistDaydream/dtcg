@@ -14,7 +14,7 @@ func Login(c *gin.Context) {
 	logrus.Infof("登录 IP: %v", ip)
 
 	var req models.LoginReqBody
-	if err := c.ShouldBind(&req); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		utils.ErrorWithDataResp(c, err, 400, nil)
 		return
 	}

@@ -5,7 +5,30 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// 获取用户信息
+// 列出用户
+func ListUser(pageSize int, pageNum int) (*models.Users, error) {
+	var (
+		CardCount int64
+		user      []models.User
+	)
+
+	DB.Model(&models.User{}).Count(&CardCount)
+
+	result := DB.Limit(pageSize).Offset(pageSize * (pageNum - 1)).Find(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &models.Users{
+		Count:       result.RowsAffected,
+		PageSize:    pageSize,
+		PageCurrent: pageNum,
+		PageTotal:   (int(CardCount) / pageSize) + 1,
+		Data:        user,
+	}, nil
+}
+
+// 根据 ID 获取用户信息
 func GetUser(userID string) (*models.User, error) {
 	var user models.User
 	result := DB.Where("id = ?", userID).First(&user)
@@ -16,6 +39,7 @@ func GetUser(userID string) (*models.User, error) {
 	return &user, nil
 }
 
+// 根据用户名获取用户信息
 func GetUserByName(username string) (*models.User, error) {
 	var user models.User
 	result := DB.Where("username = ?", username).First(&user)

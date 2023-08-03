@@ -15,7 +15,7 @@ import (
 func GetCardsDesc(c *gin.Context) {
 
 	// 绑定 url query
-	var req models.GetCardsDescReqQuery
+	var req models.CommonReqQuery
 
 	if err := c.ShouldBindQuery(&req); err != nil {
 		logrus.Error(err)
@@ -39,7 +39,7 @@ func GetCardsDesc(c *gin.Context) {
 // 根据条件获取卡牌描述详情
 func PostCardsDesc(c *gin.Context) {
 	// 绑定 url query
-	var reqQuery models.PostCardsDescReqQuery
+	var reqQuery models.CommonReqQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

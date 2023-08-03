@@ -15,7 +15,7 @@ import (
 func GetCardsPrice(c *gin.Context) {
 
 	// 绑定 url query
-	var req models.GetCardsPriceReqQuery
+	var req models.CommonReqQuery
 	if err := c.ShouldBindQuery(&req); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -39,7 +39,7 @@ func GetCardsPrice(c *gin.Context) {
 func PostCardsPrice(c *gin.Context) {
 
 	// 绑定 url query
-	var reqQuery models.GetCardsPriceReqQuery
+	var reqQuery models.CommonReqQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -72,7 +72,7 @@ func PostCardsPrice(c *gin.Context) {
 // 根据条件获取带有数码宝贝数据库中卡图的卡牌价格数据
 func PostCardsPriceWithDtcgDBImg(c *gin.Context) {
 	// 绑定 url query
-	var reqQuery models.GetCardsPriceReqQuery
+	var reqQuery models.CommonReqQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

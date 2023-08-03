@@ -11,7 +11,7 @@ import (
 
 // 获取所有卡牌集合的信息
 func PostCardSets(c *gin.Context) {
-	var req models.PostCardSetsReq
+	var req models.CommonReqBody
 
 	// 绑定请求体
 	if err := c.ShouldBindJSON(&req); err != nil {

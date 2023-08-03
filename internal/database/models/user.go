@@ -15,13 +15,16 @@ type Users struct {
 }
 
 type User struct {
-	ID           int       `json:"id" gorm:"primaryKey"`
-	Username     string    `json:"username"`
-	Password     string    `json:"password"`
-	MoecardToken string    `json:"moecard_token"`
-	JhsToken     string    `json:"jhs_token"`
-	CreatedAt    time.Time `json:"create_at"`
-	UpdatedAt    time.Time `json:"update_at"`
+	ID              int       `json:"id" gorm:"primaryKey"`
+	Username        string    `json:"username"`
+	Password        string    `json:"password"`
+	MoecardUsername string    `json:"moecard_username"`
+	MoecardPassword string    `json:"moecard_password"`
+	MoecardToken    string    `json:"moecard_token"`
+	JhsUsername     string    `json:"jhs_username"`
+	JhsToken        string    `json:"jhs_token"`
+	CreatedAt       time.Time `json:"create_at"`
+	UpdatedAt       time.Time `json:"update_at"`
 }
 
 func (u *User) ValidatePassword(password string) error {

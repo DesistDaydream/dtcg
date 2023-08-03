@@ -84,8 +84,8 @@ func initConfig() {
 
 	// 实例化一个处理器，包括各种 SDK 的服务能力
 	if flags.enableMoecardAuth {
-		handler.H = handler.NewHandler(true, "1", c.Moecard.Username, c.Moecard.Password, 1)
+		handler.H = handler.NewHandler(true, "1", 1)
 	} else {
-		handler.H = handler.NewHandler(false, "1", "", "", 1)
+		handler.H = handler.NewHandler(false, "1", 1)
 	}
 }

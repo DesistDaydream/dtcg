@@ -32,7 +32,9 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	// TODO: 设定当前用户为 user.Username
+	// 设定当前用户信息以便在其他部分代码中获取
+	c.Set("user", user)
+
 	logrus.Infof("当前登录的用户为: %v", user.Username)
 
 	c.Next()

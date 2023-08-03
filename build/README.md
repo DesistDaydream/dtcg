@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.4.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.5.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.4.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.5.0
 
 # ChangeLog
 
@@ -80,3 +80,12 @@ TODO: 需要将数据库中的密码加密
 ## 2.4.0
 
 1. 添加 /deck/price/wlid/:wlid 接口，可以通过集换社心愿单 ID 获取整个清单的价格。
+
+## 2.5.0
+
+1. 添加 Login 逻辑，添加列出所有用户接口
+2. 完善中间件逻辑，允许跨域等
+3. config 文件与 NewHandler 参数中关于第三方的信息移到数据库的 user 表中。user 表添加对应的字段
+4. 将 dtcg 的 NewHandler 逻辑放到中间件中
+5. database 添加列出用户信息逻辑
+6. 删除 dtcg api models 中的重复内容，将各种借口所需的 reqQuery 和 reqBody 统一到一个结构体中

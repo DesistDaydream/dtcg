@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core/models"
@@ -52,8 +51,11 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 	// DTCGDB 的部分接口在 token 失效时，没有 json 格式的响应体，直接返回 500，所以需要特殊处理
 	if statusCode >= 500 {
 		logrus.Errorf("DTCGDB 服务器异常，响应码：%v，重新获取 token", statusCode)
-		cfg, _ := config.NewConfig("", "")
-		c.Token = Login(cfg.Moecard.Username, cfg.Moecard.Password)
+		user, err := database.GetUser("1")
+		if err != nil {
+			logrus.Fatalf("获取用户信息异常，原因: %v", err)
+		}
+		c.Token = Login(user.MoecardUsername, user.MoecardPassword)
 		statusCode, body, err = c.request(uri, reqOpts)
 		if err != nil {
 			return err

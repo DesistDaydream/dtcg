@@ -26,14 +26,11 @@ type SQLite struct {
 }
 
 type Moecard struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Retry    int    `yaml:"retry"`
+	Retry int `yaml:"retry"`
 }
 
 type JHS struct {
 	AutoUpdateTokenDuration string `yaml:"autoUpdateTokenDuration"` // 每次更新集换社 Token 的间隔时间
-	UserName                string `yaml:"username"`
 }
 
 var Conf *Config

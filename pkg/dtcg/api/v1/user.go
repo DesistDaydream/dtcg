@@ -1,11 +1,39 @@
 package v1
 
 import (
+	"fmt"
+	"net/http"
+	"strconv"
+
+	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
+	"github.com/DesistDaydream/dtcg/pkg/dtcg/utils"
+	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
+
+func ListUser(c *gin.Context) {
+	var reqQuery models.CommonReqQuery
+	if err := c.ShouldBindQuery(&reqQuery); err != nil {
+		logrus.Error(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if reqQuery.PageSize == 0 || reqQuery.PageNum == 0 {
+		reqQuery.PageSize = 10
+		reqQuery.PageNum = 1
+	}
+
+	resp, err := database.ListUser(reqQuery.PageSize, reqQuery.PageNum)
+	if err != nil {
+		logrus.Errorf("获取用户信息失败，原因: %v", err)
+	}
+
+	c.JSON(200, resp)
+}
 
 // 根据 User ID 获取指定用户的信息
 func GetUser(c *gin.Context) {
@@ -24,4 +52,37 @@ func GetUser(c *gin.Context) {
 		CreatedAt:    userInfo.UpdatedAt,
 		UpdatedAt:    userInfo.UpdatedAt,
 	})
+}
+
+// 设置当前登录的用户信息
+func CurrentUser(c *gin.Context) {
+	token := c.GetHeader("Authorization")
+	logrus.Debugf("检查传入的 TOKEN: %v", token)
+
+	if token == "" {
+		utils.ErrorWithDataResp(c, fmt.Errorf("token is empty"), 401, nil, true)
+		return
+	}
+
+	userClaims, err := utils.ParseToken(token)
+	if err != nil {
+		utils.ErrorWithDataResp(c, err, 401, nil)
+		c.Abort()
+		return
+	}
+
+	user, err := database.GetUserByName(userClaims.Username)
+	if err != nil {
+		utils.ErrorWithDataResp(c, err, 401, nil)
+		c.Abort()
+		return
+	}
+
+	// 实例化处理器以便后续代码可以从 卡查 和 集换社 中获取信息
+	handler.H = handler.NewHandler(true, strconv.Itoa(user.ID), config.Conf.Moecard.Retry)
+
+	// 设定当前用户信息以便在其他部分代码中获取
+	c.Set("user", user)
+
+	c.Next()
 }

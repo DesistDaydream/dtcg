@@ -37,15 +37,13 @@ func main() {
 	}
 	database.InitDB(dbInfo)
 
-	handler.H = handler.NewHandler(true, "1", config.Conf.Moecard.Username, config.Conf.Moecard.Password, config.Conf.Moecard.Retry)
-
 	if !f.Debug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
 	duration, err := time.ParseDuration(config.Conf.JHS.AutoUpdateTokenDuration)
 	if err != nil {
-		logrus.Fatalf("解析自动更新 Token 时间失败: %v", err)
+		logrus.Fatalf("解析自动更新集换社 Token 时间失败: %v", err)
 	}
 	ticker := time.NewTicker(duration)
 	go func() {

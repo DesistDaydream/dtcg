@@ -4,7 +4,22 @@ import (
 	v1 "github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/middlewares"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
+
+func CommonSet(c *gin.Context) {
+	method := c.Request.Method
+	logrus.Debugf("设置一些通用头，检查请求方法: %v", method)
+	// 允许跨域
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Methods", "*")
+	c.Header("Access-Control-Allow-Headers", "*")
+	// c.Header("Access-Control-Expose-Headers", "*")
+	// c.Header("Access-Control-Allow-Credentials", "false")
+	// c.Header("content-type", "application/json")
+
+	c.Next()
+}
 
 func InitRouter() *gin.Engine {
 	r := gin.New()
@@ -13,12 +28,12 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 
 	api := r.Group("/api/v1")
-	api.Use(func(ctx *gin.Context) {
-		// 允许跨域
-		ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		ctx.Next()
-	})
-	api.GET("/user/info/:uid", v1.GetUser)
+	api.Use(CommonSet)
+
+	api.POST("/login", v1.Login)
+
+	api.Use(v1.CurrentUser)
+	api.GET("/users/info/", v1.ListUser)
 
 	api.POST("/set/desc", v1.PostCardSets)
 
@@ -38,8 +53,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/deck/converter/:hid", v1.GetDeckConverter)
 	// 根据上面转换后的字符串格式的卡组信息，获取卡组价格。
 	api.POST("/deck/price/ids", v1.PostDeckPriceWithIDS)
-
-	api.POST("/login", v1.Login)
+	api.GET("/user/info/:uid", v1.GetUser)
 
 	auth := api.Group("", middlewares.Auth)
 	auth.GET("/auth/test", v1.TestAuth)
