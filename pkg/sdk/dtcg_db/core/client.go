@@ -53,6 +53,7 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 	// DTCGDB 的部分接口在 token 失效时，没有 json 格式的响应体，直接返回 500，所以需要特殊处理
 	if statusCode >= 500 {
 		logrus.Errorf("DTCGDB 服务器异常，响应码：%v，重新获取 token", statusCode)
+		// TODO: 这里不应该写死 1
 		user, err := database.GetUser("1")
 		if err != nil {
 			logrus.Fatalf("获取用户信息异常，原因: %v", err)

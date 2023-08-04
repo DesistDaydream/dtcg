@@ -98,3 +98,8 @@ TODO: 需要将数据库中的密码加密
 2.6.1
 
 - handler 中的 database.GetUser() 逻辑删除，需要在调用 NewHandler 之前从数据库中获取用户信息
+
+2.6.2
+
+- sdk moecard 的 client 添加通用的响应体结构体 CommonResp，同步修改请求逻辑中的最后部分，以处理响应体中的 interface{} 类型的字段。
+- 另外，moecard 的 client 中，将 database.GetUser("1") 写死为 1 了，这个需要修改，但是应该从哪里获取用户 ID 是个问题。
