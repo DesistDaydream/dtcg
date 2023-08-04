@@ -18,6 +18,7 @@ func NewServices(user *models.User, isLogin bool, retry int) *Services {
 	if isLogin {
 		if core.CheckToken(user.MoecardToken) {
 			logrus.Infoln("Moecard TOKEN 可用，不用重新获取")
+			token = user.MoecardToken
 		} else {
 			logrus.Warnln("Moecard TOKEN 不可用，开始重新获取")
 			token = core.Login(user.ID, user.MoecardUsername, user.MoecardPassword)

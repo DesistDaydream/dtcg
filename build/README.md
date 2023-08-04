@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.6.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.6.1 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.6.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.6.1
 
 # ChangeLog
 
@@ -92,5 +92,9 @@ TODO: 需要将数据库中的密码加密
 
 ## 2.6.0
 
-1. StructToMapStr 功能的 Tag 改为 form，与 Gin 的 ShouldBindQuery 中的转换 map 逻辑中使用的 Tag 保持一致；并且将集换社和dtcgdb 中的 StructToMapStr 功能提出来合并到一起。
+1. StructToMapStr 功能的 Tag 改为 form，与 Gin 的 ShouldBindQuery 中的转换 map 逻辑中使用的 Tag 保持一致；并且将集换社和 dtcgdb 中的 StructToMapStr 功能提出来合并到一起。
 2. 添加用于集换社的列出商品和更新商品两个接口，让前端直接从本程序获取商品信息，避免跨域问题。
+
+2.6.1
+
+- handler 中的 database.GetUser() 逻辑删除，需要在调用 NewHandler 之前从数据库中获取用户信息

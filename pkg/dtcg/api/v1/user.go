@@ -3,7 +3,6 @@ package v1
 import (
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -77,7 +76,7 @@ func CurrentUser(c *gin.Context) {
 	}
 
 	// 实例化处理器以便后续代码可以从 卡查 和 集换社 中获取信息
-	handler.H = handler.NewHandler(true, strconv.Itoa(user.ID), config.Conf.Moecard.Retry)
+	handler.H = handler.NewHandler(user, true, config.Conf.Moecard.Retry)
 
 	// 设定当前用户信息以便在其他部分代码中获取
 	c.Set("user", user)

@@ -93,6 +93,11 @@ func initConfig() {
 
 	database.InitDB(dbInfo)
 
+	user, err := database.GetUser("1")
+	if err != nil {
+		logrus.Fatalf("获取用户信息失败，原因: %v", err)
+	}
+
 	// 实例化一个处理器，包括各种 SDK 的服务能力
-	handler.H = handler.NewHandler(flags.IsLoginMoecard, "1", 10)
+	handler.H = handler.NewHandler(user, flags.IsLoginMoecard, 10)
 }

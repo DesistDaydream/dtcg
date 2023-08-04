@@ -1,10 +1,9 @@
 package handler
 
 import (
-	"github.com/DesistDaydream/dtcg/internal/database"
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	ms "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services"
 	js "github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services"
-	"github.com/sirupsen/logrus"
 )
 
 var H *Handler
@@ -15,12 +14,7 @@ type Handler struct {
 	JhsServices     *js.Services
 }
 
-func NewHandler(isLoginMoecard bool, userID string, retry int) *Handler {
-	user, err := database.GetUser(userID)
-	if err != nil {
-		logrus.Fatalf("获取用户信息失败，原因: %v", err)
-	}
-
+func NewHandler(user *models.User, isLoginMoecard bool, retry int) *Handler {
 	return &Handler{
 		UserID:          user.ID,
 		MoecardServices: ms.NewServices(user, isLoginMoecard, retry),
