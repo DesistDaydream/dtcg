@@ -17,15 +17,10 @@ type UserClaims struct {
 }
 
 func GenerateToken(username string) (tokenString string, err error) {
-	tokenExpiresAt, err := time.ParseDuration(config.Conf.TokenExpiresAt)
-	if err != nil {
-		logrus.Fatalln("解析 Token 过期时间失败", err)
-	}
-
 	claim := UserClaims{
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(tokenExpiresAt)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(config.TokenExpiresAt)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 		}}

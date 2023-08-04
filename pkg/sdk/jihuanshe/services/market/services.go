@@ -165,8 +165,7 @@ func (m *MarketClient) OrderList(page string) (*models.BuyerOrdersListResp, erro
 func (m *MarketClient) OrderGet(orderID int) (*models.OrderByBuyerGetResp, error) {
 	var orderProducts models.OrderByBuyerGetResp
 
-	orderIDStr := strconv.Itoa(orderID)
-	uri := "/api/market/orders/" + orderIDStr
+	uri := "/api/market/orders/" + strconv.Itoa(orderID)
 	reqOpts := &core.RequestOption{
 		Method: "GET",
 		ReqQuery: utils.StructToMapStr(&models.OrderGetReqQuery{
@@ -209,8 +208,7 @@ func (m *MarketClient) SellerOrderList(page string) (*models.SellerOrderListResp
 func (m *MarketClient) SellerOrderGet(orderID int) (*models.OrderBySellerGetResp, error) {
 	var orderProducts models.OrderBySellerGetResp
 
-	orderIDStr := strconv.Itoa(orderID)
-	uri := "/api/market/sellers/orders/" + orderIDStr
+	uri := "/api/market/sellers/orders/" + strconv.Itoa(orderID)
 	reqOpts := &core.RequestOption{
 		Method: "GET",
 		ReqQuery: utils.StructToMapStr(&models.OrderGetReqQuery{

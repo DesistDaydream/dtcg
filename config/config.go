@@ -1,7 +1,7 @@
 package config
 
 import (
-	"fmt"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	Listen         string  `yaml:"listen"`
-	TokenExpiresAt string  `yaml:"tokenExpiresAt"` // Token 过期时间
+	TokenExpiresAt string  `yaml:"tokenExpiresAt"` // 生成的 Token 过期时间
 	Mysql          MySQL   `yaml:"mysql"`
 	SQLite         SQLite  `yaml:"sqlite"`
 	Moecard        Moecard `yaml:"moecard"`
@@ -34,6 +34,8 @@ type JHS struct {
 }
 
 var Conf *Config
+
+var TokenExpiresAt time.Duration
 
 func NewConfig(path, name string) (*Config, string) {
 	logrus.Debugf("检查手动指定的配置文件信息: %s/%s", path, name)
@@ -60,9 +62,19 @@ func NewConfig(path, name string) (*Config, string) {
 
 	logrus.Debugf("读取到的配置文件绝对路径: %v", viper.ConfigFileUsed())
 
+	validate(&config)
+
 	Conf = &config
 
-	fmt.Println(Conf)
+	logrus.Debugf("检查配置文件解析结果: %v", Conf)
 
 	return &config, viper.ConfigFileUsed()
+}
+
+func validate(config *Config) {
+	var err error
+	TokenExpiresAt, err = time.ParseDuration(config.TokenExpiresAt)
+	if err != nil {
+		logrus.Fatalf("解析 Token 过期时间失败，原因: %v", err)
+	}
 }

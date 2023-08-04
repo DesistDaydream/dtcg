@@ -67,14 +67,12 @@ func CurrentUser(c *gin.Context) {
 	userClaims, err := utils.ParseToken(token)
 	if err != nil {
 		utils.ErrorWithDataResp(c, err, 401, nil)
-		c.Abort()
 		return
 	}
 
 	user, err := database.GetUserByName(userClaims.Username)
 	if err != nil {
 		utils.ErrorWithDataResp(c, err, 401, nil)
-		c.Abort()
 		return
 	}
 
