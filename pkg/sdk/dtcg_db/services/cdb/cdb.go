@@ -20,34 +20,34 @@ func NewCdbClient(client *core.Client) *CdbClient {
 
 // 列出卡牌集合
 func (s *CdbClient) GetSeries() (*models.SeriesGetResp, error) {
-	var resp models.SeriesGetResp
+	var seriesGetResp models.SeriesGetResp
 	uri := "/api/cdb/series"
 
 	reqOpts := &core.RequestOption{}
 
-	err := s.client.Request(uri, &resp, reqOpts)
+	err := s.client.Request(uri, &seriesGetResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	return &resp, nil
+	return &seriesGetResp, nil
 }
 
 // 获取卡牌集合详情(包括卡集中包含的所有卡牌)
 func (s *CdbClient) GetPackage(setName string) (*models.PackageGetResp, error) {
-	var resp models.PackageGetResp
+	var packageGetResp models.PackageGetResp
 	uri := fmt.Sprintf("/api/cdb/package/%s?extend_cards=1", setName)
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
 	}
 
-	err := s.client.Request(uri, &resp, reqOpts)
+	err := s.client.Request(uri, &packageGetResp, reqOpts)
 	if err != nil {
 		return nil, err
 	}
 
-	return &resp, nil
+	return &packageGetResp, nil
 }
 
 // TODO: 获取卡牌上下文(整个卡牌游戏中的所有颜色、所有稀有度等等)

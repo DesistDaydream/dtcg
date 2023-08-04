@@ -58,22 +58,32 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 			logrus.Fatalf("获取用户信息异常，原因: %v", err)
 		}
 		c.Token = Login(c.UserID, user.MoecardUsername, user.MoecardPassword)
-		statusCode, body, err = c.request(uri, reqOpts)
+		_, body, err = c.request(uri, reqOpts)
 		if err != nil {
 			return err
 		}
 	}
 
-	if statusCode != 200 {
-		return fmt.Errorf("响应异常，响应码：%v", statusCode)
-	}
-
-	err = json.Unmarshal(body, wantResp)
+	var commonResp models.CommonResp
+	err = json.Unmarshal(body, &commonResp)
 	if err != nil {
 		return fmt.Errorf("解析 %v 异常: %v", string(body), err)
 	}
 
-	return nil
+	// 这边由于 CommonResp.Data 是 interface{} 类型，想要将数据赋值给传递进来的 wantResp.Data 是不容易的，因为数据类型不一样
+	// 曾经试过使用 mapstructure 库将 map[string]interface{} 转为 struct，但是 struct 的层级太深的话(比如 CloudDeckGetRespData.Data.DeckInfo.Main)，数据丢失，并且没找到原因。
+	// 后来发现，只需要通过 json 库，将 commonResp 编码为 JSON 二进制流后，再将编码后的结果解码为结构体到 wantResp 即可。
+	if commonResp.Success {
+		// TODO: 这里要不要直接将 commonResp.Data 编码？就像下面这样，毕竟 Data 才是 interface{} 类型，才需要处理
+		// 并且返回的时候，直接返回 Data 即可，错误时，将 Message 返回即可，不用把所有的原始信息都返回。上层调用者本质上也只需要 Data 就够了
+		// commonRespDataByte, _ := json.Marshal(commonResp.Data)
+		commonRespByte, _ := json.Marshal(commonResp)
+		json.Unmarshal(commonRespByte, &wantResp)
+		return nil
+	} else {
+		logrus.Debugf("请求失败: %+v", commonResp)
+		return fmt.Errorf("%v", commonResp.Message)
+	}
 }
 
 func (c *Client) request(api string, reqOpts *RequestOption) (int, []byte, error) {

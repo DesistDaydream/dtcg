@@ -3,7 +3,6 @@ package community
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/config"
@@ -41,6 +40,7 @@ func initTest() {
 	cdbClient = cdb.NewCdbClient(core.NewClient(user.ID, "", 10))
 }
 
+// 测试卡组 json 转换为卡组信息
 func TestCommunityClient_PostConvertDeck(t *testing.T) {
 	initTest()
 	decksjson := `["Exported from http://digimon.card.moe","ST1-01","ST1-03","ST1-03","ST1-03","ST1-06","ST1-06","ST1-07","ST1-07","ST1-07","ST1-07","ST1-16","ST1-16","BT1-010","BT1-010","BT1-020","BT1-020","BT1-020","BT1-020","BT1-025","BT1-025","BT1-084","BT1-085","P-009","P-009","P-009","P-009","BT4-019","BT4-019","BT4-092","BT4-099","BT4-099","BT4-100","BT5-001","BT5-001","BT5-001","BT5-001","BT5-007","BT5-007","BT5-007","BT5-007","BT5-010","BT5-010","BT5-010","BT5-010","BT5-015","BT5-015","BT5-015","BT5-015","BT5-016","BT5-016","BT5-086","BT5-086","BT5-092","BT5-092","BT5-092"]`
@@ -65,22 +65,14 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 	}
 
 	for _, cardID := range cardsID {
-		cardPrice, err := cdbClient.GetCardPrice(cardID)
+		cardPrice, err := database.GetCardPrice(cardID)
+		// cardPrice, err := cdbClient.GetCardPrice(cardID)
 		if err != nil {
 			logrus.Errorf("获取卡牌 %v 价格失败: %v", cardID, err)
 		}
 
-		var fMin float64
-		if len(cardPrice.Data.Data) == 0 {
-			fMin = 0
-		} else {
-			fMin, _ = strconv.ParseFloat(cardPrice.Data.Data[0].MinPrice, 64)
-		}
-
-		fAvg, _ := strconv.ParseFloat(cardPrice.Data.AvgPrice, 64)
-
-		minPrice = minPrice + fMin
-		avgPrice = avgPrice + fAvg
+		minPrice = minPrice + cardPrice.MinPrice
+		avgPrice = avgPrice + cardPrice.AvgPrice
 	}
 
 	logrus.WithFields(logrus.Fields{

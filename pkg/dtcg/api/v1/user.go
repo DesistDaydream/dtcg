@@ -28,7 +28,8 @@ func ListUser(c *gin.Context) {
 
 	resp, err := database.ListUser(reqQuery.PageSize, reqQuery.PageNum)
 	if err != nil {
-		logrus.Errorf("获取用户信息失败，原因: %v", err)
+		logrus.Errorf("列出用户信息失败，原因: %v", err)
+		utils.ErrorWithDataResp(c, fmt.Errorf("列出用户信息失败，原因: %v", err), 400, nil, true)
 	}
 
 	c.JSON(200, resp)
@@ -41,6 +42,7 @@ func GetUser(c *gin.Context) {
 	userInfo, err := database.GetUser(uid)
 	if err != nil {
 		logrus.Errorf("获取用户信息失败，原因: %v", err)
+		utils.ErrorWithDataResp(c, fmt.Errorf("获取用户信息失败，原因: %v", err), 400, nil, true)
 	}
 
 	c.JSON(200, &models.UserData{
