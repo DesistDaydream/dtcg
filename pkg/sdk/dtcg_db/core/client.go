@@ -19,14 +19,16 @@ const (
 )
 
 type Client struct {
-	Token string
-	Retry int
+	UserID int
+	Token  string
+	Retry  int
 }
 
-func NewClient(token string, retry int) *Client {
+func NewClient(userID int, token string, retry int) *Client {
 	return &Client{
-		Token: token,
-		Retry: retry,
+		UserID: userID,
+		Token:  token,
+		Retry:  retry,
 	}
 }
 
@@ -55,7 +57,7 @@ func (c *Client) Request(uri string, wantResp interface{}, reqOpts *RequestOptio
 		if err != nil {
 			logrus.Fatalf("获取用户信息异常，原因: %v", err)
 		}
-		c.Token = Login(user.MoecardUsername, user.MoecardPassword)
+		c.Token = Login(c.UserID, user.MoecardUsername, user.MoecardPassword)
 		statusCode, body, err = c.request(uri, reqOpts)
 		if err != nil {
 			return err
@@ -181,7 +183,7 @@ func CheckToken(token string) bool {
 	}
 }
 
-func Login(username, password string) string {
+func Login(userid int, username, password string) string {
 	var loginPostResp models.LoginPostResp
 
 	reqBody, _ := json.Marshal(&models.LoginReqBody{
@@ -216,7 +218,7 @@ func Login(username, password string) string {
 	}
 
 	// 将刚取得的 TOKEN 更新到数据库中
-	database.UpdateUser(&dbmodels.User{ID: 1}, map[string]interface{}{
+	database.UpdateUser(&dbmodels.User{ID: userid}, map[string]interface{}{
 		"moecard_token": loginPostResp.Data.Token,
 	})
 

@@ -13,8 +13,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var token string = ""
-var client *CommunityClient
+var (
+	token     string = ""
+	client    *CommunityClient
+	cdbClient *cdb.CdbClient
+)
 
 // var cardVersionID string = "2544"
 
@@ -34,7 +37,8 @@ func initTest() {
 
 	token = user.MoecardToken
 
-	client = NewCommunityClient(core.NewClient(token, 1))
+	client = NewCommunityClient(core.NewClient(user.ID, token, 1))
+	cdbClient = cdb.NewCdbClient(core.NewClient(user.ID, "", 10))
 }
 
 func TestCommunityClient_PostConvertDeck(t *testing.T) {
@@ -60,9 +64,8 @@ func TestCommunityClient_PostConvertDeck(t *testing.T) {
 		cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
 	}
 
-	clientSearch := cdb.NewCdbClient(core.NewClient("", 10))
 	for _, cardID := range cardsID {
-		cardPrice, err := clientSearch.GetCardPrice(cardID)
+		cardPrice, err := cdbClient.GetCardPrice(cardID)
 		if err != nil {
 			logrus.Errorf("获取卡牌 %v 价格失败: %v", cardID, err)
 		}

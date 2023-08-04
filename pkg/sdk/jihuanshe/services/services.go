@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
@@ -13,9 +14,9 @@ type Services struct {
 	Wishes   *wishes.WishesClient
 }
 
-func NewServices(token string) *Services {
+func NewServices(user *models.User) *Services {
 	s := new(Services)
-	s.init(token)
+	s.init(user.JhsToken)
 	return s
 }
 

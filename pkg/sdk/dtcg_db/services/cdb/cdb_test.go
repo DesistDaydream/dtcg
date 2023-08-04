@@ -13,7 +13,7 @@ import (
 var client *CdbClient
 
 func initTest() {
-	client = NewCdbClient(core.NewClient("", 10))
+	client = NewCdbClient(core.NewClient(1, "", 10))
 }
 
 // 列出卡牌集合

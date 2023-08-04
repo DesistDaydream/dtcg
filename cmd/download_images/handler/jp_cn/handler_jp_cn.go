@@ -32,7 +32,7 @@ func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 	var allCardPackageInfo []*handler.CardSetInfo
 
 	// 获取所有卡包的名称
-	client = cdb.NewCdbClient(core.NewClient("", 10))
+	client = cdb.NewCdbClient(core.NewClient(1, "", 10))
 	series, err := client.GetSeries()
 	if err != nil {
 		logrus.Fatalln(err)

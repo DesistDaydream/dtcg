@@ -96,7 +96,11 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 
 	decks, err := handler.H.MoecardServices.Community.GetDeckCloud(cloudDeckID)
 	if err != nil {
-		logrus.Errorln(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "无法获取到云卡组信息",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
 	}
 
 	if len(decks.Data.DeckInfo.Eggs) == 0 && len(decks.Data.DeckInfo.Main) == 0 {

@@ -73,6 +73,7 @@ func NewConfig(path, name string) (*Config, string) {
 
 func validate(config *Config) {
 	var err error
+
 	TokenExpiresAt, err = time.ParseDuration(config.TokenExpiresAt)
 	if err != nil {
 		logrus.Fatalf("解析 Token 过期时间失败，原因: %v", err)

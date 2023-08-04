@@ -10,6 +10,7 @@ import (
 var H *Handler
 
 type Handler struct {
+	UserID          int
 	MoecardServices *ms.Services
 	JhsServices     *js.Services
 }
@@ -21,7 +22,8 @@ func NewHandler(isLoginMoecard bool, userID string, retry int) *Handler {
 	}
 
 	return &Handler{
-		MoecardServices: ms.NewServices(isLoginMoecard, user.MoecardUsername, user.MoecardPassword, user.MoecardToken, retry),
-		JhsServices:     js.NewServices(user.JhsToken),
+		UserID:          user.ID,
+		MoecardServices: ms.NewServices(user, isLoginMoecard, retry),
+		JhsServices:     js.NewServices(user),
 	}
 }

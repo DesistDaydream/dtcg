@@ -27,7 +27,7 @@ func TestNewServices(t *testing.T) {
 		logrus.Fatalf("获取用户信息异常，原因: %v", err)
 	}
 
-	services := NewServices(true, user.MoecardUsername, user.MoecardPassword, user.MoecardToken, 2)
+	services := NewServices(user, true, 2)
 
 	fmt.Println(services.Cdb, services.Community)
 }
