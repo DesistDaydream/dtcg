@@ -49,7 +49,11 @@ func GetDeckPriceWithHID(c *gin.Context) {
 
 	decks, err := handler.H.MoecardServices.Community.GetDeck(hid)
 	if err != nil {
-		logrus.Errorln(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "无法获取到卡组信息",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
 	}
 
 	var cardsID []string
