@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.6.2 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.7.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.6.2
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.7.0
 
 # ChangeLog
 
@@ -103,3 +103,8 @@ TODO: 需要将数据库中的密码加密
 
 - sdk moecard 的 client 添加通用的响应体结构体 CommonResp，同步修改请求逻辑中的最后部分，以处理响应体中的 interface{} 类型的字段。
 - 另外，moecard 的 client 中，将 database.GetUser("1") 写死为 1 了，这个需要修改，但是应该从哪里获取用户 ID 是个问题。
+
+## 2.7.0
+
+1. 添加 /api/v1/me 接口用以返回当前登录的用户信息
+2. 添加一个 /ping 接口

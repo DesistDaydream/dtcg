@@ -20,8 +20,6 @@ func SellersProductsList(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("啦啦啦", req.Page, req.Keyword, req.OnSale, req.Sorting)
-
 	resp, err := handler.H.JhsServices.Market.SellersProductsList(req.Page, req.Keyword, req.OnSale, req.Sorting)
 	if err != nil {
 		logrus.Errorf("%v", err)
