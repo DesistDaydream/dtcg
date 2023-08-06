@@ -23,8 +23,6 @@ func GetWishListPriceCmd() *cobra.Command {
 		Run:   runGetWishListPrice,
 	}
 
-	getWishListPriceCmd.Flags().StringVarP(&addFlags.CDID, "cdid", "c", "", "DTCG DB 中我的卡组的 ID")
-
 	return getWishListPriceCmd
 
 }
