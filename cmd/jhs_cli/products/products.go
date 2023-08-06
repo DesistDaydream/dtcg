@@ -75,7 +75,7 @@ func GenNeedHandleCards() (*dbmodels.CardsPrice, error) {
 		return nil, err
 	}
 
-	logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要更新", productsFlags.SetPrefix, productsFlags.PriceRange, len(cards.Data))
+	logrus.Infof("在 %v 卡集中，%v 价格区间共有 %v 张卡牌需要处理", productsFlags.SetPrefix, productsFlags.PriceRange, len(cards.Data))
 
 	return cards, nil
 }
