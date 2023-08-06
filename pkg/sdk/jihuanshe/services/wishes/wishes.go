@@ -1,6 +1,8 @@
 package wishes
 
 import (
+	"strconv"
+
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/wishes/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/utils"
@@ -50,7 +52,7 @@ func (w *WishesClient) Update() {
 func (w *WishesClient) Del() {}
 
 // 获取清单详情
-func (w *WishesClient) Get(wishListID string) (*models.WishListGetResp, error) {
+func (w *WishesClient) Get(wishListID string, page int) (*models.WishListGetResp, error) {
 	var wishListGetResp models.WishListGetResp
 	uri := "/api/market/wishes"
 
@@ -59,7 +61,7 @@ func (w *WishesClient) Get(wishListID string) (*models.WishListGetResp, error) {
 		ReqQuery: utils.StructToMapStr(&models.WishListGetReqQuery{
 			GameKey:    "dgm",
 			GameSubKey: "sc",
-			Page:       "1",
+			Page:       strconv.Itoa(page),
 			WishListID: wishListID,
 		}),
 	}

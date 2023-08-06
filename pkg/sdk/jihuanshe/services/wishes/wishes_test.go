@@ -88,13 +88,25 @@ func TestWishesClient_GetRecommendList(t *testing.T) {
 
 // 获取清单详情
 func TestWishesClient_Get(t *testing.T) {
-	resp, err := client.Get(wishListID)
-	if err != nil {
-		logrus.Fatalln(err)
-	}
+	var page int = 1
 
-	for _, data := range resp.Data {
-		table.Append([]string{data.NameCN, data.Number, strconv.Itoa(data.Quantity), data.MinPrice})
+	for {
+		resp, err := client.Get(wishListID, page)
+		if err != nil {
+			logrus.Fatalln(err)
+		}
+
+		for _, data := range resp.Data {
+			table.Append([]string{data.NameCN, data.Number, strconv.Itoa(data.Quantity), data.MinPrice})
+		}
+
+		if resp.NextPageURL == "" {
+			logrus.Infof("退出循环时共 %v 页,处理完 %v 页", resp.LastPage, resp.CurrentPage)
+			break
+		}
+
+		// 每处理完一页，下一个循环需要处理的页+1
+		page++
 	}
 
 	table.Render()

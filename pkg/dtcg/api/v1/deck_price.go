@@ -9,6 +9,7 @@ import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
 	deckprice "github.com/DesistDaydream/dtcg/pkg/dtcg/deck_price"
+	"github.com/DesistDaydream/dtcg/pkg/dtcg/utils"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -26,7 +27,7 @@ func PostDeckPriceWithJSON(c *gin.Context) {
 		return
 	}
 
-	resp, err := deckprice.GetRespWithJSON(&req)
+	resp, err := deckprice.GetDeckPriceWithJSON(&req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
@@ -76,7 +77,7 @@ func GetDeckPriceWithHID(c *gin.Context) {
 		IDs: string(cardsIDString),
 	}
 
-	resp, err := deckprice.GetRespWithID(&req)
+	resp, err := deckprice.GenDeckPriceWithMoecardID(&req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
@@ -135,7 +136,7 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 		IDs: string(cardsIDString),
 	}
 
-	resp, err := deckprice.GetRespWithID(&req)
+	resp, err := deckprice.GenDeckPriceWithMoecardID(&req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
@@ -155,22 +156,36 @@ func GetDeckPriceWithCloudDeckID(c *gin.Context) {
 // 根据集换社的心愿单 ID 获取卡组价格，可以通过分享心愿单中的风险链接找到心愿单 ID
 func GetDeckPriceWithJHSWishListID(c *gin.Context) {
 	wishListID := c.Param("wlid")
+	var (
+		cardsID []string
+		page    int = 1
+	)
 
-	wishListGetResp, err := handler.H.JhsServices.Wishes.Get(wishListID)
-	if err != nil {
-		logrus.Errorf("获取我想收清单失败，原因: %v", err)
-	}
-
-	var cardsID []string
-
-	for _, card := range wishListGetResp.Data {
-		cardPrice, err := database.GetCardPriceWhereCardVersionID(strconv.Itoa(card.CardVersionID))
+	for {
+		wishListGetResp, err := handler.H.JhsServices.Wishes.Get(wishListID, page)
 		if err != nil {
-			logrus.Errorf("%v", err)
+			logrus.Errorf("获取我想收清单失败，原因: %v", err)
+			utils.ErrorWithDataResp(c, err, 400, nil)
+			return
 		}
-		for i := 0; i < card.Quantity; i++ {
-			cardsID = append(cardsID, fmt.Sprint(cardPrice.CardIDFromDB))
+
+		for _, card := range wishListGetResp.Data {
+			cardPrice, err := database.GetCardPriceWhereCardVersionID(strconv.Itoa(card.CardVersionID))
+			if err != nil {
+				logrus.Errorf("%v", err)
+			}
+			for i := 0; i < card.Quantity; i++ {
+				cardsID = append(cardsID, fmt.Sprint(cardPrice.CardIDFromDB))
+			}
 		}
+
+		if wishListGetResp.NextPageURL == "" {
+			logrus.Debugf("最后页: %v; 当前页: %v", wishListGetResp.LastPage, wishListGetResp.CurrentPage)
+			break
+		}
+
+		// 每处理完一页，下一个循环需要处理的页+1
+		page++
 	}
 
 	cardsIDString, _ := json.Marshal(&cardsID)
@@ -179,12 +194,13 @@ func GetDeckPriceWithJHSWishListID(c *gin.Context) {
 		IDs: string(cardsIDString),
 	}
 
-	resp, err := deckprice.GetRespWithID(&req)
+	resp, err := deckprice.GenDeckPriceWithMoecardID(&req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",
 			Data:    fmt.Sprintf("%v", err),
 		})
+		utils.ErrorWithDataResp(c, fmt.Errorf("由于 %v 原因导致根据 ID 计算", err), 400, nil)
 		return
 	}
 
@@ -208,7 +224,7 @@ func PostDeckPriceWithIDS(c *gin.Context) {
 		return
 	}
 
-	resp, err := deckprice.GetRespWithID(&req)
+	resp, err := deckprice.GenDeckPriceWithMoecardID(&req)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
 			Message: "获取响应失败",

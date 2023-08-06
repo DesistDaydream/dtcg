@@ -42,7 +42,8 @@ import (
 // 	return nil
 // }
 
-func GetRespWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceResp, error) {
+// 根据 DTCG_DB 导出的 JSON 格式卡组信息获取卡组价格
+func GetDeckPriceWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceResp, error) {
 	var (
 		resp        models.PostDeckPriceResp
 		allMinPrice float64
@@ -167,8 +168,8 @@ func transform(ids string) (*models.PostDeckPriceWithIDReqTransform, error) {
 	return &cards, nil
 }
 
-// 根据卡牌 ID 计算卡组价格
-func GetRespWithID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceResp, error) {
+// 根据 card_id_from_db 计算卡组价格
+func GenDeckPriceWithMoecardID(req *models.PostDeckPriceWithIDReq) (*models.PostDeckPriceResp, error) {
 	var (
 		resp        models.PostDeckPriceResp
 		allMinPrice float64

@@ -35,30 +35,28 @@ func InitRouter() *gin.Engine {
 	api := r.Group("/api/v1")
 	api.Use(CommonSet)
 
+	api.POST("/set/desc", v1.PostCardSets)
+	api.GET("/card/desc", v1.GetCardsDesc)
+	api.POST("/card/desc", v1.PostCardsDesc)
+	api.GET("/card/price", v1.GetCardsPrice)
+	api.POST("/card/price", v1.PostCardsPrice)
+	api.POST("/card/pricewithimg", v1.PostCardsPriceWithDtcgDBImg)
+
 	api.POST("/login", v1.Login)
 
 	auth := api.Group("", middlewares.Auth)
 	auth.GET("/me", v1.CurrentUser)
 	auth.GET("/users/info/", v1.ListUser)
 
-	auth.POST("/set/desc", v1.PostCardSets)
-
-	auth.GET("/card/desc", v1.GetCardsDesc)
-	auth.POST("/card/desc", v1.PostCardsDesc)
-
-	auth.GET("/card/price", v1.GetCardsPrice)
-	auth.POST("/card/price", v1.PostCardsPrice)
-	auth.POST("/card/pricewithimg", v1.PostCardsPriceWithDtcgDBImg)
-
 	auth.POST("/deck/price/json", v1.PostDeckPriceWithJSON)
 	auth.GET("/deck/price/hid/:hid", v1.GetDeckPriceWithHID)
 	auth.GET("/deck/price/cdid/:cdid", v1.GetDeckPriceWithCloudDeckID)
 	auth.GET("/deck/price/wlid/:wlid", v1.GetDeckPriceWithJHSWishListID)
+	auth.POST("/deck/price/ids", v1.PostDeckPriceWithIDS) // 根据 /deck/converter/:hid 接口转换后的字符串格式的卡组信息，获取卡组价格。
 
 	// 将 DTCG DB 卡组广场中卡组的 URL 中最后的 HID，转变为由 card_id_from_db 组成的纯字符串格式。
 	auth.GET("/deck/converter/:hid", v1.GetDeckConverter)
-	// 根据上面转换后的字符串格式的卡组信息，获取卡组价格。
-	auth.POST("/deck/price/ids", v1.PostDeckPriceWithIDS)
+
 	auth.GET("/user/info/:uid", v1.GetUser)
 
 	jhsAPI := auth.Group("/jhs")

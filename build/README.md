@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.7.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.7.1 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.7.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.7.1
 
 # ChangeLog
 
@@ -108,3 +108,7 @@ TODO: 需要将数据库中的密码加密
 
 1. 添加 /api/v1/me 接口用以返回当前登录的用户信息
 2. 添加一个 /ping 接口
+
+## 2.7.1
+
+1. 修复 /deck/price/wlid/:wlid 接口 BUG，由于每页最大数据是 15，需要添加分页处理，避免缺少商品
