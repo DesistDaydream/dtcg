@@ -188,6 +188,7 @@ func TestOrdersClientGetBuyerOrders(t *testing.T) {
 	}
 }
 
+// 获取用户订单详情(买入)
 func TestOrdersClientGetBuyerOrderProducts(t *testing.T) {
 	initConfig()
 	client := NewMarketClient(coreClient)
@@ -212,6 +213,7 @@ func TestOrdersClientGetSellerOrders(t *testing.T) {
 	}
 }
 
+// 获取用户订单详情（卖出）
 func TestOrdersClientGetSellerOrderProducts(t *testing.T) {
 	initConfig()
 	client := NewMarketClient(coreClient)
@@ -222,6 +224,7 @@ func TestOrdersClientGetSellerOrderProducts(t *testing.T) {
 	fmt.Println(resp)
 }
 
+// 获取商品的“在售”列表
 func TestMarketClientGetProductSellers(t *testing.T) {
 	client := NewMarketClient(coreClient)
 	got, err := client.CardVersionsProductsGet("2676", "1")
@@ -234,6 +237,7 @@ func TestMarketClientGetProductSellers(t *testing.T) {
 	}
 }
 
+// 自动更新 TOKEN
 func TestMarketClient_AuthUpdateTokenPost(t *testing.T) {
 	client := NewMarketClient(coreClient)
 	got, err := client.AuthUpdateTokenPost()
