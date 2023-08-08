@@ -30,32 +30,23 @@ func TestStructToMapStr(t *testing.T) {
 	}
 }
 
-var publicKey string = `-----BEGIN PUBLIC KEY-----
-MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBg
-QCkLMhnY5tb9T0KMqq4It/yK7Mv
-4jQt39RyrH9yqPcAg0lsFWKTXJdT0/c0P+yX
-R1aF2xLOZhl3NA8eZWEF2YoCBJg6
-h6QJ6dlMak8r2LDC89QJfq1ZlcA6qfiHzZk
-fUbtGqXj3RbzfvKyGUdQHvXp9P/1C
-ECZfetRusF4IncOklwIDAQAB
------END PUBLIC KEY-----`
-
 // var key string = "QCBY{Ru4~Y7}c,7H"
 var key string = "1234567890123456"
 
 func TestGenKeyAndData(t *testing.T) {
 	// msg := `{"game_key":"dgm","game_sub_key":"sc"}`
-	msg := `{"game_key":"dgm","game_sub_key":"sc""card_version_id":"2688"}`
+	// msg := `{"game_key":"dgm","game_sub_key":"sc""card_version_id":"2688"}`
+	msg := `{"categoryId":"4793","rarity":"","sorting":"number","sorting_price_type":"product","game_key":"dgm","game_sub_key":"sc","page":"1"}`
 
 	a := NewAesCrypto([]byte(key))
 
 	// 生成 key
-	encryptedKey := encryptWithRsaPublicKey(key, publicKey)
-	fmt.Println(encryptedKey)
+	encryptedKey, _ := EncryptWithRsaPublicKey(key, JhsRsaPublicKey)
+	fmt.Println(base64.StdEncoding.EncodeToString(encryptedKey))
 
 	// 生成 data
-	encrypted := a.AesEncryptECB([]byte(msg))
-	fmt.Println(base64.StdEncoding.EncodeToString(encrypted))
+	encryptedData, _ := a.AesEncryptECB([]byte(msg))
+	fmt.Println(base64.StdEncoding.EncodeToString(encryptedData))
 }
 
 func TestDecryptData(t *testing.T) {
@@ -63,9 +54,11 @@ func TestDecryptData(t *testing.T) {
 
 	// 解密返回体
 	dataByte, _ := base64.StdEncoding.DecodeString(Data)
-	decrypted := a.AesDecryptECB(dataByte)
+	decryptedData, _ := a.AesDecryptECB(dataByte)
+	fmt.Println(string(decryptedData))
 
 	// 将解密后中的 Unicode 解码
-	str, _ := strconv.Unquote(strings.Replace(strconv.Quote(string(decrypted)), `\\u`, `\u`, -1))
-	fmt.Println(string(str))
+	// 在单元测试里，没有声明结构体并使用 json 库解码到结构体中，导致响应字符串中有很多 Unicode
+	newData, _ := strconv.Unquote(strings.Replace(strconv.Quote(string(decryptedData)), `\\u`, `\u`, -1))
+	fmt.Println(string(newData))
 }

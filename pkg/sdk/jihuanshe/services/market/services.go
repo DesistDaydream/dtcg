@@ -58,7 +58,7 @@ func (m *MarketClient) SellersProductsAdd(productsAddRequestBody *models.Product
 }
 
 // 列出我在卖的商品
-func (m *MarketClient) SellersProductsList(page, keyword, onSale, sorting string) (*models.ProductsListResp, error) {
+func (m *MarketClient) SellersProductsList(page int, keyword, onSale, sorting string) (*models.ProductsListResp, error) {
 	var productsResp models.ProductsListResp
 
 	uri := "/api/market/sellers/products"
@@ -122,13 +122,13 @@ func (m *MarketClient) SellersProductsDel(productID string) (*models.CommonSucce
 }
 
 // 获取提现日志
-func (m *MarketClient) SellersWithdrawLogGet(page string) (*models.WithdrawResp, error) {
+func (m *MarketClient) SellersWithdrawLogGet(page int) (*models.WithdrawResp, error) {
 	var withdrawResp models.WithdrawResp
 	uri := "/api/market/sellers/withdraw/withdrawLogs"
 
 	reqOpts := &core.RequestOption{
 		Method:   "GET",
-		ReqQuery: map[string]string{"page": page},
+		ReqQuery: map[string]string{"page": strconv.Itoa(page)},
 	}
 
 	err := m.client.Request(uri, &withdrawResp, reqOpts)
@@ -140,14 +140,14 @@ func (m *MarketClient) SellersWithdrawLogGet(page string) (*models.WithdrawResp,
 }
 
 // 获取用户订单列表(买入)
-func (m *MarketClient) OrderList(page string) (*models.BuyerOrdersListResp, error) {
+func (m *MarketClient) OrderList(page int) (*models.BuyerOrdersListResp, error) {
 	var buyerOrders models.BuyerOrdersListResp
 
 	uri := "/api/market/orders"
 	reqOpts := &core.RequestOption{
 		Method: "GET",
 		ReqQuery: utils.StructToMapStr(&models.OrderListReqQuery{
-			Page:   page,
+			Page:   strconv.Itoa(page),
 			Status: "complete",
 			Token:  m.client.Token,
 		}),
@@ -182,7 +182,7 @@ func (m *MarketClient) OrderGet(orderID int) (*models.OrderByBuyerGetResp, error
 }
 
 // 获取用户订单列表（卖出）
-func (m *MarketClient) SellerOrderList(page string) (*models.SellerOrderListResp, error) {
+func (m *MarketClient) SellerOrderList(page int) (*models.SellerOrderListResp, error) {
 	var sellerOrders models.SellerOrderListResp
 
 	uri := "/api/market/sellers/orders"
@@ -190,7 +190,7 @@ func (m *MarketClient) SellerOrderList(page string) (*models.SellerOrderListResp
 	reqOpts := &core.RequestOption{
 		Method: "GET",
 		ReqQuery: utils.StructToMapStr(&models.OrderListReqQuery{
-			Page:   page,
+			Page:   strconv.Itoa(page),
 			Status: "complete",
 			Token:  m.client.Token,
 		}),
@@ -225,7 +225,7 @@ func (m *MarketClient) SellerOrderGet(orderID int) (*models.OrderBySellerGetResp
 }
 
 // 获取商品的“在售”列表
-func (m *MarketClient) CardVersionsProductsGet(cardVersionID string, page string) (*models.ProductSellersGetResp, error) {
+func (m *MarketClient) CardVersionsProductsGet(cardVersionID string, page int) (*models.ProductSellersGetResp, error) {
 	var productSellers models.ProductSellersGetResp
 	uri := "/api/market/card-versions/products"
 
@@ -235,7 +235,7 @@ func (m *MarketClient) CardVersionsProductsGet(cardVersionID string, page string
 			CardVersionID: cardVersionID,
 			Condition:     "1",
 			GameKey:       "dgm",
-			Page:          page,
+			Page:          strconv.Itoa(page),
 		}),
 	}
 
@@ -245,4 +245,51 @@ func (m *MarketClient) CardVersionsProductsGet(cardVersionID string, page string
 	}
 
 	return &productSellers, nil
+}
+
+// 列出卡牌
+func (m *MarketClient) ListCardVersions(categoryID string, page int) (*models.CardVersionsListResp, error) {
+	var cardVersionListResp models.CardVersionsListResp
+	uri := "/api/market/card-versions"
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+		ReqBody: &models.CardVersionsListReq{
+			CategoryID:       categoryID,
+			GameKey:          "dgm",
+			GameSubKey:       "sc",
+			Page:             strconv.Itoa(page),
+			Rarity:           "",
+			Sorting:          "number",
+			SortingPriceType: "product",
+		},
+	}
+
+	err := m.client.RequestWithEncrypt(uri, &cardVersionListResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cardVersionListResp, nil
+}
+
+// 获取卡牌信息
+func (m *MarketClient) GetCardVersions(cardVersion int) (*models.CardVersionGetResp, error) {
+	var cardVersionGetResp models.CardVersionGetResp
+	uri := "/api/market/card-versions/" + strconv.Itoa(cardVersion)
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+		ReqBody: &models.CardVersionGetReq{
+			GameKey:    "dgm",
+			GameSubKey: "sc",
+		},
+	}
+
+	err := m.client.RequestWithEncrypt(uri, &cardVersionGetResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cardVersionGetResp, nil
 }

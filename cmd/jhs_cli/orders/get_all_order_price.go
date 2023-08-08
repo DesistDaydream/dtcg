@@ -1,8 +1,6 @@
 package orders
 
 import (
-	"strconv"
-
 	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -26,7 +24,7 @@ func getAllOrderPriceRun(cmd *cobra.Command, args []string) {
 	sellerPage := 1
 
 	for {
-		buyerOrders, err := handler.H.JhsServices.Market.OrderList(strconv.Itoa(buyerPage))
+		buyerOrders, err := handler.H.JhsServices.Market.OrderList(buyerPage)
 		if err != nil {
 			logrus.Error(err)
 		}
@@ -46,7 +44,7 @@ func getAllOrderPriceRun(cmd *cobra.Command, args []string) {
 
 	// 分页
 	for {
-		sellerOrders, err := handler.H.JhsServices.Market.SellerOrderList(strconv.Itoa(sellerPage))
+		sellerOrders, err := handler.H.JhsServices.Market.SellerOrderList(sellerPage)
 		if err != nil {
 			logrus.Error(err)
 		}

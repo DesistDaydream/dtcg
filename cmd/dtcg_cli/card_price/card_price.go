@@ -108,7 +108,7 @@ func GetImageURL(cardVersionID int) string {
 	page := 1
 	// 分页
 	for {
-		productSellers, err := handler.H.JhsServices.Market.CardVersionsProductsGet(fmt.Sprint(cardVersionID), fmt.Sprint(page))
+		productSellers, err := handler.H.JhsServices.Market.CardVersionsProductsGet(fmt.Sprint(cardVersionID), page)
 		if err != nil || productSellers.Total < 1 {
 			logrus.Errorf("获取商品 %v 在售清单异常: %v", cardVersionID, err)
 			return ""

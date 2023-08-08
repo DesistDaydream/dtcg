@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/cards"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/orders"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/products"
 	"github.com/DesistDaydream/dtcg/cmd/jhs_cli/wishes"
@@ -60,6 +61,7 @@ func newApp() *cobra.Command {
 		products.CreateCommand(),
 		orders.CreateCommand(),
 		wishes.CreateCommand(),
+		cards.CreateCommand(),
 	)
 
 	return RootCmd

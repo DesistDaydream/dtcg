@@ -6,7 +6,6 @@ import (
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"reflect"
 
@@ -39,19 +38,33 @@ func StructToMapStr(obj interface{}) map[string]string {
 	return data
 }
 
+var JhsRsaPublicKey string = `-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBg
+QCkLMhnY5tb9T0KMqq4It/yK7Mv
+4jQt39RyrH9yqPcAg0lsFWKTXJdT0/c0P+yX
+R1aF2xLOZhl3NA8eZWEF2YoCBJg6
+h6QJ6dlMak8r2LDC89QJfq1ZlcA6qfiHzZk
+fUbtGqXj3RbzfvKyGUdQHvXp9P/1C
+ECZfetRusF4IncOklwIDAQAB
+-----END PUBLIC KEY-----`
+
 // 使用 RSA 公钥加密指定的字符串
-func encryptWithRsaPublicKey(needEncryptString string, publicKey string) string {
+func EncryptWithRsaPublicKey(needEncryptString string, publicKey string) ([]byte, error) {
 	block, _ := pem.Decode([]byte(publicKey))
+
 	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+
 	pub := pubInterface.(*rsa.PublicKey)
-	ciphertext, err := rsa.EncryptPKCS1v15(rand.Reader, pub, []byte(needEncryptString))
+
+	cipherByte, err := rsa.EncryptPKCS1v15(rand.Reader, pub, []byte(needEncryptString))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return base64.StdEncoding.EncodeToString(ciphertext)
+
+	return cipherByte, nil
 }
 
 type AecCrypto struct {
@@ -78,27 +91,32 @@ func NewAesCrypto(key []byte) *AecCrypto {
 }
 
 // 加密
-func (a *AecCrypto) AesEncryptECB(origData []byte) (encrypted []byte) {
+func (a *AecCrypto) AesEncryptECB(origData []byte) ([]byte, error) {
 	length := (len(origData) + aes.BlockSize) / aes.BlockSize
+
 	plain := make([]byte, length*aes.BlockSize)
+
 	copy(plain, origData)
+
 	pad := byte(len(plain) - len(origData))
 	for i := len(origData); i < len(plain); i++ {
 		plain[i] = pad
 	}
-	encrypted = make([]byte, len(plain))
+
+	encrypted := make([]byte, len(plain))
+
 	// 分组分块加密
 	for bs, be := 0, a.block.BlockSize(); bs <= len(origData); bs, be = bs+a.block.BlockSize(), be+a.block.BlockSize() {
 		a.block.Encrypt(encrypted[bs:be], plain[bs:be])
 	}
 
-	return encrypted
+	return encrypted, nil
 }
 
 // 解密
-func (a *AecCrypto) AesDecryptECB(encrypted []byte) (decrypted []byte) {
-	decrypted = make([]byte, len(encrypted))
-	//
+func (a *AecCrypto) AesDecryptECB(encrypted []byte) ([]byte, error) {
+	decrypted := make([]byte, len(encrypted))
+
 	for bs, be := 0, a.block.BlockSize(); bs < len(encrypted); bs, be = bs+a.block.BlockSize(), be+a.block.BlockSize() {
 		a.block.Decrypt(decrypted[bs:be], encrypted[bs:be])
 	}
@@ -108,5 +126,5 @@ func (a *AecCrypto) AesDecryptECB(encrypted []byte) (decrypted []byte) {
 		trim = len(decrypted) - int(decrypted[len(decrypted)-1])
 	}
 
-	return decrypted[:trim]
+	return decrypted[:trim], nil
 }

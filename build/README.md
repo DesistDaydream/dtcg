@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.7.1 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.8.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.7.1
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.8.0
 
 # ChangeLog
 
@@ -112,3 +112,8 @@ TODO: 需要将数据库中的密码加密
 ## 2.7.1
 
 1. 修复 /deck/price/wlid/:wlid 接口 BUG，由于每页最大数据是 15，需要添加分页处理，避免缺少商品
+
+## 2.8.0
+
+1. sdk jhs 添加 card-versions 下的部分接口
+2. ProductsListReqQuery.Page 类型改为 int，让 int 到 string 的转换在 sdk 内部实现，避免外部传递异常的字串符

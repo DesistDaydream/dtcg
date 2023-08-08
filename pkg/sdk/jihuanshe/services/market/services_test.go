@@ -79,7 +79,7 @@ func TestProductsClientList(t *testing.T) {
 	initConfig()
 	currentPage := 1
 
-	products, err := client.SellersProductsList(fmt.Sprint(currentPage), "", "1", "published_at_desc")
+	products, err := client.SellersProductsList(currentPage, "", "1", "published_at_desc")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestProductsClientUpdate(t *testing.T) {
 func TestProductsClientDel(t *testing.T) {
 	initConfig()
 
-	products, err := client.SellersProductsList("1", "", "1", "published_at_desc")
+	products, err := client.SellersProductsList(1, "", "1", "published_at_desc")
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -179,7 +179,7 @@ func TestOrdersClientGetBuyerOrders(t *testing.T) {
 	initConfig()
 	client := NewMarketClient(coreClient)
 
-	resp, err := client.OrderList("1")
+	resp, err := client.OrderList(1)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -204,7 +204,7 @@ func TestOrdersClientGetSellerOrders(t *testing.T) {
 	initConfig()
 	client := NewMarketClient(coreClient)
 
-	resp, err := client.SellerOrderList("1")
+	resp, err := client.SellerOrderList(1)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -227,7 +227,7 @@ func TestOrdersClientGetSellerOrderProducts(t *testing.T) {
 // 获取商品的“在售”列表
 func TestMarketClientGetProductSellers(t *testing.T) {
 	client := NewMarketClient(coreClient)
-	got, err := client.CardVersionsProductsGet("2676", "1")
+	got, err := client.CardVersionsProductsGet("2676", 1)
 	if err != nil {
 		logrus.Errorln(err)
 	}
@@ -246,4 +246,12 @@ func TestMarketClient_AuthUpdateTokenPost(t *testing.T) {
 	}
 
 	logrus.Infoln(got)
+}
+
+func TestMarketClient_ListCardVersions(t *testing.T) {
+	got, err := client.ListCardVersions("4793", 1)
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+	fmt.Println(got)
 }

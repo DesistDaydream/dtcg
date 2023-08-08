@@ -2,7 +2,6 @@ package products
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/sirupsen/logrus"
@@ -54,7 +53,7 @@ func delProductsForIDs() {
 func delProdcutsForSaleState() {
 	page := 1 // 从获取到的数据的第一页开始
 	for {
-		products, err := handler.H.JhsServices.Market.SellersProductsList(strconv.Itoa(page), "", delFlags.SaleState, "published_at_desc")
+		products, err := handler.H.JhsServices.Market.SellersProductsList(page, "", delFlags.SaleState, "published_at_desc")
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
