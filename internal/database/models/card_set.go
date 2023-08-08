@@ -22,4 +22,5 @@ type CardSet struct {
 	SetPrefix      string `json:"set_prefix"`
 	SetReleaseDate string `json:"set_releaseDate"`
 	SetRemark      string `json:"set_remark"`
+	JhsPackID      int    `json:"jhs_pack_id"`
 }

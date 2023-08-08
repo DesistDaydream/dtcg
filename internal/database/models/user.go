@@ -23,6 +23,7 @@ type User struct {
 	MoecardToken    string    `json:"moecard_token"`
 	JhsUsername     string    `json:"jhs_username"`
 	JhsToken        string    `json:"jhs_token"`
+	JhsRsaPublicKey string    `json:"rsa_public_key"`
 	CreatedAt       time.Time `json:"create_at"`
 	UpdatedAt       time.Time `json:"update_at"`
 }
