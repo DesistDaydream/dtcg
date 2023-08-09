@@ -138,13 +138,12 @@ func (c *Client) RequestWithEncrypt(uri string, wantResp interface{}, reqOpts *R
 	}).Debugf("检查请求")
 
 	// key := "QCBY{Ru4~Y7}c,7H"
+	// 生成 16 个字符的随机数作为对称加密所需的密码
 	bytes := make([]byte, 8)
 	if _, err := rand.Read(bytes); err != nil {
 		panic(err)
 	}
 	key := hex.EncodeToString(bytes)
-
-	fmt.Println(key)
 
 	encryptedKey, err := utils.EncryptWithRsaPublicKey(key, utils.JhsRsaPublicKey)
 	if err != nil {
@@ -213,6 +212,9 @@ func (c *Client) RequestWithEncrypt(uri string, wantResp interface{}, reqOpts *R
 	if err != nil {
 		return fmt.Errorf("解密响应体失败：%v", resp.StatusCode)
 	}
+
+	// 用于在不知道响应体的情况下，看看响应体结构以便写 struct
+	// fmt.Println(string(decryptedData))
 
 	err = json.Unmarshal(decryptedData, wantResp)
 	if err != nil {

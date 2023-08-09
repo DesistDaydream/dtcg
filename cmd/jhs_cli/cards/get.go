@@ -1,6 +1,7 @@
 package cards
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/DesistDaydream/dtcg/pkg/handler"
@@ -11,16 +12,14 @@ import (
 type GetFlags struct {
 }
 
-var (
-	getFlags GetFlags
-)
+var getFlags GetFlags
 
 func GetCmd() *cobra.Command {
-	long := `
+	long := `获取卡牌详情
 `
 	getCardsCmd := &cobra.Command{
 		Use:   "get",
-		Short: "列出卡牌",
+		Short: "获取卡牌详情",
 		Long:  long,
 		Run:   getCards,
 	}
@@ -34,5 +33,6 @@ func getCards(cmd *cobra.Command, args []string) {
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
-	fmt.Println(resp)
+	a, _ := json.Marshal(resp)
+	fmt.Printf("%s", a)
 }

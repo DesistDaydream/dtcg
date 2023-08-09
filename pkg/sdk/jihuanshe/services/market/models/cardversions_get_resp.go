@@ -3,7 +3,7 @@ package models
 // 获取卡牌信息
 type CardVersionGetResp struct {
 	AvgPrice                  string        `json:"avg_price"`
-	CardID                    int64         `json:"card_id"`
+	CardID                    int           `json:"card_id"`
 	CardNames                 []CardName    `json:"card_names"`
 	CardVersions              []CardVersion `json:"card_versions"`
 	DesireCount               int64         `json:"desire_count"`
@@ -32,7 +32,7 @@ type CardVersionGetResp struct {
 
 type CardVersion struct {
 	AvgPrice   string      `json:"avg_price"`
-	CardID     int64       `json:"card_id"`
+	CardID     int         `json:"card_id"`
 	CardNames  []CardName  `json:"card_names"`
 	Grade      interface{} `json:"grade"`
 	ID         int64       `json:"id"`

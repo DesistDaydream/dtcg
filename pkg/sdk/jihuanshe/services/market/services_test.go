@@ -1,6 +1,7 @@
 package market
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -248,10 +249,43 @@ func TestMarketClient_AuthUpdateTokenPost(t *testing.T) {
 	logrus.Infoln(got)
 }
 
+// 列出卡牌
 func TestMarketClient_ListCardVersions(t *testing.T) {
-	got, err := client.ListCardVersions("4793", 1)
+	got, err := client.ListCardVersions(89, 4793, 1)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
 	fmt.Println(got)
+}
+
+// 获取卡牌基本信息
+func TestMarketClient_GetCardVersionsBaseInfo(t *testing.T) {
+	got, err := client.GetCardVersionsBaseInfo(2676)
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+
+	a, _ := json.Marshal(got)
+	fmt.Println(string(a))
+}
+
+// 获取卡牌价格历史
+func TestMarketClient_GetCardVersionsPriceHistory(t *testing.T) {
+	got, err := client.GetCardVersionsPriceHistory(2676)
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+
+	a, _ := json.Marshal(got)
+	fmt.Println(string(a))
+}
+
+// 获取卡包信息
+func TestMarketClient_GetPacks(t *testing.T) {
+	got, err := client.GetPacks(115, 1)
+	if err != nil {
+		logrus.Errorf("%v", err)
+	}
+	a, _ := json.Marshal(got)
+	fmt.Println(string(a))
 }

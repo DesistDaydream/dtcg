@@ -247,18 +247,41 @@ func (m *MarketClient) CardVersionsProductsGet(cardVersionID string, page int) (
 	return &productSellers, nil
 }
 
+// 获取卡包信息
+func (m *MarketClient) GetPacks(packID int, page int) (*models.PacksGetResp, error) {
+	var packsGetResp models.PacksGetResp
+	uri := "/api/market/packs/" + strconv.Itoa(packID)
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+		ReqBody: &models.PacksGetReq{
+			GameKey:    "dgm",
+			GameSubKey: "sc",
+			Page:       numToString(page),
+		},
+	}
+
+	err := m.client.RequestWithEncrypt(uri, &packsGetResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &packsGetResp, nil
+}
+
 // 列出卡牌
-func (m *MarketClient) ListCardVersions(categoryID string, page int) (*models.CardVersionsListResp, error) {
+func (m *MarketClient) ListCardVersions(packID, categoryID int, page int) (*models.CardVersionsListResp, error) {
 	var cardVersionListResp models.CardVersionsListResp
 	uri := "/api/market/card-versions"
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqBody: &models.CardVersionsListReq{
-			CategoryID:       categoryID,
+		ReqBody: &models.CardVersionsListReqBody{
+			PackID:           numToString(packID),
+			CategoryID:       numToString(categoryID),
 			GameKey:          "dgm",
 			GameSubKey:       "sc",
-			Page:             strconv.Itoa(page),
+			Page:             numToString(page),
 			Rarity:           "",
 			Sorting:          "number",
 			SortingPriceType: "product",
@@ -280,7 +303,7 @@ func (m *MarketClient) GetCardVersions(cardVersion int) (*models.CardVersionGetR
 
 	reqOpts := &core.RequestOption{
 		Method: "GET",
-		ReqBody: &models.CardVersionGetReq{
+		ReqBody: &models.CardVersionGetReqBody{
 			GameKey:    "dgm",
 			GameSubKey: "sc",
 		},
@@ -292,4 +315,60 @@ func (m *MarketClient) GetCardVersions(cardVersion int) (*models.CardVersionGetR
 	}
 
 	return &cardVersionGetResp, nil
+}
+
+// 获取卡牌基本信息
+func (m *MarketClient) GetCardVersionsBaseInfo(cardVersionID int) (*models.CardVersionsBaseInfoResp, error) {
+	var cardVersionsBaseInfoResp models.CardVersionsBaseInfoResp
+	uri := "/api/market/card-versions/get-base-info"
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+		ReqBody: &models.CardVersionsBaseInfoGetReqBody{
+			CardVersionID: numToString(cardVersionID),
+			GameKey:       "dgm",
+			GameSubKey:    "sc",
+		},
+	}
+
+	err := m.client.RequestWithEncrypt(uri, &cardVersionsBaseInfoResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cardVersionsBaseInfoResp, nil
+}
+
+// 获取卡牌价格历史
+func (m *MarketClient) GetCardVersionsPriceHistory(cardVersionID int) (*models.CardVersionsPriceHistoryResp, error) {
+	var cardVersionsPriceHistoryResp models.CardVersionsPriceHistoryResp
+	uri := "/api/market/card-versions/price-history"
+
+	reqOpts := &core.RequestOption{
+		Method: "GET",
+		ReqBody: &models.CardVersionsBaseInfoGetReqBody{
+			CardVersionID: numToString(cardVersionID),
+			GameKey:       "dgm",
+			GameSubKey:    "sc",
+		},
+	}
+
+	err := m.client.RequestWithEncrypt(uri, &cardVersionsPriceHistoryResp, reqOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cardVersionsPriceHistoryResp, nil
+}
+
+func numToString(num int) string {
+	var str string
+
+	if num == 0 {
+		str = ""
+	} else {
+		str = strconv.Itoa(num)
+	}
+
+	return str
 }
