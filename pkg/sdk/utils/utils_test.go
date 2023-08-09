@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -34,9 +35,9 @@ func TestStructToMapStr(t *testing.T) {
 var key string = "1234567890123456"
 
 func TestGenKeyAndData(t *testing.T) {
-	// msg := `{"game_key":"dgm","game_sub_key":"sc"}`
-	// msg := `{"game_key":"dgm","game_sub_key":"sc""card_version_id":"2688"}`
-	msg := `{"categoryId":"4793","rarity":"","sorting":"number","sorting_price_type":"product","game_key":"dgm","game_sub_key":"sc","page":"1"}`
+	reqBody := `{"game_key":"dgm","game_sub_key":"sc"}`
+	// reqBody := `{"game_key":"dgm","game_sub_key":"sc","card_version_id":"2688"}`
+	// reqBody := `{"categoryId":"4793","rarity":"","sorting":"number","sorting_price_type":"product","game_key":"dgm","game_sub_key":"sc","page":"1"}`
 
 	a := NewAesCrypto([]byte(key))
 
@@ -45,8 +46,9 @@ func TestGenKeyAndData(t *testing.T) {
 	fmt.Println(base64.StdEncoding.EncodeToString(encryptedKey))
 
 	// 生成 data
-	encryptedData, _ := a.AesEncryptECB([]byte(msg))
-	fmt.Println(base64.StdEncoding.EncodeToString(encryptedData))
+	encryptedData, _ := a.AesEncryptECB([]byte(reqBody))
+
+	fmt.Println(url.QueryEscape(base64.StdEncoding.EncodeToString(encryptedData)))
 }
 
 func TestDecryptData(t *testing.T) {
@@ -62,3 +64,5 @@ func TestDecryptData(t *testing.T) {
 	newData, _ := strconv.Unquote(strings.Replace(strconv.Quote(string(decryptedData)), `\\u`, `\u`, -1))
 	fmt.Println(string(newData))
 }
+
+var Data string = ""
