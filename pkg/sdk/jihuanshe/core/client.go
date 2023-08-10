@@ -137,7 +137,6 @@ func (c *Client) RequestWithEncrypt(uri string, wantResp interface{}, reqOpts *R
 		"URL参数": reqOpts.ReqQuery,
 	}).Debugf("检查请求")
 
-	// key := "QCBY{Ru4~Y7}c,7H"
 	// 生成 16 个字符的随机数作为对称加密所需的密码
 	bytes := make([]byte, 8)
 	if _, err := rand.Read(bytes); err != nil {

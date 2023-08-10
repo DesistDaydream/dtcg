@@ -72,17 +72,9 @@ type AecCrypto struct {
 }
 
 func NewAesCrypto(key []byte) *AecCrypto {
-	genKey := make([]byte, 16)
-	copy(genKey, key)
-	for i := 16; i < len(key); {
-		for j := 0; j < 16 && i < len(key); j, i = j+1, i+1 {
-			genKey[j] ^= key[i]
-		}
-	}
-
-	block, err := aes.NewCipher(genKey)
+	block, err := aes.NewCipher(key)
 	if err != nil {
-		logrus.Errorf("%v", err)
+		logrus.Errorf("密钥长度不足或过长: %v", err)
 	}
 
 	return &AecCrypto{

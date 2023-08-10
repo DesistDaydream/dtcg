@@ -33,30 +33,30 @@ func TestStructToMapStr(t *testing.T) {
 
 // var key string = "QCBY{Ru4~Y7}c,7H"
 var key string = "1234567890123456"
+var aesCrypto = NewAesCrypto([]byte(key))
 
+// 生成 key
+func TestGenKey(t *testing.T) {
+
+	encryptedKey, _ := EncryptWithRsaPublicKey(key, JhsRsaPublicKey)
+	fmt.Println(base64.StdEncoding.EncodeToString(encryptedKey))
+}
+
+// 生成 data
 func TestGenKeyAndData(t *testing.T) {
 	reqBody := `{"game_key":"dgm","game_sub_key":"sc"}`
 	// reqBody := `{"game_key":"dgm","game_sub_key":"sc","card_version_id":"2688"}`
 	// reqBody := `{"categoryId":"4793","rarity":"","sorting":"number","sorting_price_type":"product","game_key":"dgm","game_sub_key":"sc","page":"1"}`
 
-	a := NewAesCrypto([]byte(key))
-
-	// 生成 key
-	encryptedKey, _ := EncryptWithRsaPublicKey(key, JhsRsaPublicKey)
-	fmt.Println(base64.StdEncoding.EncodeToString(encryptedKey))
-
-	// 生成 data
-	encryptedData, _ := a.AesEncryptECB([]byte(reqBody))
+	encryptedData, _ := aesCrypto.AesEncryptECB([]byte(reqBody))
 
 	fmt.Println(url.QueryEscape(base64.StdEncoding.EncodeToString(encryptedData)))
 }
 
 func TestDecryptData(t *testing.T) {
-	a := NewAesCrypto([]byte(key))
-
 	// 解密返回体
 	dataByte, _ := base64.StdEncoding.DecodeString(Data)
-	decryptedData, _ := a.AesDecryptECB(dataByte)
+	decryptedData, _ := aesCrypto.AesDecryptECB(dataByte)
 	fmt.Println(string(decryptedData))
 
 	// 将解密后中的 Unicode 解码
