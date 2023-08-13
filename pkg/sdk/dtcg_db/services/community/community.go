@@ -1,7 +1,14 @@
 package community
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
@@ -92,4 +99,64 @@ func (c *CommunityClient) GetDeckCloud(deckID string) (*models.CloudDeckGetResp,
 	}
 
 	return &cloudDeckGetResp, nil
+}
+
+// 获取分享的卡组详情
+func (c *CommunityClient) GetShareDeck(deckFile string) (*models.ShareDeckGetResp, error) {
+	var shareDeckGetResp models.ShareDeckGetResp
+
+	url := core.BaseAPI + "/api/community/decks/load"
+	method := "POST"
+
+	payload := &bytes.Buffer{}
+	writer := multipart.NewWriter(payload)
+	file, err := os.Open(deckFile)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	part1, err := writer.CreateFormFile("deck", filepath.Base("<deck>"))
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = io.Copy(part1, file)
+	if err != nil {
+		return nil, err
+	}
+	err = writer.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, payload)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	req.Header.Add("authority", "dtcg-api.moecard.cn")
+
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	res, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(string(body))
+
+	err = json.Unmarshal(body, &shareDeckGetResp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &shareDeckGetResp, nil
 }

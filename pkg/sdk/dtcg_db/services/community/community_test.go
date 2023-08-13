@@ -155,3 +155,12 @@ func TestCommunityClient_GetDeck(t *testing.T) {
 
 	logrus.Infoln(string(cardsIDString))
 }
+
+func TestCommunityClient_GetShareDeck(t *testing.T) {
+	file := "/mnt/d/tmp/deck-1691825949759.dcgd"
+	got, err := client.GetShareDeck(file)
+	if err != nil {
+		logrus.Fatalf("%v", err)
+	}
+	logrus.Infof("%v", got)
+}
