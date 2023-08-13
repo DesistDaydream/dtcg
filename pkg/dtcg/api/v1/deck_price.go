@@ -240,3 +240,61 @@ func PostDeckPriceWithIDS(c *gin.Context) {
 
 	c.JSON(200, &resp)
 }
+
+// 根据分享卡组的 ID 获取卡组价格，分享卡组的 ID 是网页端卡组编辑页面中，点击分享后获得的。
+func GetDeckPriceWithShareID(c *gin.Context) {
+	shareDeckID := c.Param("shareid")
+
+	decks, err := handler.H.MoecardServices.Community.GetShareDeck(shareDeckID)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "无法获取到云卡组信息",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
+	}
+
+	if len(decks.Data.DeckInfo.Eggs) == 0 && len(decks.Data.DeckInfo.Main) == 0 {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "卡组为空，请添加至少一张卡牌",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
+	}
+
+	var cardsID []string
+
+	for _, card := range decks.Data.DeckInfo.Eggs {
+		for i := 0; i < card.Number; i++ {
+			cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
+		}
+	}
+
+	for _, card := range decks.Data.DeckInfo.Main {
+		for i := 0; i < card.Number; i++ {
+			cardsID = append(cardsID, fmt.Sprint(card.Cards.CardID))
+		}
+	}
+
+	cardsIDString, _ := json.Marshal(&cardsID)
+
+	req := models.PostDeckPriceWithIDReq{
+		IDs: string(cardsIDString),
+	}
+
+	resp, err := deckprice.GenDeckPriceWithMoecardID(&req)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, models.ReqBodyErrorResp{
+			Message: "获取响应失败",
+			Data:    fmt.Sprintf("%v", err),
+		})
+		return
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"最低价": resp.MinPrice,
+		"集换价": resp.AvgPrice,
+	}).Debugf("卡组价格")
+
+	c.JSON(200, &resp)
+}

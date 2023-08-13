@@ -157,7 +157,7 @@ func TestCommunityClient_GetDeck(t *testing.T) {
 }
 
 func TestCommunityClient_GetShareDeck(t *testing.T) {
-	file := "/mnt/d/tmp/deck-1691825949759.dcgd"
+	file := "RENHRFYxAAEJswQAEBSLBBGDBAhoBBSPBBSJBBSQBBKiARSRAhGLBBSTARSUAhSVBA52AhBQAhGuBBSWBA=="
 	got, err := client.GetShareDeck(file)
 	if err != nil {
 		logrus.Fatalf("%v", err)

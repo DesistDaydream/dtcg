@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.9.0 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.10.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.9.0
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.10.0
 
 # ChangeLog
 
@@ -121,3 +121,7 @@ TODO: 需要将数据库中的密码加密
 ## 2.9.0
 
 1. sdk jhs 补全 card-versions 下的全部已加密的接口
+
+## 2.10.0
+
+1. sdk moecard 添加 /deck/price/share/:shareid 接口，可以通过 Moecard 分享的卡组 ID 获取卡组价格

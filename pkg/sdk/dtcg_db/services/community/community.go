@@ -2,17 +2,17 @@ package community
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/utils"
+	"github.com/sirupsen/logrus"
 )
 
 type CommunityClient struct {
@@ -110,18 +110,18 @@ func (c *CommunityClient) GetShareDeck(deckFile string) (*models.ShareDeckGetRes
 
 	payload := &bytes.Buffer{}
 	writer := multipart.NewWriter(payload)
-	file, err := os.Open(deckFile)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
 
-	part1, err := writer.CreateFormFile("deck", filepath.Base("<deck>"))
+	decodedFileContent, err := base64.StdEncoding.DecodeString(deckFile)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = io.Copy(part1, file)
+	part1, err := writer.CreateFormFile("deck", "d.dcgd")
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = io.Copy(part1, bytes.NewReader(decodedFileContent))
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +151,7 @@ func (c *CommunityClient) GetShareDeck(deckFile string) (*models.ShareDeckGetRes
 		return nil, err
 	}
 
-	fmt.Println(string(body))
+	logrus.Debugln(string(body))
 
 	err = json.Unmarshal(body, &shareDeckGetResp)
 	if err != nil {

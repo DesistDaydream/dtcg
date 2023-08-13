@@ -52,6 +52,7 @@ func InitRouter() *gin.Engine {
 	auth.GET("/deck/price/hid/:hid", v1.GetDeckPriceWithHID)
 	auth.GET("/deck/price/cdid/:cdid", v1.GetDeckPriceWithCloudDeckID)
 	auth.GET("/deck/price/wlid/:wlid", v1.GetDeckPriceWithJHSWishListID)
+	auth.GET("/deck/price/share/:shareid", v1.GetDeckPriceWithShareID)
 	auth.POST("/deck/price/ids", v1.PostDeckPriceWithIDS) // 根据 /deck/converter/:hid 接口转换后的字符串格式的卡组信息，获取卡组价格。
 
 	// 将 DTCG DB 卡组广场中卡组的 URL 中最后的 HID，转变为由 card_id_from_db 组成的纯字符串格式。
