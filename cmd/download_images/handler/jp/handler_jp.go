@@ -142,7 +142,10 @@ func (i *ImageHandler) GetImagesURL(cardSetID string) ([]string, error) {
 	url := fmt.Sprintf("%v?search=true&category=%v", base_url, cardSetID)
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
-	resp, _ := client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+		logrus.Fatalf("发起请求失败: %v", err)
+	}
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		logrus.Fatal("获取网站 HTML 数据失败: ", err)
