@@ -1,9 +1,9 @@
-package services
+package card
 
 import (
 	"testing"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/bandai_tcg_plus/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -14,7 +14,7 @@ func TestGetCardFilterInfo(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *models.CardFilterInfo
+		want    *models.CardMetadataGetResp
 		wantErr bool
 	}{
 		// TODO: Add test cases.

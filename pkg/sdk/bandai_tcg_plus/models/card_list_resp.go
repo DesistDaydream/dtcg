@@ -1,6 +1,6 @@
 package models
 
-type CardList struct {
+type CardListResp struct {
 	Success CardListData `json:"success"`
 }
 

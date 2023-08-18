@@ -1,14 +1,14 @@
-package services
+package card
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/bandai_tcg_plus/models"
 )
 
-func GetCardList(r *models.CardListReq) (*models.CardList, error) {
+func GetCardList(r *models.CardListReqQuery) (*models.CardListResp, error) {
 	url := "https://api.bandai-tcg-plus.com/api/user/card/list"
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -37,7 +37,7 @@ func GetCardList(r *models.CardListReq) (*models.CardList, error) {
 		return nil, err
 	}
 
-	var cardList *models.CardList
+	var cardList *models.CardListResp
 	err = json.Unmarshal(body, &cardList)
 	if err != nil {
 		return nil, err

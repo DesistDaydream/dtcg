@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/en/services"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/bandai_tcg_plus/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/bandai_tcg_plus/services/card"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,7 +27,7 @@ func NewImageHandler(dirPrefix string) handler.ImageHandler {
 // 获取卡包列表
 func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 	// 获取所有卡包的名称
-	cardPackages, err := services.GetCardFilterInfo(&models.CardFilterInfoReq{
+	cardPackages, err := card.GetCardFilterInfo(&models.CardFilterInfoReq{
 		GameTitleID:  "2",
 		LanguageCode: i.Lang,
 	})
@@ -70,7 +70,7 @@ func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 // 下载卡图
 func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardSetInfo) {
 	// 设定过滤条件以获取指定卡片的详情
-	c := &models.CardListReq{
+	c := &models.CardListReqQuery{
 		CardSet:     "",
 		GameTitleID: "2",
 		Limit:       "400",
@@ -120,11 +120,11 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 }
 
 // 从卡片详情中获取下载图片所需的 URL
-func (i *ImageHandler) GetImagesURL(r *models.CardListReq) ([]string, error) {
+func (i *ImageHandler) GetImagesURL(r *models.CardListReqQuery) ([]string, error) {
 	var urls []string
 
 	// 根据过滤条件获取卡片详情
-	cardDescs, err := services.GetCardList(r)
+	cardDescs, err := card.GetCardList(r)
 	if err != nil {
 		return nil, err
 	}

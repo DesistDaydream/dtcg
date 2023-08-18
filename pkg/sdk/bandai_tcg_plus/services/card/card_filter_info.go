@@ -1,14 +1,14 @@
-package services
+package card
 
 import (
 	"encoding/json"
 	"io"
 	"net/http"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/bandai_tcg_plus/models"
 )
 
-func GetCardFilterInfo(r *models.CardFilterInfoReq) (*models.CardFilterInfo, error) {
+func GetCardFilterInfo(r *models.CardFilterInfoReq) (*models.CardMetadataGetResp, error) {
 	url := "https://api.bandai-tcg-plus.com/api/user/card"
 
 	req, err := http.NewRequest("GET", url, nil)
@@ -33,7 +33,7 @@ func GetCardFilterInfo(r *models.CardFilterInfoReq) (*models.CardFilterInfo, err
 		return nil, err
 	}
 
-	var CardFilterInfo *models.CardFilterInfo
+	var CardFilterInfo *models.CardMetadataGetResp
 	err = json.Unmarshal(body, &CardFilterInfo)
 	if err != nil {
 		return nil, err

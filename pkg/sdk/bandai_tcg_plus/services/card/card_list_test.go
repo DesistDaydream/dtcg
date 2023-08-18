@@ -1,27 +1,27 @@
-package services
+package card
 
 import (
 	"testing"
 
-	"github.com/DesistDaydream/dtcg/pkg/sdk/en/models"
+	"github.com/DesistDaydream/dtcg/pkg/sdk/bandai_tcg_plus/models"
 	"github.com/sirupsen/logrus"
 )
 
 func TestGetCardList(t *testing.T) {
 	type args struct {
-		r *models.CardListReq
+		r *models.CardListReqQuery
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *models.CardList
+		want    *models.CardListResp
 		wantErr bool
 	}{
 		// TODO: Add test cases.
 		{
 			name: "test1",
 			args: args{
-				r: &models.CardListReq{
+				r: &models.CardListReqQuery{
 					CardSet:     "",
 					GameTitleID: "2",
 					Limit:       "2000",
