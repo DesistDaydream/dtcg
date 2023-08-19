@@ -8,11 +8,10 @@ import (
 )
 
 type UpdateQuantityFlags struct {
-	UpdatePolicy UpdateQuantityPolicy
+	ProductQuantity string
 }
 
 type UpdateQuantityPolicy struct {
-	ProductQuantity string
 }
 
 var (
@@ -36,7 +35,7 @@ func UpdateQuantityCommand() *cobra.Command {
 		Run:   updateQuantity,
 	}
 
-	UpdateProductsPriceCmd.Flags().StringVarP(&updateQuantityFlags.UpdatePolicy.ProductQuantity, "price-change", "q", "4", "卡牌需要变化的价格。")
+	UpdateProductsPriceCmd.Flags().StringVarP(&updateQuantityFlags.ProductQuantity, "quantity", "q", "", "商品数量")
 
 	return UpdateProductsPriceCmd
 }
@@ -65,7 +64,7 @@ func updateQuantity(cmd *cobra.Command, args []string) {
 				fmt.Sprint(p.product.OnSale),
 				p.product.Price,
 				p.product.CardVersionImage,
-				updateQuantityFlags.UpdatePolicy.ProductQuantity,
+				updateQuantityFlags.ProductQuantity,
 			)
 		}
 	}

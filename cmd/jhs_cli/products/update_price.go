@@ -41,7 +41,7 @@ func UpdatePriceCommand() *cobra.Command {
 		Run:   updatePrice,
 	}
 
-	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.UpdateInterface, "interface", "", "使用集换社的哪个接口获取商品信息。name: 通过名称列出我在卖的商品信息; id: 通过 card_version_id 直接获取商品信息")
+	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.UpdateInterface, "interface", "", "使用集换社的哪个接口获取商品信息。name: 通过卡牌名称从我在卖列出商品信息; id: 通过 card_version_id 直接获取唯一的商品信息")
 	UpdateProductsPriceCmd.Flags().StringVarP(&updatePriceFlags.UpdatePolicy.Operator, "operator", "o", "+", "卡牌价格变化的计算方式，乘法还是加法。")
 	UpdateProductsPriceCmd.Flags().Float64VarP(&updatePriceFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 

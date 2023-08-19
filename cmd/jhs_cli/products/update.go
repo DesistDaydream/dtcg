@@ -2,6 +2,7 @@ package products
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
@@ -68,78 +69,89 @@ type Product struct {
 
 // 生成需要更新的商品信息
 func genNeedUpdateProducts(cards *dbmodels.CardsPrice, priceChange float64) *NeedHandleProducts {
+	var wg sync.WaitGroup
+	defer wg.Wait()
+	var lock sync.Mutex // 并发中有对数组的 append 操作，加锁保证并发安全
+
 	var needHandleProducts NeedHandleProducts
 
 	// 逐一生成待处理卡牌的商品信息
 	for _, card := range cards.Data {
-		// 用于记录待处理的卡牌的商品是否已更新
-		isUpdate := 0
-		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
-		products, err := handler.H.JhsServices.Market.SellersProductsList(1, card.Serial, updateFlags.CurSaleState, "published_at_desc")
-		if err != nil {
-			logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
-			updateFailCount++
-			continue
-		}
-		// 判断一下这个这个卡牌有几个商品，若商品为0，则继续处理下一个
-		if len(products.Data) == 0 {
-			logrus.Errorf("%v %v 没有可供处理的商品，跳过", card.CardVersionID, card.ScName)
-			updateSkip++
-			continue
-		}
+		wg.Add(1)
 
-		// 生成商品将要更新的价格
-		var newPrice string
-		if updatePriceFlags.UpdatePolicy.Operator == "*" {
-			newPrice = fmt.Sprintf("%.2f", card.AvgPrice*priceChange)
-		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
-			newPrice = fmt.Sprintf("%.2f", card.AvgPrice+priceChange)
-		}
-
-		// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
-		// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
-		for _, p := range products.Data {
-			if p.CardVersionID == card.CardVersionID {
-				// 生成商品将要更新的数量
-				var newQuantity string
-				if p.Quantity < 4 {
-					newQuantity = updateQuantityFlags.UpdatePolicy.ProductQuantity
-				} else {
-					newQuantity = fmt.Sprintf("%v", p.Quantity)
-				}
-
-				needHandleProducts.products = append(needHandleProducts.products, Product{
-					card:        card,
-					product:     p,
-					newOnSale:   updateFlags.ExpSaleState,
-					newPrice:    newPrice,
-					newImg:      card.ImageUrl,
-					newQuantity: newQuantity,
-				})
-
-				logrus.WithFields(logrus.Fields{
-					"原始价格": card.AvgPrice,
-					"更新价格": newPrice,
-					"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, updatePriceFlags.UpdatePolicy.PriceChange),
-				}).Infof("更新前检查商品: 【%v】【%v】【%v %v】", p.CardVersionID, card.AlternativeArt, card.Serial, p.CardNameCN)
-
-				needHandleProducts.count++
-
-				isUpdate = 1
-				break
-			} else {
-				logrus.Debugf("当前商品 [%v %v %v %v] 与期望处理的商品 [%v %v %v %v] 不匹配，跳过",
-					p.CardVersionID, p.CardVersionNumber, p.CardNameCN, p.CardVersionRarity,
-					card.CardVersionID, card.Serial, card.ScName, card.Rarity)
-				updateSkip++
+		go func(card dbmodels.CardPrice) {
+			defer wg.Done()
+			// 用于记录待处理的卡牌的商品是否已更新
+			isUpdate := 0
+			// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
+			products, err := handler.H.JhsServices.Market.SellersProductsList(1, card.Serial, updateFlags.CurSaleState, "published_at_desc")
+			if err != nil {
+				logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
+				updateFailCount++
+				return
 			}
-		}
-		// 挺尴尬的做法，获取到需要更新的卡牌列表后，只能通过名字获取商品，但是通过名称获取到的商品可能是其他卡牌的商品(各种异画)。。。o(╯□╰)o
-		// 所以需要一个有状态的数据来记录待更新卡牌是否获取到商品并成功更新
-		if isUpdate == 0 {
-			logrus.Errorf("%v 卡牌没有商品可以更新", card.ScName)
-			updateFailCount++
-		}
+			// 判断一下这个这个卡牌有几个商品，若商品为0，则继续处理下一个
+			if len(products.Data) == 0 {
+				logrus.Errorf("%v %v 没有可供处理的商品，跳过", card.CardVersionID, card.ScName)
+				updateSkip++
+				return
+			}
+
+			// 生成商品将要更新的价格
+			var newPrice string
+			if updatePriceFlags.UpdatePolicy.Operator == "*" {
+				newPrice = fmt.Sprintf("%.2f", card.AvgPrice*priceChange)
+			} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
+				newPrice = fmt.Sprintf("%.2f", card.AvgPrice+priceChange)
+			}
+
+			// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
+			// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
+			for _, p := range products.Data {
+				if p.CardVersionID == card.CardVersionID {
+					// 生成商品将要更新的数量。若未指定数量，则使用商品自己的数量
+					var newQuantity string
+					if updateQuantityFlags.ProductQuantity != "" {
+						newQuantity = updateQuantityFlags.ProductQuantity
+					} else {
+						newQuantity = fmt.Sprintf("%v", p.Quantity)
+					}
+
+					lock.Lock() // append 切片在并发中不安全，加个锁
+					needHandleProducts.products = append(needHandleProducts.products, Product{
+						card:        card,
+						product:     p,
+						newOnSale:   updateFlags.ExpSaleState,
+						newPrice:    newPrice,
+						newImg:      card.ImageUrl,
+						newQuantity: newQuantity,
+					})
+					lock.Unlock()
+
+					logrus.WithFields(logrus.Fields{
+						"原始价格": card.AvgPrice,
+						"更新价格": newPrice,
+						"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, updatePriceFlags.UpdatePolicy.PriceChange),
+					}).Infof("更新前检查商品: 【%v】【%v】【%v %v】", p.CardVersionID, card.AlternativeArt, card.Serial, p.CardNameCN)
+
+					needHandleProducts.count++
+
+					isUpdate = 1
+					break
+				} else {
+					logrus.Debugf("当前商品 [%v %v %v %v] 与期望处理的商品 [%v %v %v %v] 不匹配，跳过",
+						p.CardVersionID, p.CardVersionNumber, p.CardNameCN, p.CardVersionRarity,
+						card.CardVersionID, card.Serial, card.ScName, card.Rarity)
+					updateSkip++
+				}
+			}
+			// 挺尴尬的做法，获取到需要更新的卡牌列表后，只能通过名字获取商品，但是通过名称获取到的商品可能是其他卡牌的商品(各种异画)。。。o(╯□╰)o
+			// 所以需要一个有状态的数据来记录待更新卡牌是否获取到商品并成功更新
+			if isUpdate == 0 {
+				logrus.Errorf("%v 卡牌没有商品可以更新", card.ScName)
+				updateFailCount++
+			}
+		}(card)
 	}
 
 	return &needHandleProducts
