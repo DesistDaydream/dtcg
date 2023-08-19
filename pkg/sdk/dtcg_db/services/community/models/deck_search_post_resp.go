@@ -1,12 +1,12 @@
 package models
 
 type DeckSearchPostResp struct {
-	Data    DeckSearchPostData `json:"data"`
-	Message string             `json:"message"`
-	Success bool               `json:"success"`
+	Data    DeckSearchData `json:"data"`
+	Message string         `json:"message"`
+	Success bool           `json:"success"`
 }
 
-type DeckSearchPostData struct {
+type DeckSearchData struct {
 	Meta  Meta  `json:"meta"`
 	Decks Decks `json:"decks"`
 }

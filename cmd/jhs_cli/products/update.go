@@ -177,13 +177,13 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice, 
 		}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, products.DefaultProduct.CardNameCN, updatePriceFlags.UpdatePolicy.Operator)
 
 		if productsFlags.isRealRun {
-			updateRunWithDefaultProdcut(&products.DefaultProduct, card.ImageUrl, newPrice)
+			updateRunWithDefaultProdcut(&products.DefaultProduct, newPrice, card.ImageUrl)
 		}
 	}
 }
 
 // 更新商品（使用默认商品信息）
-func updateRunWithDefaultProdcut(product *pmodels.DefaultProduct, imageUrl, price string) {
+func updateRunWithDefaultProdcut(product *pmodels.DefaultProduct, price, imageUrl string) {
 	// 生成备注信息
 	var remark string
 	if updateFlags.Remark != "" {

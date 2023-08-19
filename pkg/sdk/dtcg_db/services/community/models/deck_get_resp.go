@@ -1,12 +1,12 @@
 package models
 
 type DeckGetResp struct {
-	Data    DeckGetRespData `json:"data"`
-	Message string          `json:"message"`
-	Success bool            `json:"success"`
+	Data    DeckData `json:"data"`
+	Message string   `json:"message"`
+	Success bool     `json:"success"`
 }
 
-type DeckGetRespData struct {
+type DeckData struct {
 	Author    string   `json:"author"`
 	CopyCount int64    `json:"copy_count"`
 	CreatedAt string   `json:"created_at"`

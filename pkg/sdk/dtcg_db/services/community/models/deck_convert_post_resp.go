@@ -1,12 +1,12 @@
 package models
 
 type DeckConvertPostResp struct {
-	Data    DeckConvertPostData `json:"data"`
-	Message string              `json:"message"`
-	Success bool                `json:"success"`
+	Data    DeckConvertData `json:"data"`
+	Message string          `json:"message"`
+	Success bool            `json:"success"`
 }
 
-type DeckConvertPostData struct {
+type DeckConvertData struct {
 	DeckInfo DeckInfo `json:"deck_info"`
 }
 

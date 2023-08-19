@@ -1,11 +1,11 @@
 package models
 
 type ShareDeckGetResp struct {
-	Data    ShareDeckGetRespData `json:"data"`
-	Message string               `json:"message"`
-	Success bool                 `json:"success"`
+	Data    ShareDeckData `json:"data"`
+	Message string        `json:"message"`
+	Success bool          `json:"success"`
 }
 
-type ShareDeckGetRespData struct {
+type ShareDeckData struct {
 	DeckInfo DeckInfo `json:"deck_info"`
 }

@@ -1,12 +1,12 @@
 package models
 
 type CloudDeckGetResp struct {
-	Data    CloudDeckGetRespData `json:"data"`
-	Message string               `json:"message"`
-	Success bool                 `json:"success"`
+	Data    CloudDeckData `json:"data"`
+	Message string        `json:"message"`
+	Success bool          `json:"success"`
 }
 
-type CloudDeckGetRespData struct {
+type CloudDeckData struct {
 	ID        int      `json:"id"`
 	Game      string   `json:"game"`
 	UserID    int      `json:"user_id"`
