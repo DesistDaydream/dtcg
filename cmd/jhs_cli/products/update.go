@@ -163,6 +163,7 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice, 
 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
 		}
 
+		// 生成商品将要更新的价格
 		var newPrice string
 		if updatePriceFlags.UpdatePolicy.Operator == "*" {
 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)

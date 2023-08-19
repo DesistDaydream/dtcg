@@ -1,12 +1,15 @@
 package products
 
 import (
+	"fmt"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 type UpdatePriceFlags struct {
-	UpdatePolicy UpdatePricePolicy
+	UpdateInterface string
+	UpdatePolicy    UpdatePricePolicy
 }
 
 type UpdatePricePolicy struct {
@@ -38,6 +41,7 @@ func UpdatePriceCommand() *cobra.Command {
 		Run:   updatePrice,
 	}
 
+	UpdateProductsPriceCmd.Flags().StringVar(&updatePriceFlags.UpdateInterface, "interface", "", "使用集换社的哪个接口获取商品信息。name: 通过名称列出我在卖的商品信息; id: 通过 card_version_id 直接获取商品信息")
 	UpdateProductsPriceCmd.Flags().StringVarP(&updatePriceFlags.UpdatePolicy.Operator, "operator", "o", "+", "卡牌价格变化的计算方式，乘法还是加法。")
 	UpdateProductsPriceCmd.Flags().Float64VarP(&updatePriceFlags.UpdatePolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 
@@ -52,21 +56,29 @@ func updatePrice(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	// 根据更新策略更新卡牌价格
-	// ps := genNeedUpdateProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
-	// logrus.Infof("共匹配到 %v 件商品", ps.count)
-	// for _, p := range ps.products {
-	// 	logrus.WithFields(logrus.Fields{
-	// 		"原始价格": p.card.AvgPrice,
-	// 		"更新价格": p.newPrice,
-	// 		"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
-	// 	}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+	switch updatePriceFlags.UpdateInterface {
+	case "name":
+		// 生成需要更新的商品
+		ps := genNeedUpdateProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+		logrus.Infof("共匹配到 %v 件商品", ps.count)
 
-	// 	if productsFlags.isRealRun {
-	// 		updateRun(&p.product, fmt.Sprint(p.product.OnSale), p.newPrice, p.product.CardVersionImage, fmt.Sprint(p.product.Quantity))
-	// 	}
-	// }
-	genNeedUpdateProductsWithBySellerCardVersionId(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+		// 更新商品
+		for _, p := range ps.products {
+			logrus.WithFields(logrus.Fields{
+				"原始价格": p.card.AvgPrice,
+				"更新价格": p.newPrice,
+				"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
+			}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+
+			if productsFlags.isRealRun {
+				updateRun(&p.product, fmt.Sprint(p.product.OnSale), p.newPrice, p.product.CardVersionImage, fmt.Sprint(p.product.Quantity))
+			}
+		}
+	case "id":
+		genNeedUpdateProductsWithBySellerCardVersionId(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+	default:
+		logrus.Fatalf("请通过 --interface 指定通过集换社的哪个接口获取商品信息")
+	}
 
 	// 注意：总数不等于任何数量之和。
 	logrus.WithFields(logrus.Fields{
