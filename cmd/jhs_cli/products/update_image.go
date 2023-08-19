@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
-	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 	"github.com/sirupsen/logrus"
@@ -43,42 +42,18 @@ func updateImage(cmd *cobra.Command, args []string) {
 		}
 
 		// 根据更新策略更新卡牌价格
-		genNeedHandleImgProducts(cards)
-	}
-}
+		// genNeedHandleImgProducts(cards)
+		ps := genNeedUpdateProducts(cards, 0)
+		logrus.Infof("共匹配到 %v 件商品", ps.count)
+		for _, p := range ps.products {
+			logrus.WithFields(logrus.Fields{
+				"原始价格": p.card.AvgPrice,
+				"更新价格": p.product.Price,
+				"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
+			}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
 
-// 生成待处理的商品信息
-func genNeedHandleImgProducts(cards *dbmodels.CardsPrice) {
-	for _, card := range cards.Data {
-		// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
-		products, err := handler.H.JhsServices.Market.SellersProductsList(1, card.Serial, updateFlags.CurSaleState, "published_at_desc")
-		if err != nil {
-			logrus.Fatal(err)
-		}
-		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
-		if err != nil {
-			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
-		}
-		for _, product := range products.Data {
-			logrus.Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCN)
-			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
-				resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-					AuthenticatorID:         "",
-					Grading:                 "",
-					Condition:               fmt.Sprint(product.Condition),
-					Default:                 "1",
-					OnSale:                  fmt.Sprint(product.OnSale),
-					Price:                   product.Price,
-					ProductCardVersionImage: cardPrice.ImageUrl,
-					Quantity:                fmt.Sprint(product.Quantity),
-					Remark:                  product.Remark,
-				}, fmt.Sprint(product.ProductID))
-				if err != nil {
-					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
-				} else {
-					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
-				}
+				updateRun(&p.product, fmt.Sprint(p.product.OnSale), p.product.Price, p.newImg, fmt.Sprint(p.product.Quantity))
 			}
 		}
 	}

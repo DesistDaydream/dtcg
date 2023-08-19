@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
@@ -20,7 +21,9 @@ func SellersProductsList(c *gin.Context) {
 		return
 	}
 
-	resp, err := handler.H.JhsServices.Market.SellersProductsList(req.Page, req.Keyword, req.OnSale, req.Sorting)
+	p, _ := strconv.Atoi(req.Page)
+
+	resp, err := handler.H.JhsServices.Market.SellersProductsList(p, req.Keyword, req.OnSale, req.Sorting)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}

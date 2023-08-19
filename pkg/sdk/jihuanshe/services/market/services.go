@@ -70,7 +70,7 @@ func (m *MarketClient) SellersProductsList(page int, keyword, onSale, sorting st
 			GameSubKey: "sc",
 			Keyword:    keyword,
 			OnSale:     onSale,
-			Page:       page,
+			Page:       numToString(page),
 			Sorting:    "published_at_desc",
 			Rarity:     "",
 		}),

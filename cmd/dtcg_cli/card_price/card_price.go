@@ -115,6 +115,17 @@ func GetImageURL(cardVersionID int) string {
 		}
 
 		for _, d := range productSellers.Data {
+			// 跳过部分用户的商品
+			if d.SellerUserID == 934972 {
+				logrus.Warnf("%v 匹配到自己的卡图，跳过", cardVersionID)
+				continue
+			}
+			if d.SellerUserID == 73090 {
+				logrus.Warnf("%v 又匹配到余堂的图了~~囧，跳过", cardVersionID)
+				continue
+			}
+
+			// 如果找到关键字，则保存卡图
 			if strings.Contains(d.CardVersionImage, "cdn-client") {
 				logrus.Debugf("获取卡图成功")
 				return d.CardVersionImage

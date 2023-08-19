@@ -1,5 +1,6 @@
 package models
 
+// 商品信息
 type ProductsGetResp struct {
 	AvgPrice                string         `json:"avg_price"`
 	CardID                  int64          `json:"card_id"`
