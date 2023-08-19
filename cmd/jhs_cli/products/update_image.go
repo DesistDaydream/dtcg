@@ -64,12 +64,15 @@ func genNeedHandleImgProducts(cards *dbmodels.CardsPrice) {
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
 				resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
+					AuthenticatorID:         "",
+					Grading:                 "",
 					Condition:               fmt.Sprint(product.Condition),
+					Default:                 "1",
 					OnSale:                  fmt.Sprint(product.OnSale),
 					Price:                   product.Price,
+					ProductCardVersionImage: cardPrice.ImageUrl,
 					Quantity:                fmt.Sprint(product.Quantity),
 					Remark:                  product.Remark,
-					ProductCardVersionImage: cardPrice.ImageUrl,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
 					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
@@ -98,12 +101,15 @@ func updateNoImage() {
 				}
 
 				resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
+					AuthenticatorID:         "",
+					Grading:                 "",
 					Condition:               fmt.Sprint(product.Condition),
+					Default:                 "1",
 					OnSale:                  fmt.Sprint(product.OnSale),
 					Price:                   product.Price,
+					ProductCardVersionImage: cardPrice.ImageUrl,
 					Quantity:                fmt.Sprint(product.Quantity),
 					Remark:                  product.Remark,
-					ProductCardVersionImage: cardPrice.ImageUrl,
 				}, fmt.Sprint(product.ProductID))
 				if err != nil {
 					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)

@@ -93,7 +93,10 @@ func genNeedHandleQuantityProducts(cards *dbmodels.CardsPrice) {
 
 		if productsFlags.isRealRun {
 			resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
+				AuthenticatorID:         "",
+				Grading:                 "",
 				Condition:               fmt.Sprint(products.DefaultProduct.Condition),
+				Default:                 "1",
 				OnSale:                  updateFlags.ExpSaleState,
 				Price:                   fmt.Sprintf("%.2f", products.DefaultProduct.Price),
 				ProductCardVersionImage: card.ImageUrl,

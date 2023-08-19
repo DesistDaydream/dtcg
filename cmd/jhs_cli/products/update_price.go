@@ -175,6 +175,7 @@ func updateRun(product *pmodels.DefaultProduct, imageUrl, newPrice string) {
 		AuthenticatorID:         "",
 		Grading:                 "",
 		Condition:               fmt.Sprint(product.Condition),
+		Default:                 "1",
 		OnSale:                  updateFlags.ExpSaleState,
 		Price:                   newPrice,
 		ProductCardVersionImage: imageUrl,
