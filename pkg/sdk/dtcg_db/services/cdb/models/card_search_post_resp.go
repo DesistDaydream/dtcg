@@ -1,12 +1,12 @@
 package models
 
 type CardSearchPostResp struct {
-	Data    CardSearchPostData `json:"data"`
-	Message string             `json:"message"`
-	Success bool               `json:"success"`
+	Data    CardSearchData `json:"data"`
+	Message string         `json:"message"`
+	Success bool           `json:"success"`
 }
 
-type CardSearchPostData struct {
+type CardSearchData struct {
 	Count int64  `json:"count"`
 	List  []Card `json:"list"`
 }

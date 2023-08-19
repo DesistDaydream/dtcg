@@ -1,8 +1,6 @@
 package products
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -55,20 +53,20 @@ func updatePrice(cmd *cobra.Command, args []string) {
 	}
 
 	// 根据更新策略更新卡牌价格
-	ps := genNeedUpdateProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
-	logrus.Infof("共匹配到 %v 件商品", ps.count)
-	for _, p := range ps.products {
-		logrus.WithFields(logrus.Fields{
-			"原始价格": p.card.AvgPrice,
-			"更新价格": p.newPrice,
-			"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
-		}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+	// ps := genNeedUpdateProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+	// logrus.Infof("共匹配到 %v 件商品", ps.count)
+	// for _, p := range ps.products {
+	// 	logrus.WithFields(logrus.Fields{
+	// 		"原始价格": p.card.AvgPrice,
+	// 		"更新价格": p.newPrice,
+	// 		"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
+	// 	}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
 
-		if productsFlags.isRealRun {
-			updateRun(&p.product, fmt.Sprint(p.product.OnSale), p.newPrice, p.product.CardVersionImage, fmt.Sprint(p.product.Quantity))
-		}
-	}
-	// genNeedUpdateProductsWithBySellerCardVersionId(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+	// 	if productsFlags.isRealRun {
+	// 		updateRun(&p.product, fmt.Sprint(p.product.OnSale), p.newPrice, p.product.CardVersionImage, fmt.Sprint(p.product.Quantity))
+	// 	}
+	// }
+	genNeedUpdateProductsWithBySellerCardVersionId(cards, updatePriceFlags.UpdatePolicy.PriceChange)
 
 	// 注意：总数不等于任何数量之和。
 	logrus.WithFields(logrus.Fields{

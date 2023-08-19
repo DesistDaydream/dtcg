@@ -2,20 +2,20 @@ package models
 
 // 列出卡牌
 type CardVersionsListResp struct {
-	CurrentPage int64                     `json:"current_page"`
-	Data        []CardVersionListRespData `json:"data"`
-	From        int                       `json:"from"`
-	LastPage    int                       `json:"last_page"`
-	NextPageURL string                    `json:"next_page_url"`
-	Path        string                    `json:"path"`
-	PerPage     int                       `json:"per_page"`
-	PrevPageURL string                    `json:"prev_page_url"`
-	To          int                       `json:"to"`
-	Total       int                       `json:"total"`
+	CurrentPage int64             `json:"current_page"`
+	Data        []CardVersionData `json:"data"`
+	From        int               `json:"from"`
+	LastPage    int               `json:"last_page"`
+	NextPageURL string            `json:"next_page_url"`
+	Path        string            `json:"path"`
+	PerPage     int               `json:"per_page"`
+	PrevPageURL string            `json:"prev_page_url"`
+	To          int               `json:"to"`
+	Total       int               `json:"total"`
 }
 
 // 注意 CardID 和 CardVersionID 的区别
-type CardVersionListRespData struct {
+type CardVersionData struct {
 	AvgPrice      string     `json:"avg_price"`
 	CardID        int        `json:"card_id"` // 卡牌 ID。一张卡牌的原画和异画都是同一个 卡牌ID
 	CardNames     []CardName `json:"card_names"`

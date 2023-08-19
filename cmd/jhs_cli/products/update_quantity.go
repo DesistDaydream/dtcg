@@ -3,9 +3,6 @@ package products
 import (
 	"fmt"
 
-	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
-	"github.com/DesistDaydream/dtcg/pkg/handler"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -53,7 +50,25 @@ func updateQuantity(cmd *cobra.Command, args []string) {
 	}
 
 	// 根据更新策略更新卡牌价格
-	genNeedHandleQuantityProducts(cards)
+	ps := genNeedUpdateProducts(cards, 0)
+	logrus.Infof("共匹配到 %v 件商品", ps.count)
+	for _, p := range ps.products {
+		logrus.WithFields(logrus.Fields{
+			"原始价格": p.card.AvgPrice,
+			"更新价格": p.product.Price,
+			"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
+		}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+
+		if productsFlags.isRealRun {
+			updateRun(
+				&p.product,
+				fmt.Sprint(p.product.OnSale),
+				p.product.Price,
+				p.product.CardVersionImage,
+				updateQuantityFlags.UpdatePolicy.ProductQuantity,
+			)
+		}
+	}
 
 	// 注意：总数不等于任何数量之和。
 	logrus.WithFields(logrus.Fields{
@@ -62,54 +77,4 @@ func updateQuantity(cmd *cobra.Command, args []string) {
 		"失败": updateFailCount,
 		"跳过": updateSkip,
 	}).Infof("更新结果")
-}
-
-// TODO: 下面这个接口与另一个 genNeedHandleProducts 接口各有优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
-// 生成待处理的商品信息
-func genNeedHandleQuantityProducts(cards *dbmodels.CardsPrice) {
-	for _, card := range cards.Data {
-		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
-		if err != nil {
-			logrus.Fatal(err)
-		}
-
-		if products.DefaultProduct.Quantity == 0 {
-			logrus.Warnf("当前商品 %v %v 数量为 0，跳过", products.DefaultProduct.CardNameCN, card.CardVersionID)
-			updateSkip++
-			continue
-		}
-
-		var newQuantity string
-		if products.DefaultProduct.Quantity < 4 {
-			newQuantity = updateQuantityFlags.UpdatePolicy.ProductQuantity
-		} else {
-			newQuantity = fmt.Sprintf("%v", products.DefaultProduct.Quantity)
-		}
-
-		logrus.WithFields(logrus.Fields{
-			"当前售卖数量": products.DefaultProduct.Quantity,
-			"期望售卖数量": newQuantity,
-		}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, products.DefaultProduct.CardNameCN)
-
-		if productsFlags.isRealRun {
-			resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-				AuthenticatorID:         "",
-				Grading:                 "",
-				Condition:               fmt.Sprint(products.DefaultProduct.Condition),
-				Default:                 "1",
-				OnSale:                  updateFlags.ExpSaleState,
-				Price:                   fmt.Sprintf("%.2f", products.DefaultProduct.Price),
-				ProductCardVersionImage: card.ImageUrl,
-				Quantity:                newQuantity,
-				Remark:                  products.DefaultProduct.Remark,
-			}, fmt.Sprint(products.DefaultProduct.ProductID))
-			if err != nil {
-				logrus.Errorf("商品 %v %v 修改失败：%v", products.DefaultProduct.ProductID, products.DefaultProduct.CardNameCN, err)
-				updateFailCount++
-			} else {
-				logrus.Infof("商品 %v %v 修改成功：%v", products.DefaultProduct.ProductID, products.DefaultProduct.CardNameCN, resp)
-				updateSuccessCount++
-			}
-		}
-	}
 }

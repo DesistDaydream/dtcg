@@ -6,7 +6,6 @@ import (
 
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -67,30 +66,21 @@ func updateNoImage() {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
 
-		for _, product := range products.Data {
-			if !strings.Contains(product.CardVersionImage, "cdn-client") {
-				cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(product.CardVersionID))
+		for _, p := range products.Data {
+			if !strings.Contains(p.CardVersionImage, "cdn-client") {
+				cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(p.CardVersionID))
 				if err != nil {
-					logrus.Errorf("获取卡牌 %v 价格详情失败: %v", product.CardNameCN, err)
+					logrus.Errorf("获取卡牌 %v 价格详情失败: %v", p.CardNameCN, err)
 					continue
 				}
 
-				resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-					AuthenticatorID:         "",
-					Grading:                 "",
-					Condition:               fmt.Sprint(product.Condition),
-					Default:                 "1",
-					OnSale:                  fmt.Sprint(product.OnSale),
-					Price:                   product.Price,
-					ProductCardVersionImage: cardPrice.ImageUrl,
-					Quantity:                fmt.Sprint(product.Quantity),
-					Remark:                  product.Remark,
-				}, fmt.Sprint(product.ProductID))
-				if err != nil {
-					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
-				} else {
-					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
-				}
+				updateRun(
+					&p,
+					fmt.Sprint(p.OnSale),
+					p.Price,
+					cardPrice.ImageUrl,
+					fmt.Sprint(p.Quantity),
+				)
 			}
 		}
 

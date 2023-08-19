@@ -58,7 +58,7 @@ type NeedHandleProducts struct {
 
 type Product struct {
 	card    dbmodels.CardPrice
-	product models.ProductListData
+	product models.ProductData
 	// 更新商品用的新数据，并不是一定会用上。主要用于不同更新场景时使用
 	newOnSale   string // 根据命令行标志设置商品在售状态
 	newPrice    string // 根据条件生成商品价格
@@ -157,10 +157,12 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice, 
 		if err != nil {
 			logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
 		}
+
 		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
 		if err != nil {
 			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
 		}
+
 		var newPrice string
 		if updatePriceFlags.UpdatePolicy.Operator == "*" {
 			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
@@ -173,14 +175,15 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice, 
 			"更新价格": newPrice,
 			"调整价格": priceChange,
 		}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, products.DefaultProduct.CardNameCN, updatePriceFlags.UpdatePolicy.Operator)
+
 		if productsFlags.isRealRun {
 			updateRunWithDefaultProdcut(&products.DefaultProduct, card.ImageUrl, newPrice)
 		}
 	}
 }
 
-// 使用默认商品信息更新商品
-func updateRunWithDefaultProdcut(product *pmodels.DefaultProduct, imageUrl string, price string) {
+// 更新商品（使用默认商品信息）
+func updateRunWithDefaultProdcut(product *pmodels.DefaultProduct, imageUrl, price string) {
 	// 生成备注信息
 	var remark string
 	if updateFlags.Remark != "" {
@@ -209,8 +212,8 @@ func updateRunWithDefaultProdcut(product *pmodels.DefaultProduct, imageUrl strin
 	}
 }
 
-// 更新商品
-func updateRun(product *models.ProductListData, onSale, price, imageUrl, quantity string) {
+// 更新商品（使用列出我在卖的商品信息）
+func updateRun(product *models.ProductData, onSale, price, imageUrl, quantity string) {
 	// 生成备注信息
 	var remark string
 	if updateFlags.Remark != "" {

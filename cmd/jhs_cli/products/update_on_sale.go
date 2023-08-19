@@ -5,7 +5,6 @@ import (
 
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
-	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -34,7 +33,6 @@ func UpdateSaleStateCommand() *cobra.Command {
 	}
 
 	updateProductsSaleStateCmd.Flags().StringVar(&updateSaleStateFlags.UpdateSaleStatePolicy.isArt, "art", "", "是否更新异画，可用的值有两个：是、否。空值为更新所有卡牌")
-
 	updateProductsSaleStateCmd.Flags().BoolVar(&updateSaleStateFlags.OneByOne, "one-by-one", false, "是否一条一条得变更所有商品的价格")
 
 	return updateProductsSaleStateCmd
@@ -67,35 +65,22 @@ func genNeedUpdateSaleStateProducts(cards *dbmodels.CardsPrice, alternativeArt s
 		if err != nil {
 			logrus.Fatal(err)
 		}
-		for _, product := range products.Data {
+		for _, p := range products.Data {
 			logrus.WithFields(logrus.Fields{
 				"当前状态": updateFlags.CurSaleState,
 				"预期状态": updateFlags.ExpSaleState,
-			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, product.CardNameCN)
+			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, p.CardNameCN)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
-				updateSaleStateRun(&product, updateFlags.ExpSaleState)
+				updateRun(
+					&p,
+					updateFlags.ExpSaleState,
+					p.Price,
+					p.CardVersionImage,
+					fmt.Sprint(p.Quantity),
+				)
 			}
 		}
-	}
-}
-
-func updateSaleStateRun(product *models.ProductListData, onSaleState string) {
-	resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-		AuthenticatorID:         "",
-		Grading:                 "",
-		Condition:               fmt.Sprint(product.Condition),
-		Default:                 "1",
-		OnSale:                  onSaleState,
-		Price:                   fmt.Sprint(product.Price),
-		ProductCardVersionImage: product.CardVersionImage,
-		Quantity:                fmt.Sprint(product.Quantity),
-		Remark:                  product.Remark,
-	}, fmt.Sprint(product.ProductID))
-	if err != nil {
-		logrus.Errorf("商品 %v %v 更新失败：%v", product.ProductID, product.CardNameCN, err)
-	} else {
-		logrus.Infof("商品 %v %v 更新成功：%v", product.ProductID, product.CardNameCN, resp)
 	}
 }
 
@@ -107,24 +92,15 @@ func updateSaleStateOneByOne() {
 		if err != nil || len(products.Data) <= 0 {
 			logrus.Fatalf("获取第 %v 页商品失败，列表为空或发生错误：%v", page, err)
 		}
-		for _, product := range products.Data {
-			if product.Quantity != 0 {
-				resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-					AuthenticatorID:         "",
-					Grading:                 "",
-					Condition:               fmt.Sprint(product.Condition),
-					Default:                 "1",
-					OnSale:                  updateFlags.ExpSaleState,
-					Price:                   product.Price,
-					ProductCardVersionImage: product.CardVersionImage,
-					Quantity:                fmt.Sprint(product.Quantity),
-					Remark:                  product.Remark,
-				}, fmt.Sprint(product.ProductID))
-				if err != nil {
-					logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
-				} else {
-					logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
-				}
+		for _, p := range products.Data {
+			if p.Quantity != 0 {
+				updateRun(
+					&p,
+					updateFlags.ExpSaleState,
+					p.Price,
+					p.CardVersionImage,
+					fmt.Sprint(p.Quantity),
+				)
 			}
 		}
 		logrus.Infof("共 %v 页数据，已处理第 %v 页", products.LastPage, products.CurrentPage)

@@ -1,19 +1,19 @@
 package models
 
 type ProductsListResp struct {
-	CurrentPage int               `json:"current_page"`
-	Data        []ProductListData `json:"data"`
-	From        int               `json:"from"`
-	LastPage    int               `json:"last_page"`
-	NextPageURL string            `json:"next_page_url"`
-	Path        string            `json:"path"`
-	PerPage     int               `json:"per_page"`
-	PrevPageURL string            `json:"prev_page_url"`
-	To          int               `json:"to"`
-	Total       int               `json:"total"`
+	CurrentPage int           `json:"current_page"`
+	Data        []ProductData `json:"data"`
+	From        int           `json:"from"`
+	LastPage    int           `json:"last_page"`
+	NextPageURL string        `json:"next_page_url"`
+	Path        string        `json:"path"`
+	PerPage     int           `json:"per_page"`
+	PrevPageURL string        `json:"prev_page_url"`
+	To          int           `json:"to"`
+	Total       int           `json:"total"`
 }
 
-type ProductListData struct {
+type ProductData struct {
 	AuthenticatorID   string     `json:"authenticator_id"`    // 评级公司ID
 	AuthenticatorName string     `json:"authenticator_name"`  // 评级公司名称
 	AvgPrice          string     `json:"avg_price"`           // 集换价
