@@ -157,6 +157,37 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice, priceChange float64) *Nee
 	return &needHandleProducts
 }
 
+// 更新商品（使用列出我在卖的商品信息）
+func updateRun(product *models.ProductData, onSale, price, imageUrl, quantity string) {
+	// 生成备注信息
+	var remark string
+	if updateFlags.Remark != "" {
+		remark = updateFlags.Remark
+	} else {
+		remark = product.Remark
+	}
+
+	// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
+	resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
+		AuthenticatorID:         "",
+		Grading:                 "",
+		Condition:               fmt.Sprint(product.Condition),
+		Default:                 "1",
+		OnSale:                  onSale,
+		Price:                   price,
+		ProductCardVersionImage: imageUrl,
+		Quantity:                quantity,
+		Remark:                  remark,
+	}, fmt.Sprint(product.ProductID))
+	if err != nil {
+		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
+		updateFailCount++
+	} else {
+		logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
+		updateSuccessCount++
+	}
+}
+
 // TODO: 下面这个接口与 genNeedUpdateProducts 接口各有优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
 // 生成需要更新的商品信息
 func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice, priceChange float64) {
@@ -214,37 +245,6 @@ func updateRunWithDefaultProdcut(product *pmodels.DefaultProduct, price, imageUr
 		Price:                   price,
 		ProductCardVersionImage: imageUrl,
 		Quantity:                fmt.Sprint(product.Quantity),
-		Remark:                  remark,
-	}, fmt.Sprint(product.ProductID))
-	if err != nil {
-		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
-		updateFailCount++
-	} else {
-		logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
-		updateSuccessCount++
-	}
-}
-
-// 更新商品（使用列出我在卖的商品信息）
-func updateRun(product *models.ProductData, onSale, price, imageUrl, quantity string) {
-	// 生成备注信息
-	var remark string
-	if updateFlags.Remark != "" {
-		remark = updateFlags.Remark
-	} else {
-		remark = product.Remark
-	}
-
-	// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
-	resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-		AuthenticatorID:         "",
-		Grading:                 "",
-		Condition:               fmt.Sprint(product.Condition),
-		Default:                 "1",
-		OnSale:                  onSale,
-		Price:                   price,
-		ProductCardVersionImage: imageUrl,
-		Quantity:                quantity,
 		Remark:                  remark,
 	}, fmt.Sprint(product.ProductID))
 	if err != nil {
