@@ -56,6 +56,7 @@ func updatePrice(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	// 生成待处理的商品信息
 	var ps *NeedHandleProducts
 
 	switch updatePriceFlags.UpdateInterface {
@@ -83,9 +84,6 @@ func updatePrice(cmd *cobra.Command, args []string) {
 		// 只有期望价格与当前价格不一致时，才更新
 		// TODO: 要不要加一个差价过大的时候也不更新？有的 C、U、R 卡也很值钱，可以高价
 		if newPrice != p.price {
-
-			fmt.Println(newPrice, p.price)
-
 			logrus.WithFields(logrus.Fields{
 				"原始价格": p.card.AvgPrice,
 				"当前价格": p.price,
