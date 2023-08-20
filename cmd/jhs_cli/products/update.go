@@ -63,6 +63,9 @@ type Product struct {
 	productID      int
 	productName    string
 	condition      int
+	// 该商品所属卡牌的部分信息
+	cardVersionID int
+	cardNameCN    string
 	// 更新商品用的新数据，并不是一定会用上。主要用于不同更新场景时使用
 	img      string
 	onSale   int
@@ -117,6 +120,8 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 						productID:      p.ProductID,
 						productName:    p.CardNameCN,
 						condition:      p.Condition,
+						cardVersionID:  p.CardVersionID,
+						cardNameCN:     p.CardNameCN,
 						img:            p.CardVersionImage,
 						onSale:         p.OnSale,
 						price:          p.Price,
@@ -178,9 +183,11 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) 
 			productID:      p.DefaultProduct.ProductID,
 			productName:    p.CardNameCN,
 			condition:      p.DefaultProduct.Condition,
-			onSale:         1,
-			price:          fmt.Sprintf("%.2f", p.DefaultProduct.Price), // 由于该接口中的 Price 的值是 float64，很多价格没有小数点后的第二位，为了避免后续转为字符串后与其他价格字符串进行比较时产生的问题，需要自动补全到小数点后两位。
+			cardVersionID:  card.CardVersionID,
+			cardNameCN:     p.CardNameCN,
 			img:            p.CardVersionImage,
+			onSale:         1,
+			price:          fmt.Sprintf("%.2f", p.DefaultProduct.Price),
 			quantity:       p.DefaultProduct.Quantity,
 		})
 
