@@ -20,7 +20,7 @@ var (
 	table      *tablewriter.Table
 	// sellerUserID  string = "609077"
 	cardVersionID string = "4282"
-	productID     string = "35103047"
+	productID     string = "36215779"
 )
 
 func initConfig() {
@@ -109,11 +109,11 @@ func TestProductsClientUpdate(t *testing.T) {
 	img := "http://cdn-client.jihuanshe.com/product/2023-02-10-20-25-04-c62Gsu1rOrE9Ea45D1otme3nXxMOEgZbZ1h7PpkD.jpg?imageslim%7CimageMogr2%2Fauto-orient%2Fthumbnail%2F900x%2Fblur%2F1x0%2F%7CimageMogr2%2Fauto-orient%2Fgravity%2FCenter%2Fcrop%2F900x1312%2Fblur%2F1x0%7CimageMogr2%2Fformat%2Fjpg%7Cwatermark%2F2%2Ftext%2F6ZuG5o2i56S-IFVJRDoxMzg1%2Ffont%2F6buR5L2T%2Ffontsize%2F600%2Ffill%2FI0ZGRkZGRg%3D%3D%2Fdissolve%2F90%2Fgravity%2FSouthEast%2Fdx%2F30%2Fdy%2F10"
 
 	resp, err := client.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-		AuthenticatorID: "",
-		Grading:         "",
-		Condition:       "1",
-		// Default:                 "",
-		OnSale:                  "1",
+		AuthenticatorID:         "",
+		Grading:                 "",
+		Condition:               "1",
+		Default:                 "0",
+		OnSale:                  1,
 		Price:                   "2500.10",
 		ProductCardVersionImage: img,
 		Quantity:                "9",

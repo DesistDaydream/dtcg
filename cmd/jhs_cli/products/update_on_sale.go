@@ -1,8 +1,6 @@
 package products
 
 import (
-	"fmt"
-
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/sirupsen/logrus"
@@ -72,13 +70,15 @@ func genNeedUpdateSaleStateProducts(cards *dbmodels.CardsPrice, alternativeArt s
 			}).Infof("更新前检查【%v】【%v %v】商品", card.AlternativeArt, card.Serial, p.CardNameCN)
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
-				updateRun(
-					&p,
-					updateFlags.ExpSaleState,
-					p.Price,
-					p.CardVersionImage,
-					fmt.Sprint(p.Quantity),
-				)
+				updateRun(&Product{
+					card:      dbmodels.CardPrice{},
+					product:   p,
+					productID: p.ProductID,
+					onSale:    updateFlags.ExpSaleState,
+					price:     p.Price,
+					img:       p.CardVersionImage,
+					quantity:  p.Quantity,
+				})
 			}
 		}
 	}
@@ -94,13 +94,15 @@ func updateSaleStateOneByOne() {
 		}
 		for _, p := range products.Data {
 			if p.Quantity != 0 {
-				updateRun(
-					&p,
-					updateFlags.ExpSaleState,
-					p.Price,
-					p.CardVersionImage,
-					fmt.Sprint(p.Quantity),
-				)
+				updateRun(&Product{
+					card:      dbmodels.CardPrice{},
+					product:   p,
+					productID: p.ProductID,
+					onSale:    updateFlags.ExpSaleState,
+					price:     p.Price,
+					img:       p.CardVersionImage,
+					quantity:  p.Quantity,
+				})
 			}
 		}
 		logrus.Infof("共 %v 页数据，已处理第 %v 页", products.LastPage, products.CurrentPage)

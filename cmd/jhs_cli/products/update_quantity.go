@@ -1,14 +1,12 @@
 package products
 
 import (
-	"fmt"
-
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
 type UpdateQuantityFlags struct {
-	ProductQuantity string
+	ProductQuantity int
 }
 
 type UpdateQuantityPolicy struct {
@@ -35,12 +33,16 @@ func UpdateQuantityCommand() *cobra.Command {
 		Run:   updateQuantity,
 	}
 
-	UpdateProductsPriceCmd.Flags().StringVarP(&updateQuantityFlags.ProductQuantity, "quantity", "q", "", "商品数量")
+	UpdateProductsPriceCmd.Flags().IntVarP(&updateQuantityFlags.ProductQuantity, "quantity", "q", 0, "商品数量")
 
 	return UpdateProductsPriceCmd
 }
 
 func updateQuantity(cmd *cobra.Command, args []string) {
+	if updateQuantityFlags.ProductQuantity == 0 {
+		logrus.Fatalf("请指定商品要更新的数量")
+	}
+
 	// 生成待处理的卡牌信息
 	cards, err := GenNeedHandleCards()
 	if err != nil {
@@ -49,23 +51,24 @@ func updateQuantity(cmd *cobra.Command, args []string) {
 	}
 
 	// 根据更新策略更新卡牌价格
-	ps := genNeedUpdateProducts(cards, 0)
+	ps := genNeedUpdateProducts(cards)
 	logrus.Infof("共匹配到 %v 件商品", ps.count)
-	for _, p := range ps.products {
-		logrus.WithFields(logrus.Fields{
-			"原始价格": p.card.AvgPrice,
-			"更新价格": p.product.Price,
-			"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
-		}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
 
-		if productsFlags.isRealRun {
-			updateRun(
-				&p.product,
-				fmt.Sprint(p.product.OnSale),
-				p.product.Price,
-				p.product.CardVersionImage,
-				updateQuantityFlags.ProductQuantity,
-			)
+	// 逐一更新商品数量
+	for _, p := range ps.products {
+		changeQuantity := updateQuantityFlags.ProductQuantity - p.quantity
+
+		// 只有期望数量与当前数量不一致时，才更新
+		if changeQuantity != 0 {
+			logrus.WithFields(logrus.Fields{
+				"商品变化数量": updateQuantityFlags.ProductQuantity - p.quantity,
+			}).Infof("检查将要更新的商品: 【%v】【%v】【%v】【%v %v】", p.productID, p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+
+			p.quantity = updateQuantityFlags.ProductQuantity
+
+			if productsFlags.isRealRun {
+				updateRun(&p)
+			}
 		}
 	}
 

@@ -16,7 +16,7 @@ import (
 type UpdateFlags struct {
 	SellerUserID string // 集换社卖家 ID
 	CurSaleState string // 当前商品的售卖状态
-	ExpSaleState string // 期望商品变成哪种售卖状态
+	ExpSaleState int    // 期望商品变成哪种售卖状态
 	Remark       string // 商品备注
 }
 
@@ -33,7 +33,7 @@ func UpdateCommand() *cobra.Command {
 
 	updateProductsCmd.PersistentFlags().StringVarP(&updateFlags.SellerUserID, "seller-user-id", "u", "934972", "卖家用户ID。")
 	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.CurSaleState, "cur-sale-state", "1", "当前售卖状态。即获取什么状态的商品。1: 售卖。0: 下架")
-	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.ExpSaleState, "exp-sale-state", "1", "期望的售卖状态。")
+	updateProductsCmd.PersistentFlags().IntVar(&updateFlags.ExpSaleState, "exp-sale-state", 1, "期望的售卖状态。")
 	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.Remark, "remark", "", "商品备注信息")
 
 	updateProductsCmd.AddCommand(
@@ -58,17 +58,20 @@ type NeedHandleProducts struct {
 }
 
 type Product struct {
-	card    dbmodels.CardPrice
-	product models.ProductData
+	card        dbmodels.CardPrice
+	product     models.ProductData
+	productID   int
+	productName string
+	condition   int
 	// 更新商品用的新数据，并不是一定会用上。主要用于不同更新场景时使用
-	newOnSale   string // 根据命令行标志设置商品在售状态
-	newPrice    string // 根据条件生成商品价格
-	newImg      string // 从数据库的 card_prices 表中获取卡图
-	newQuantity string // 根据条件生成商品数量
+	onSale   int    // 根据命令行标志设置商品在售状态
+	price    string // 根据条件生成商品价格
+	img      string // 从数据库的 card_prices 表中获取卡图
+	quantity int    // 根据条件生成商品数量
 }
 
 // 生成需要更新的商品信息
-func genNeedUpdateProducts(cards *dbmodels.CardsPrice, priceChange float64) *NeedHandleProducts {
+func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 	var wg sync.WaitGroup
 	defer wg.Wait()
 	var lock sync.Mutex // 并发中有对数组的 append 操作，加锁保证并发安全
@@ -81,8 +84,10 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice, priceChange float64) *Nee
 
 		go func(card dbmodels.CardPrice) {
 			defer wg.Done()
+
 			// 用于记录待处理的卡牌的商品是否已更新
 			isUpdate := 0
+
 			// 使用 /api/market/sellers/products 接口通过卡牌关键字(即卡牌编号)获取到该卡牌的商品列表
 			products, err := handler.H.JhsServices.Market.SellersProductsList(1, card.Serial, updateFlags.CurSaleState, "published_at_desc")
 			if err != nil {
@@ -92,47 +97,34 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice, priceChange float64) *Nee
 			}
 			// 判断一下这个这个卡牌有几个商品，若商品为0，则继续处理下一个
 			if len(products.Data) == 0 {
-				logrus.Errorf("%v %v 没有可供处理的商品，跳过", card.CardVersionID, card.ScName)
+				logrus.Errorf("%v %v 卡牌没有任何版本可供处理的商品，跳过", card.CardVersionID, card.ScName)
 				updateSkip++
 				return
 			}
 
-			// 生成商品将要更新的价格
-			var newPrice string
-			if updatePriceFlags.UpdatePolicy.Operator == "*" {
-				newPrice = fmt.Sprintf("%.2f", card.AvgPrice*priceChange)
-			} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
-				newPrice = fmt.Sprintf("%.2f", card.AvgPrice+priceChange)
-			}
-
-			// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有可能包含异画，所以需要先获取商品中的 card_version_id，
-			// 然后将商品的 card_version_id 与当前待更新卡牌的 card_version_id 对比，以确定唯一的 product_id(商品ID)
+			// 通过卡牌编号获取到的商品信息不是唯一的，这个编号的卡有多个版本（包含异画），所以需要通过 card_version_id 对比以确定唯一的 product_id(商品ID)
 			for _, p := range products.Data {
+				// 只有当商品的 card_version_id 与当前想要处理的卡牌的 card_version_id 相同时，则可以确定这个商品就是想要更新的卡牌的版本的商品
 				if p.CardVersionID == card.CardVersionID {
-					// 生成商品将要更新的数量。若未指定数量，则使用商品自己的数量
-					var newQuantity string
-					if updateQuantityFlags.ProductQuantity != "" {
-						newQuantity = updateQuantityFlags.ProductQuantity
-					} else {
-						newQuantity = fmt.Sprintf("%v", p.Quantity)
-					}
-
 					lock.Lock() // append 切片在并发中不安全，加个锁
 					needHandleProducts.products = append(needHandleProducts.products, Product{
 						card:        card,
 						product:     p,
-						newOnSale:   updateFlags.ExpSaleState,
-						newPrice:    newPrice,
-						newImg:      card.ImageUrl,
-						newQuantity: newQuantity,
+						productID:   p.ProductID,
+						productName: p.CardNameCN,
+						condition:   p.Condition,
+						onSale:      p.OnSale,
+						price:       p.Price,
+						img:         p.CardVersionImage,
+						quantity:    p.Quantity,
 					})
 					lock.Unlock()
 
 					logrus.WithFields(logrus.Fields{
 						"原始价格": card.AvgPrice,
-						"更新价格": newPrice,
-						"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, updatePriceFlags.UpdatePolicy.PriceChange),
-					}).Infof("更新前检查商品: 【%v】【%v】【%v %v】", p.CardVersionID, card.AlternativeArt, card.Serial, p.CardNameCN)
+						"商品价格": p.Price,
+						"商品数量": p.Quantity,
+					}).Infof("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.ProductID, p.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
 
 					needHandleProducts.count++
 
@@ -142,14 +134,14 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice, priceChange float64) *Nee
 					logrus.Debugf("当前商品 [%v %v %v %v] 与期望处理的商品 [%v %v %v %v] 不匹配，跳过",
 						p.CardVersionID, p.CardVersionNumber, p.CardNameCN, p.CardVersionRarity,
 						card.CardVersionID, card.Serial, card.ScName, card.Rarity)
-					updateSkip++
+					continue
 				}
 			}
-			// 挺尴尬的做法，获取到需要更新的卡牌列表后，只能通过名字获取商品，但是通过名称获取到的商品可能是其他卡牌的商品(各种异画)。。。o(╯□╰)o
-			// 所以需要一个有状态的数据来记录待更新卡牌是否获取到商品并成功更新
+			// 挺尴尬的做法，通过卡牌名称获取到的商品可能是该卡牌的其它版本的商品(各种异画)。。。o(╯□╰)o
+			// 所以需要一个有状态的数据来记录待更新卡牌是否获取到商品
 			if isUpdate == 0 {
-				logrus.Errorf("%v 卡牌没有商品可以更新", card.ScName)
-				updateFailCount++
+				logrus.Errorf("%v %v 卡牌存在其它版本的商品，但没有当前版本商品可以更新", card.CardVersionID, card.ScName)
+				updateSkip++
 			}
 		}(card)
 	}
@@ -158,32 +150,32 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice, priceChange float64) *Nee
 }
 
 // 更新商品（使用列出我在卖的商品信息）
-func updateRun(product *models.ProductData, onSale, price, imageUrl, quantity string) {
+func updateRun(p *Product) {
 	// 生成备注信息
 	var remark string
 	if updateFlags.Remark != "" {
 		remark = updateFlags.Remark
 	} else {
-		remark = product.Remark
+		remark = p.product.Remark
 	}
 
 	// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 	resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
 		AuthenticatorID:         "",
 		Grading:                 "",
-		Condition:               fmt.Sprint(product.Condition),
+		Condition:               fmt.Sprint(p.condition),
 		Default:                 "1",
-		OnSale:                  onSale,
-		Price:                   price,
-		ProductCardVersionImage: imageUrl,
-		Quantity:                quantity,
+		OnSale:                  p.onSale,
+		Price:                   p.price,
+		ProductCardVersionImage: p.img,
+		Quantity:                fmt.Sprint(p.quantity),
 		Remark:                  remark,
-	}, fmt.Sprint(product.ProductID))
+	}, fmt.Sprint(p.productID))
 	if err != nil {
-		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
+		logrus.Errorf("商品 %v %v 修改失败：%v", p.productID, p.productName, err)
 		updateFailCount++
 	} else {
-		logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
+		logrus.Infof("商品 %v %v 修改成功：%v", p.productID, p.productName, resp)
 		updateSuccessCount++
 	}
 }

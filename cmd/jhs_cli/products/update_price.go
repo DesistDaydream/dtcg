@@ -59,19 +59,34 @@ func updatePrice(cmd *cobra.Command, args []string) {
 	switch updatePriceFlags.UpdateInterface {
 	case "name":
 		// 生成需要更新的商品
-		ps := genNeedUpdateProducts(cards, updatePriceFlags.UpdatePolicy.PriceChange)
+		ps := genNeedUpdateProducts(cards)
 		logrus.Infof("共匹配到 %v 件商品", ps.count)
 
-		// 更新商品
+		// 逐一更新商品价格
 		for _, p := range ps.products {
-			logrus.WithFields(logrus.Fields{
-				"原始价格": p.card.AvgPrice,
-				"更新价格": p.newPrice,
-				"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
-			}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+			// 生成商品将要更新的价格
+			var newPrice string
+			if updatePriceFlags.UpdatePolicy.Operator == "*" {
+				newPrice = fmt.Sprintf("%.2f", p.card.AvgPrice*updatePriceFlags.UpdatePolicy.PriceChange)
+			} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
+				newPrice = fmt.Sprintf("%.2f", p.card.AvgPrice+updatePriceFlags.UpdatePolicy.PriceChange)
+			}
 
-			if productsFlags.isRealRun {
-				updateRun(&p.product, fmt.Sprint(p.product.OnSale), p.newPrice, p.product.CardVersionImage, fmt.Sprint(p.product.Quantity))
+			// 只有期望价格与当前价格不一致时，才更新
+			// TODO: 要不要加一个差价过大的时候也不更新？有的 C、U、R 卡也很值钱，可以高价
+			if newPrice != p.price {
+				logrus.WithFields(logrus.Fields{
+					"原始价格": p.card.AvgPrice,
+					"当前价格": p.price,
+					"期望价格": newPrice,
+					"调整方式": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, updatePriceFlags.UpdatePolicy.PriceChange),
+				}).Infof("检查将要更新的商品: 【%v】【%v】【%v】【%v %v】", p.productID, p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+
+				p.price = newPrice
+
+				if productsFlags.isRealRun {
+					updateRun(&p)
+				}
 			}
 		}
 	case "id":

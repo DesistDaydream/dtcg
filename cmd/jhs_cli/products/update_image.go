@@ -2,6 +2,7 @@ package products
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
@@ -42,17 +43,22 @@ func updateImage(cmd *cobra.Command, args []string) {
 
 		// 根据更新策略更新卡牌价格
 		// genNeedHandleImgProducts(cards)
-		ps := genNeedUpdateProducts(cards, 0)
+		ps := genNeedUpdateProducts(cards)
 		logrus.Infof("共匹配到 %v 件商品", ps.count)
-		for _, p := range ps.products {
-			logrus.WithFields(logrus.Fields{
-				"原始价格": p.card.AvgPrice,
-				"更新价格": p.product.Price,
-				"调整价格": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, 0),
-			}).Debugf("检查生成的商品: 【%v】【%v】【%v %v】", p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
 
-			if productsFlags.isRealRun {
-				updateRun(&p.product, fmt.Sprint(p.product.OnSale), p.product.Price, p.newImg, fmt.Sprint(p.product.Quantity))
+		// 逐一更新商品图片
+		for _, p := range ps.products {
+			u1, _ := url.Parse(p.img)
+			u2, _ := url.Parse(p.card.ImageUrl)
+			// 只有当前商品图与数据库中的图不一样时，才更新
+			if u1.Path != u2.Path {
+				logrus.WithFields(logrus.Fields{}).Infof("检查将要更新的商品: 【%v】【%v】【%v】【%v %v】", p.productID, p.product.CardVersionID, p.card.AlternativeArt, p.card.Serial, p.product.CardNameCN)
+
+				p.img = p.card.ImageUrl
+
+				if productsFlags.isRealRun {
+					updateRun(&p)
+				}
 			}
 		}
 	}
@@ -74,13 +80,15 @@ func updateNoImage() {
 					continue
 				}
 
-				updateRun(
-					&p,
-					fmt.Sprint(p.OnSale),
-					p.Price,
-					cardPrice.ImageUrl,
-					fmt.Sprint(p.Quantity),
-				)
+				updateRun(&Product{
+					card:      *cardPrice,
+					product:   p,
+					productID: p.ProductID,
+					onSale:    p.OnSale,
+					price:     p.Price,
+					img:       cardPrice.ImageUrl,
+					quantity:  p.Quantity,
+				})
 			}
 		}
 
