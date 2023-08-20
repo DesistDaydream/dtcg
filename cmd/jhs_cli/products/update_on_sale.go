@@ -71,8 +71,8 @@ func genNeedUpdateSaleStateProducts(cards *dbmodels.CardsPrice, alternativeArt s
 			// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
 			if productsFlags.isRealRun {
 				updateRun(&Product{
-					card:      dbmodels.CardPrice{},
-					product:   p,
+					card:      &dbmodels.CardPrice{},
+					product:   &p,
 					productID: p.ProductID,
 					onSale:    updateFlags.ExpSaleState,
 					price:     p.Price,
@@ -95,8 +95,8 @@ func updateSaleStateOneByOne() {
 		for _, p := range products.Data {
 			if p.Quantity != 0 {
 				updateRun(&Product{
-					card:      dbmodels.CardPrice{},
-					product:   p,
+					card:      &dbmodels.CardPrice{},
+					product:   &p,
 					productID: p.ProductID,
 					onSale:    updateFlags.ExpSaleState,
 					price:     p.Price,

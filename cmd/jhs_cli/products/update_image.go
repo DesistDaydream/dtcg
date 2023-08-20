@@ -81,8 +81,8 @@ func updateNoImage() {
 				}
 
 				updateRun(&Product{
-					card:      *cardPrice,
-					product:   p,
+					card:      cardPrice,
+					product:   &p,
 					productID: p.ProductID,
 					onSale:    p.OnSale,
 					price:     p.Price,

@@ -43,11 +43,11 @@ type ProductData struct {
 type DefaultProduct struct {
 	CardNameCN       string      `json:"card_name_cn"`       // 卡牌中文名称
 	CardVersionImage string      `json:"card_version_image"` // 卡图
-	Condition        int64       `json:"condition"`          // 商品的品相。1: 流通品相，2: 有瑕疵，3: 有损伤
+	Condition        int         `json:"condition"`          // 商品的品相。1: 流通品相，2: 有瑕疵，3: 有损伤
 	Price            float64     `json:"price"`              // 商品价格
-	ProductID        int64       `json:"product_id"`         // 商品 ID
+	ProductID        int         `json:"product_id"`         // 商品 ID
 	PublishLocation  interface{} `json:"publish_location"`   // TODO: 这是啥
 	PullOff          bool        `json:"pull_off"`           // 是否已下架
-	Quantity         int64       `json:"quantity"`           // 商品数量
+	Quantity         int         `json:"quantity"`           // 商品数量
 	Remark           string      `json:"remark"`             // 商品备注
 }

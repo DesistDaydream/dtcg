@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/DesistDaydream/dtcg/internal/database"
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/market/models"
@@ -58,16 +57,17 @@ type NeedHandleProducts struct {
 }
 
 type Product struct {
-	card        dbmodels.CardPrice
-	product     models.ProductData
-	productID   int
-	productName string
-	condition   int
+	card           *dbmodels.CardPrice
+	product        *models.ProductData
+	defaultProduct *pmodels.DefaultProduct
+	productID      int
+	productName    string
+	condition      int
 	// 更新商品用的新数据，并不是一定会用上。主要用于不同更新场景时使用
-	onSale   int    // 根据命令行标志设置商品在售状态
-	price    string // 根据条件生成商品价格
-	img      string // 从数据库的 card_prices 表中获取卡图
-	quantity int    // 根据条件生成商品数量
+	img      string
+	onSale   int
+	price    string
+	quantity int
 }
 
 // 生成需要更新的商品信息
@@ -106,17 +106,21 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 			for _, p := range products.Data {
 				// 只有当商品的 card_version_id 与当前想要处理的卡牌的 card_version_id 相同时，则可以确定这个商品就是想要更新的卡牌的版本的商品
 				if p.CardVersionID == card.CardVersionID {
+					// 由于 go 语言中，for 每次迭代的值都是存储到同一个内存空间中的，所以想要引用 for 中 value 的内存空间，需要再手动创建一个
+					cardCopy := card
+
 					lock.Lock() // append 切片在并发中不安全，加个锁
 					needHandleProducts.products = append(needHandleProducts.products, Product{
-						card:        card,
-						product:     p,
-						productID:   p.ProductID,
-						productName: p.CardNameCN,
-						condition:   p.Condition,
-						onSale:      p.OnSale,
-						price:       p.Price,
-						img:         p.CardVersionImage,
-						quantity:    p.Quantity,
+						card:           &cardCopy,
+						product:        &p,
+						defaultProduct: nil,
+						productID:      p.ProductID,
+						productName:    p.CardNameCN,
+						condition:      p.Condition,
+						img:            p.CardVersionImage,
+						onSale:         p.OnSale,
+						price:          p.Price,
+						quantity:       p.Quantity,
 					})
 					lock.Unlock()
 
@@ -149,14 +153,61 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 	return &needHandleProducts
 }
 
-// 更新商品（使用列出我在卖的商品信息）
+// TODO: 下面这个接口与 genNeedUpdateProducts 接口各有优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
+// 生成需要更新的商品信息
+func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) *NeedHandleProducts {
+	var needHandleProducts NeedHandleProducts
+
+	for _, card := range cards.Data {
+		// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
+		// 然后，只需要遍历修改这些商品即可。
+		// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
+		// 后来，官方添加了一个 default_product 的字段，这里也可以获得 product_id、价格、等 信息。都不用遍历商品了，这点还是不错的。但是感觉用起来还是有点奇怪，待补充...
+		p, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
+		if err != nil {
+			logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
+		}
+
+		// 由于 go 语言中，for 每次迭代的值都是存储到同一个内存空间中的，所以想要引用 for 中 value 的内存空间，需要再手动创建一个
+		cardCopy := card
+
+		needHandleProducts.products = append(needHandleProducts.products, Product{
+			card:           &cardCopy,
+			product:        nil,
+			defaultProduct: &p.DefaultProduct,
+			productID:      p.DefaultProduct.ProductID,
+			productName:    p.CardNameCN,
+			condition:      p.DefaultProduct.Condition,
+			onSale:         1,
+			price:          fmt.Sprintf("%.2f", p.DefaultProduct.Price), // 由于该接口中的 Price 的值是 float64，很多价格没有小数点后的第二位，为了避免后续转为字符串后与其他价格字符串进行比较时产生的问题，需要自动补全到小数点后两位。
+			img:            p.CardVersionImage,
+			quantity:       p.DefaultProduct.Quantity,
+		})
+
+		logrus.WithFields(logrus.Fields{
+			"原始价格": card.AvgPrice,
+			"商品价格": p.DefaultProduct.Price,
+			"商品数量": p.DefaultProduct.Quantity,
+		}).Infof("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.DefaultProduct.ProductID, card.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
+
+		needHandleProducts.count++
+	}
+
+	return &needHandleProducts
+}
+
+// 更新商品
 func updateRun(p *Product) {
 	// 生成备注信息
 	var remark string
 	if updateFlags.Remark != "" {
 		remark = updateFlags.Remark
 	} else {
-		remark = p.product.Remark
+		if p.defaultProduct != nil {
+			remark = p.defaultProduct.Remark
+		} else if p.product != nil {
+			remark = p.product.Remark
+		}
 	}
 
 	// 使用 /api/market/sellers/products/{product_id} 接口更新商品信息
@@ -176,74 +227,6 @@ func updateRun(p *Product) {
 		updateFailCount++
 	} else {
 		logrus.Infof("商品 %v %v 修改成功：%v", p.productID, p.productName, resp)
-		updateSuccessCount++
-	}
-}
-
-// TODO: 下面这个接口与 genNeedUpdateProducts 接口各有优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
-// 生成需要更新的商品信息
-func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice, priceChange float64) {
-	for _, card := range cards.Data {
-		// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
-		// 然后，只需要遍历修改这些商品即可。
-		// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
-		// 后来，官方添加了一个 default_product 的字段，这里也可以获得 product_id、价格、等 信息。都不用使用 for 轮询商品了，这点还是不错的。但是感觉用起来还是有点奇怪，待补充...
-		products, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
-		if err != nil {
-			logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
-		}
-
-		cardPrice, err := database.GetCardPriceWhereCardVersionID(fmt.Sprint(card.CardVersionID))
-		if err != nil {
-			logrus.Errorf("获取 %v 价格失败：%v", card.ScName, err)
-		}
-
-		// 生成商品将要更新的价格
-		var newPrice string
-		if updatePriceFlags.UpdatePolicy.Operator == "*" {
-			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice*priceChange)
-		} else if updatePriceFlags.UpdatePolicy.Operator == "+" {
-			newPrice = fmt.Sprintf("%.2f", cardPrice.AvgPrice+priceChange)
-		}
-
-		logrus.WithFields(logrus.Fields{
-			"原始价格": cardPrice.AvgPrice,
-			"更新价格": newPrice,
-			"调整价格": priceChange,
-		}).Infof("更新前检查【%v】【%v %v】商品，使用【%v】运算符", card.AlternativeArt, card.Serial, products.DefaultProduct.CardNameCN, updatePriceFlags.UpdatePolicy.Operator)
-
-		if productsFlags.isRealRun {
-			updateRunWithDefaultProdcut(&products.DefaultProduct, newPrice, card.ImageUrl)
-		}
-	}
-}
-
-// 更新商品（使用默认商品信息）
-func updateRunWithDefaultProdcut(product *pmodels.DefaultProduct, price, imageUrl string) {
-	// 生成备注信息
-	var remark string
-	if updateFlags.Remark != "" {
-		remark = updateFlags.Remark
-	} else {
-		remark = product.Remark
-	}
-
-	resp, err := handler.H.JhsServices.Market.SellersProductsUpdate(&models.ProductsUpdateReqBody{
-		AuthenticatorID:         "",
-		Grading:                 "",
-		Condition:               fmt.Sprint(product.Condition),
-		Default:                 "1",
-		OnSale:                  updateFlags.ExpSaleState,
-		Price:                   price,
-		ProductCardVersionImage: imageUrl,
-		Quantity:                fmt.Sprint(product.Quantity),
-		Remark:                  remark,
-	}, fmt.Sprint(product.ProductID))
-	if err != nil {
-		logrus.Errorf("商品 %v %v 修改失败：%v", product.ProductID, product.CardNameCN, err)
-		updateFailCount++
-	} else {
-		logrus.Infof("商品 %v %v 修改成功：%v", product.ProductID, product.CardNameCN, resp)
 		updateSuccessCount++
 	}
 }
