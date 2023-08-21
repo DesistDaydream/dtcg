@@ -130,17 +130,22 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 
 	result := DB.Model(&models.CardPrice{})
 
-	// 根据 card_version_id 查询
+	// 过滤指定 card_version_id 的卡牌
 	if cardPriceQuery.CardVersionID != 0 {
 		result = result.Where("card_version_id = ?", cardPriceQuery.CardVersionID)
 	}
 
-	// 根据卡牌集合前缀查询
+	// 过滤不包含某些 card_version_id 的卡牌
+	if len(cardPriceQuery.NotInCardVersionID) > 0 {
+		result = result.Where("card_version_id NOT IN ?", cardPriceQuery.NotInCardVersionID)
+	}
+
+	// 过滤指定卡牌集合的卡牌
 	if len(cardPriceQuery.SetsPrefix) > 0 {
 		result = result.Where("set_prefix IN ?", cardPriceQuery.SetsPrefix)
 	}
 
-	// 根据卡牌稀有度查询
+	// 过滤指定稀有度的卡牌
 	if len(cardPriceQuery.Rarity) > 0 {
 		f := func(cardPriceQuery *models.CardPriceQuery, result *gorm.DB) *gorm.DB {
 			// 通过 Session() 创建一个新的 DB 实例，避免影响原来的 DB 实例。用以实现为多个 Or 分组的功能
@@ -155,7 +160,7 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 		result = result.Debug().Where(f)
 	}
 
-	// 关键字多列模糊查询
+	// 根据关键字过滤卡牌
 	if cardPriceQuery.Keyword != "" {
 		result = result.Where("sc_name LIKE ? OR serial LIKE ?",
 			"%"+cardPriceQuery.Keyword+"%",

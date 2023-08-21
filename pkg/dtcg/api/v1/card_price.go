@@ -37,7 +37,6 @@ func GetCardsPrice(c *gin.Context) {
 
 // 根据条件获取卡牌价格详情
 func PostCardsPrice(c *gin.Context) {
-
 	// 绑定 url query
 	var reqQuery models.CommonReqQuery
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {

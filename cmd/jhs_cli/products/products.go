@@ -61,15 +61,16 @@ func GenNeedHandleCards() (*dbmodels.CardsPrice, error) {
 	}
 
 	cards, err = database.GetCardPriceByCondition(300, 1, &dbmodels.CardPriceQuery{
-		CardVersionID:  productsFlags.CardVersionID,
-		SetsPrefix:     productsFlags.SetPrefix,
-		Keyword:        "",
-		Language:       "",
-		QField:         []string{},
-		Rarity:         productsFlags.Rarity,
-		AlternativeArt: productsFlags.IsArt,
-		MinPriceRange:  "",
-		AvgPriceRange:  avgPriceRange,
+		CardVersionID:      productsFlags.CardVersionID,
+		NotInCardVersionID: []int{},
+		SetsPrefix:         productsFlags.SetPrefix,
+		Keyword:            "",
+		Language:           "",
+		QField:             []string{},
+		Rarity:             productsFlags.Rarity,
+		AlternativeArt:     productsFlags.IsArt,
+		MinPriceRange:      "",
+		AvgPriceRange:      avgPriceRange,
 	})
 	if err != nil {
 		return nil, err

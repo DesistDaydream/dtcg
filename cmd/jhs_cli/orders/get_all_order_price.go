@@ -62,7 +62,7 @@ func getAllOrderPriceRun(cmd *cobra.Command, args []string) {
 		sellerPage = sellerOrders.CurrentPage + 1
 	}
 
-	logrus.Infof("当前买入订单的总额为：%v", totalBuyerPrcie)
-	logrus.Infof("当前卖出订单的总额为：%v", totalSellerPrcie)
+	logrus.Infof("当前买入订单的总额为：%.2f", totalBuyerPrcie)
+	logrus.Infof("当前卖出订单的总额为：%.2f", totalSellerPrcie)
 
 }

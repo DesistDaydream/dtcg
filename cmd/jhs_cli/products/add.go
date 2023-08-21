@@ -13,6 +13,7 @@ import (
 
 type AddFlags struct {
 	AddPolicy AddPolicy
+	Quantity  int
 	Remark    string
 }
 
@@ -44,6 +45,7 @@ func AddCommand() *cobra.Command {
 
 	addProdcutCmd.Flags().Float64VarP(&addFlags.AddPolicy.PriceChange, "price-change", "c", 0, "卡牌需要变化的价格。")
 	addProdcutCmd.Flags().StringVarP(&addFlags.AddPolicy.Operator, "operator", "o", "+", "卡牌价格变化的计算方式，乘法还是加法。")
+	addProdcutCmd.Flags().IntVar(&addFlags.Quantity, "quantity", 4, "商品数量")
 	addProdcutCmd.Flags().StringVar(&addFlags.Remark, "remark", "拍之前请联系确认库存", "商品备注信息")
 
 	return addProdcutCmd
@@ -117,7 +119,7 @@ func addRun(cardPrice *dbmodels.CardPrice, cardVersionID string, newPrice string
 		GameKey:                 "dgm",
 		Price:                   newPrice,
 		ProductCardVersionImage: cardPrice.ImageUrl,
-		Quantity:                "4",
+		Quantity:                fmt.Sprint(addFlags.Quantity),
 		Remark:                  addFlags.Remark,
 	})
 	if err != nil {
