@@ -58,7 +58,7 @@ func ListCardsPrice() (*models.CardsPrice, error) {
 	}, nil
 }
 
-// 根据条件获取卡牌价格详情
+// 列出所有卡牌价格详情，分页
 func GetCardsPrice(pageSize int, pageNum int) (*models.CardsPrice, error) {
 	var (
 		CardCount int64
@@ -82,29 +82,7 @@ func GetCardsPrice(pageSize int, pageNum int) (*models.CardsPrice, error) {
 	}, nil
 }
 
-// 根据 card_id_from_db 获取卡牌价格详情
-func GetCardPrice(cardIDFromDB string) (*models.CardPrice, error) {
-	var cardPrice models.CardPrice
-	result := DB.Where("card_id_from_db = ?", cardIDFromDB).First(&cardPrice)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return &cardPrice, nil
-}
-
-// 根据 card_version_id 获取卡牌价格详情
-func GetCardPriceWhereCardVersionID(cardVersionID string) (*models.CardPrice, error) {
-	var cardPrice models.CardPrice
-	result := DB.Where("card_version_id = ?", cardVersionID).First(&cardPrice)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return &cardPrice, nil
-}
-
-// 根据卡片集合前缀获取卡牌价格详情
+// 根据卡片集合前缀列出卡牌价格详情
 func GetCardPriceWhereSetPrefix(setPrefix string) (*models.CardsPrice, error) {
 	var cp []models.CardPrice
 	result := DB.Where("set_prefix = ?", setPrefix).Find(&cp)
@@ -121,7 +99,7 @@ func GetCardPriceWhereSetPrefix(setPrefix string) (*models.CardsPrice, error) {
 	}, nil
 }
 
-// 根据条件获取卡牌价格详情
+// 根据条件列出卡牌价格详情，分页
 func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.CardPriceQuery) (*models.CardsPrice, error) {
 	var (
 		CardCount int64
@@ -202,6 +180,28 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 		PageTotal:   (int(CardCount) / pageSize) + 1,
 		Data:        cp,
 	}, nil
+}
+
+// 根据 card_id_from_db 获取卡牌价格详情
+func GetCardPrice(cardIDFromDB string) (*models.CardPrice, error) {
+	var cardPrice models.CardPrice
+	result := DB.Where("card_id_from_db = ?", cardIDFromDB).First(&cardPrice)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &cardPrice, nil
+}
+
+// 根据 card_version_id 获取卡牌价格详情
+func GetCardPriceWhereCardVersionID(cardVersionID string) (*models.CardPrice, error) {
+	var cardPrice models.CardPrice
+	result := DB.Where("card_version_id = ?", cardVersionID).First(&cardPrice)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &cardPrice, nil
 }
 
 // 根据条件从 card_price 表获取卡牌价格中带有 card_desc 表中的图片

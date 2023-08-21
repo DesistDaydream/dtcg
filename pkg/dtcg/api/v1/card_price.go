@@ -11,23 +11,22 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// 获取所有卡牌价格详情
+// 列出所有卡牌价格详情，分页
 func GetCardsPrice(c *gin.Context) {
-
 	// 绑定 url query
-	var req models.CommonReqQuery
-	if err := c.ShouldBindQuery(&req); err != nil {
+	var reqQuery models.CommonReqQuery
+	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if req.PageSize == 0 || req.PageNum == 0 {
-		req.PageSize = 10
-		req.PageNum = 1
+	if reqQuery.PageSize == 0 || reqQuery.PageNum == 0 {
+		reqQuery.PageSize = 10
+		reqQuery.PageNum = 1
 	}
 
-	resp, err := database.GetCardsPrice(req.PageSize, req.PageNum)
+	resp, err := database.GetCardsPrice(reqQuery.PageSize, reqQuery.PageNum)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
@@ -35,7 +34,7 @@ func GetCardsPrice(c *gin.Context) {
 	c.JSON(200, resp)
 }
 
-// 根据条件获取卡牌价格详情
+// 根据条件列出卡牌价格详情，分页
 func PostCardsPrice(c *gin.Context) {
 	// 绑定 url query
 	var reqQuery models.CommonReqQuery

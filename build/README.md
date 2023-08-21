@@ -17,13 +17,13 @@
 
 nerdctl build . -t lchdzh/jhs-exporter:v1.1.2 -f build/jhs_exporter/Dockerfile
 
-nerdctl build . -t lchdzh/dtcg:v2.10.1 -f build/dtcg/Dockerfile
+nerdctl build . -t lchdzh/dtcg:v2.11.0 -f build/dtcg/Dockerfile
 
 # 运行
 
 nerdctl run -it --rm --name jhs-exporter --network host -v ~/projects/DesistDaydream/dtcg/internal/database:/dtcg/internal/database lchdzh/jhs-exporter:v1.1.2
 
-nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.10.1
+nerdctl run -it --rm --name dtcg --network host -v ~/projects/DesistDaydream/dtcg/config_file:/etc/dtcg lchdzh/dtcg:v2.11.0
 
 # ChangeLog
 
@@ -99,7 +99,7 @@ TODO: 需要将数据库中的密码加密
 
 - handler 中的 database.GetUser() 逻辑删除，需要在调用 NewHandler 之前从数据库中获取用户信息
 
-  2.6.2
+2.6.2
 
 - sdk moecard 的 client 添加通用的响应体结构体 CommonResp，同步修改请求逻辑中的最后部分，以处理响应体中的 interface{} 类型的字段。
 - 另外，moecard 的 client 中，将 database.GetUser("1") 写死为 1 了，这个需要修改，但是应该从哪里获取用户 ID 是个问题。
@@ -109,9 +109,9 @@ TODO: 需要将数据库中的密码加密
 1. 添加 /api/v1/me 接口用以返回当前登录的用户信息
 2. 添加一个 /ping 接口
 
-## 2.7.1
+2.7.1
 
-1. 修复 /deck/price/wlid/:wlid 接口 BUG，由于每页最大数据是 15，需要添加分页处理，避免缺少商品
+- 修复 /deck/price/wlid/:wlid 接口 BUG，由于每页最大数据是 15，需要添加分页处理，避免缺少商品
 
 ## 2.8.0
 
@@ -125,3 +125,7 @@ TODO: 需要将数据库中的密码加密
 ## 2.10.0
 
 1. sdk moecard 添加 /deck/price/share/:shareid 接口，可以通过 Moecard 分享的卡组 ID 获取卡组价格
+
+## 2.11.0
+
+1. 数据库 GetCardPriceByCondition 添加过滤不包含某些 card_version_id 卡牌的逻辑
