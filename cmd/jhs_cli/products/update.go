@@ -66,10 +66,11 @@ type Product struct {
 	cardVersionID int
 	cardNameCN    string
 	// 更新商品用的新数据，并不是一定会用上。主要用于不同更新场景时使用
-	img      string
-	onSale   int
-	price    string
-	quantity int
+	img       string
+	onSale    int
+	price     string
+	quantity  int
+	isDefautl int // TODO: 添加使用是否是默认商品的逻辑
 }
 
 // 生成需要更新的商品信息
@@ -135,7 +136,7 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 
 					// 这是一个类似进度条的方法。
 					// TODO: 需要整理一下 \033[2K 这是什么意思
-					fmt.Printf("\r\033[2K 已生成 %v 个待处理商品", len(needHandleProducts.products))
+					fmt.Printf("\r\033[2K 已生成 %v 个待处理商品 \033[0m", len(needHandleProducts.products))
 
 					needHandleProducts.count++
 
@@ -163,44 +164,56 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 // TODO: 下面这个接口与 genNeedUpdateProducts 接口各有优缺点，还有什么其他的好用的接口么，可以通过卡牌的唯一ID获取到商品信息~~o(╯□╰)o
 // 生成需要更新的商品信息
 func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) *NeedHandleProducts {
+	var wg sync.WaitGroup
+	defer wg.Wait()
+	var lock sync.Mutex // 并发中有对数组的 append 操作，加锁保证并发安全
+
 	var needHandleProducts NeedHandleProducts
 
 	for _, card := range cards.Data {
-		// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
-		// 然后，只需要遍历修改这些商品即可。
-		// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
-		// 后来，官方添加了一个 default_product 的字段，这里也可以获得 product_id、价格、等 信息。都不用遍历商品了，这点还是不错的。但是感觉用起来还是有点奇怪，待补充...
-		p, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
-		if err != nil {
-			logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
-		}
+		wg.Add(1)
 
-		// 由于 go 语言中，for 每次迭代的值都是存储到同一个内存空间中的，所以想要引用 for 中 value 的内存空间，需要再手动创建一个
-		cardCopy := card
+		go func(card dbmodels.CardPrice) {
+			defer wg.Done()
+			// 使用 /api/market/products/bySellerCardVersionId 接口时提交卖家 ID 和 card_version_id，即可获得唯一指定卡牌的商品信息，而不用其他逻辑来判断该卡牌是原画还是异画。
+			// 然后，只需要遍历修改这些商品即可。
+			// 但是，该接口只能获取到在售的商品，已经下架的商品无法获取到。所以想要修改下架后的商品价格或者让商品的状态变为在售或下架，是不可能的。
+			// 后来，官方添加了一个 default_product 的字段，这里也可以获得 product_id、价格、等 信息。并且就算是**下架的商品**也可以看到，只不过如果一张卡牌有多个商品，则 defautl_product 只能看到 1 件商品。
+			// 但是感觉用起来还是有点奇怪，待补充...
+			p, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
+			if err != nil {
+				logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
+			}
 
-		needHandleProducts.products = append(needHandleProducts.products, Product{
-			card:           &cardCopy,
-			product:        nil,
-			defaultProduct: &p.DefaultProduct,
-			productID:      p.DefaultProduct.ProductID,
-			condition:      p.DefaultProduct.Condition,
-			cardVersionID:  card.CardVersionID,
-			cardNameCN:     p.CardNameCN,
-			img:            p.CardVersionImage,
-			onSale:         1,
-			price:          fmt.Sprintf("%.2f", p.DefaultProduct.Price),
-			quantity:       p.DefaultProduct.Quantity,
-		})
+			// 由于 go 语言中，for 每次迭代的值都是存储到同一个内存空间中的，所以想要引用 for 中 value 的内存空间，需要再手动创建一个
+			cardCopy := card
 
-		logrus.WithFields(logrus.Fields{
-			"原始价格": card.AvgPrice,
-			"商品价格": p.DefaultProduct.Price,
-			"商品数量": p.DefaultProduct.Quantity,
-		}).Debugf("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.DefaultProduct.ProductID, card.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
+			lock.Lock() // append 切片在并发中不安全，加个锁
+			needHandleProducts.products = append(needHandleProducts.products, Product{
+				card:           &cardCopy,
+				product:        nil,
+				defaultProduct: &p.DefaultProduct,
+				productID:      p.DefaultProduct.ProductID,
+				condition:      p.DefaultProduct.Condition,
+				cardVersionID:  card.CardVersionID,
+				cardNameCN:     p.CardNameCN,
+				img:            p.CardVersionImage,
+				onSale:         1,
+				price:          fmt.Sprintf("%.2f", p.DefaultProduct.Price),
+				quantity:       p.DefaultProduct.Quantity,
+			})
+			lock.Unlock()
 
-		fmt.Printf("\r\033[2K 已生成 %v 个待处理商品", len(needHandleProducts.products))
+			logrus.WithFields(logrus.Fields{
+				"原始价格": card.AvgPrice,
+				"商品价格": p.DefaultProduct.Price,
+				"商品数量": p.DefaultProduct.Quantity,
+			}).Debugf("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.DefaultProduct.ProductID, card.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
 
-		needHandleProducts.count++
+			fmt.Printf("\r\033[2K 已生成 %v 个待处理商品 \033[0m", len(needHandleProducts.products))
+
+			needHandleProducts.count++
+		}(card)
 	}
 
 	return &needHandleProducts
