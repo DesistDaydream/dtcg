@@ -61,7 +61,6 @@ type Product struct {
 	product        *models.ProductData
 	defaultProduct *pmodels.DefaultProduct
 	productID      int
-	productName    string
 	condition      int
 	// 该商品所属卡牌的部分信息
 	cardVersionID int
@@ -118,7 +117,6 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 						product:        &p,
 						defaultProduct: nil,
 						productID:      p.ProductID,
-						productName:    p.CardNameCN,
 						condition:      p.Condition,
 						cardVersionID:  p.CardVersionID,
 						cardNameCN:     p.CardNameCN,
@@ -133,7 +131,11 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 						"原始价格": card.AvgPrice,
 						"商品价格": p.Price,
 						"商品数量": p.Quantity,
-					}).Infof("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.ProductID, p.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
+					}).Debugf("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.ProductID, p.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
+
+					// 这是一个类似进度条的方法。
+					// TODO: 需要整理一下 \033[2K 这是什么意思
+					fmt.Printf("\r\033[2K 已生成 %v 个待处理商品", len(needHandleProducts.products))
 
 					needHandleProducts.count++
 
@@ -181,7 +183,6 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) 
 			product:        nil,
 			defaultProduct: &p.DefaultProduct,
 			productID:      p.DefaultProduct.ProductID,
-			productName:    p.CardNameCN,
 			condition:      p.DefaultProduct.Condition,
 			cardVersionID:  card.CardVersionID,
 			cardNameCN:     p.CardNameCN,
@@ -195,7 +196,9 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) 
 			"原始价格": card.AvgPrice,
 			"商品价格": p.DefaultProduct.Price,
 			"商品数量": p.DefaultProduct.Quantity,
-		}).Infof("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.DefaultProduct.ProductID, card.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
+		}).Debugf("检查匹配到的商品: 【%v】【%v】【 %v %v 】【 %v 】", p.DefaultProduct.ProductID, card.CardVersionID, card.Serial, p.CardNameCN, p.CardVersionRarity)
+
+		fmt.Printf("\r\033[2K 已生成 %v 个待处理商品", len(needHandleProducts.products))
 
 		needHandleProducts.count++
 	}
@@ -230,10 +233,10 @@ func updateRun(p *Product) {
 		Remark:                  remark,
 	}, fmt.Sprint(p.productID))
 	if err != nil {
-		logrus.Errorf("商品 %v %v 修改失败：%v", p.productID, p.productName, err)
+		logrus.Errorf("商品 %v %v 修改失败：%v", p.productID, p.cardNameCN, err)
 		updateFailCount++
 	} else {
-		logrus.Infof("商品 %v %v 修改成功：%v", p.productID, p.productName, resp)
+		logrus.Infof("商品 %v %v 修改成功：%v", p.productID, p.cardNameCN, resp)
 		updateSuccessCount++
 	}
 }

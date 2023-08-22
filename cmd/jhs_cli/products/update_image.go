@@ -81,18 +81,23 @@ func updateNoImage() {
 				}
 
 				updateRun(&Product{
-					card:      cardPrice,
-					product:   &p,
-					productID: p.ProductID,
-					onSale:    p.OnSale,
-					price:     p.Price,
-					img:       cardPrice.ImageUrl,
-					quantity:  p.Quantity,
+					card:           cardPrice,
+					product:        &p,
+					defaultProduct: nil,
+					productID:      p.ProductID,
+					condition:      p.Condition,
+					cardVersionID:  p.CardVersionID,
+					cardNameCN:     p.CardNameCN,
+					img:            cardPrice.ImageUrl,
+					onSale:         p.OnSale,
+					price:          p.Price,
+					quantity:       p.Quantity,
 				})
 			}
 		}
 
-		logrus.Infof("共 %v 页数据，已处理第 %v 页", products.LastPage, products.CurrentPage)
+		fmt.Printf("\r\033[2K 共 %v 页数据，已处理第 %v 页", products.LastPage, products.CurrentPage)
+
 		// 如果当前处理的页等于最后页，则退出循环
 		if products.CurrentPage == products.LastPage {
 			logrus.Debugf("退出循环时共 %v 页,处理完 %v 页", products.LastPage, products.CurrentPage)

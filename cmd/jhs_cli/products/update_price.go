@@ -2,6 +2,7 @@ package products
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -63,13 +64,17 @@ func updatePrice(cmd *cobra.Command, args []string) {
 	case "name":
 		// 生成需要更新的商品
 		ps = genNeedUpdateProducts(cards)
+		fmt.Printf("\n")
 	case "id":
 		ps = genNeedUpdateProductsWithBySellerCardVersionId(cards)
+		fmt.Printf("\n")
 	default:
 		logrus.Fatalf("请通过 --interface 指定通过集换社的哪个接口获取商品信息")
 	}
 
 	logrus.Infof("共匹配到 %v 件商品", ps.count)
+
+	var needHandleCount int
 
 	// 逐一更新商品价格
 	for _, p := range ps.products {
@@ -82,28 +87,42 @@ func updatePrice(cmd *cobra.Command, args []string) {
 		}
 
 		// 只有期望价格与当前价格不一致时，才更新
-		// TODO: 要不要加一个差价过大的时候也不更新？有的 C、U、R 卡也很值钱，可以高价
 		if newPrice != p.price {
+			// 当期望价格低于当前价格 2 块以上时，不要更新。主要是有的 C、U、R 卡也很值钱，可以高价
+			p1, _ := strconv.ParseFloat(p.price, 64)
+			p2, _ := strconv.ParseFloat(newPrice, 64)
+			if p2-p1 < -2 {
+				logrus.WithFields(logrus.Fields{
+					"原始价格": p.card.AvgPrice,
+					"当前价格": p.price,
+					"期望价格": newPrice,
+					"调整方式": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, updatePriceFlags.UpdatePolicy.PriceChange),
+				}).Warnf("商品差价过大，等待后续手动确认: 【%v】【%v】【%v %v】【%v】", p.productID, p.cardVersionID, p.card.Serial, p.cardNameCN, p.card.Rarity)
+				continue
+			}
+
 			logrus.WithFields(logrus.Fields{
 				"原始价格": p.card.AvgPrice,
 				"当前价格": p.price,
 				"期望价格": newPrice,
 				"调整方式": fmt.Sprintf("%v %v", updatePriceFlags.UpdatePolicy.Operator, updatePriceFlags.UpdatePolicy.PriceChange),
-			}).Infof("检查将要更新的商品: 【%v】【%v】【%v】【%v %v】", p.productID, p.cardVersionID, p.card.AlternativeArt, p.card.Serial, p.cardNameCN)
+			}).Infof("检查将要更新的商品: 【%v】【%v】【%v %v】【%v】", p.productID, p.cardVersionID, p.card.Serial, p.cardNameCN, p.card.Rarity)
 
 			p.price = newPrice
 
 			if productsFlags.isRealRun {
 				updateRun(&p)
 			}
+
+			needHandleCount++
 		}
 	}
 
 	// 注意：总数不等于任何数量之和。
 	logrus.WithFields(logrus.Fields{
-		"总数": cards.Count,
-		"成功": updateSuccessCount,
-		"失败": updateFailCount,
-		"跳过": updateSkip,
-	}).Infof("更新结果")
+		"需要处理数":      needHandleCount,
+		"处理成功":       updateSuccessCount,
+		"处理失败":       updateFailCount,
+		"未匹配到商品的卡牌数": updateSkip,
+	}).Infof("%v 张卡牌匹配到 %v 件商品的更新结果", len(cards.Data), ps.count)
 }
