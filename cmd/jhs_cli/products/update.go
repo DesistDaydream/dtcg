@@ -17,6 +17,7 @@ type UpdateFlags struct {
 	CurSaleState string // 当前商品的售卖状态
 	ExpSaleState int    // 期望商品变成哪种售卖状态
 	Remark       string // 商品备注
+	Concurrency  int    // 发现待处理商品时的并发数量
 }
 
 var updateFlags UpdateFlags
@@ -34,6 +35,7 @@ func UpdateCommand() *cobra.Command {
 	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.CurSaleState, "cur-sale-state", "1", "当前售卖状态。即获取什么状态的商品。1: 售卖。0: 下架")
 	updateProductsCmd.PersistentFlags().IntVar(&updateFlags.ExpSaleState, "exp-sale-state", 1, "期望的售卖状态。")
 	updateProductsCmd.PersistentFlags().StringVar(&updateFlags.Remark, "remark", "", "商品备注信息")
+	updateProductsCmd.PersistentFlags().IntVar(&updateFlags.Concurrency, "concurrency", 10, "发现待处理商品时的并发数量")
 
 	updateProductsCmd.AddCommand(
 		UpdatePriceCommand(),
@@ -79,10 +81,14 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 	defer wg.Wait()
 	var lock sync.Mutex // 并发中有对数组的 append 操作，加锁保证并发安全
 
+	// 控制并发数量
+	concurrenceyControl := make(chan bool, updateFlags.Concurrency)
+
 	var needHandleProducts NeedHandleProducts
 
 	// 逐一生成待处理卡牌的商品信息
 	for _, card := range cards.Data {
+		concurrenceyControl <- true
 		wg.Add(1)
 
 		go func(card dbmodels.CardPrice) {
@@ -96,12 +102,14 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 			if err != nil {
 				logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
 				updateFailCount++
+				<-concurrenceyControl
 				return
 			}
 			// 判断一下这个这个卡牌有几个商品，若商品为0，则继续处理下一个
 			if len(products.Data) == 0 {
 				logrus.Errorf("%v %v 卡牌没有任何版本可供处理的商品，跳过", card.CardVersionID, card.ScName)
 				updateSkip++
+				<-concurrenceyControl
 				return
 			}
 
@@ -155,6 +163,8 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 				logrus.Errorf("%v %v 卡牌存在其它版本的商品，但没有当前版本商品可以更新", card.CardVersionID, card.ScName)
 				updateSkip++
 			}
+
+			<-concurrenceyControl
 		}(card)
 	}
 
@@ -168,9 +178,13 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) 
 	defer wg.Wait()
 	var lock sync.Mutex // 并发中有对数组的 append 操作，加锁保证并发安全
 
+	// 控制并发数量
+	concurrenceyControl := make(chan bool, updateFlags.Concurrency)
+
 	var needHandleProducts NeedHandleProducts
 
 	for _, card := range cards.Data {
+		concurrenceyControl <- true
 		wg.Add(1)
 
 		go func(card dbmodels.CardPrice) {
@@ -183,6 +197,15 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) 
 			p, err := handler.H.JhsServices.Products.Get(fmt.Sprint(card.CardVersionID), updateFlags.SellerUserID)
 			if err != nil {
 				logrus.Errorf("获取 %v 卡牌的商品失败: %v", card.ScName, err)
+				<-concurrenceyControl
+				return
+			}
+
+			if len(p.Products) == 0 {
+				logrus.Errorf("%v %v 卡牌没有任何版本可供处理的商品，跳过", card.CardVersionID, card.ScName)
+				updateSkip++
+				<-concurrenceyControl
+				return
 			}
 
 			// 由于 go 语言中，for 每次迭代的值都是存储到同一个内存空间中的，所以想要引用 for 中 value 的内存空间，需要再手动创建一个
@@ -213,6 +236,8 @@ func genNeedUpdateProductsWithBySellerCardVersionId(cards *dbmodels.CardsPrice) 
 			fmt.Printf("\r\033[2K 已生成 %v 个待处理商品 \033[0m", len(needHandleProducts.products))
 
 			needHandleProducts.count++
+
+			<-concurrenceyControl
 		}(card)
 	}
 
