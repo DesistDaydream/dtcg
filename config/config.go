@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Listen         string  `yaml:"listen"`
 	TokenExpiresAt string  `yaml:"tokenExpiresAt"` // 生成的 Token 过期时间
+	DBType         string  `yaml:"dbType"`
 	Mysql          MySQL   `yaml:"mysql"`
 	SQLite         SQLite  `yaml:"sqlite"`
 	Moecard        Moecard `yaml:"moecard"`

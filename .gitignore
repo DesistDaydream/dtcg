@@ -5,3 +5,4 @@ images.bak/*
 .vscode/sftp.json
 config/my_dtcg.yaml
 main
+internal/database/my_dtcg.db

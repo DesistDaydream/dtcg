@@ -77,6 +77,7 @@ func initConfig() {
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{
+		DBType:   c.DBType,
 		FilePath: c.SQLite.FilePath,
 		Server:   c.Mysql.Server,
 		Password: c.Mysql.Password,

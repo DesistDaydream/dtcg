@@ -1,5 +1,6 @@
 listen: "0.0.0.0:2205"
 tokenExpiresAt: 48h
+dbType: sqlite
 mysql:
   server: "0.0.0.0:3306"
   password: "mysql"

@@ -15,6 +15,7 @@ func TestNewServices(t *testing.T) {
 
 	// 初始化数据库
 	dbInfo := &database.DBInfo{
+		DBType:   c.DBType,
 		FilePath: c.SQLite.FilePath,
 		Server:   c.Mysql.Server,
 		Password: c.Mysql.Password,

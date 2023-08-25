@@ -31,6 +31,7 @@ func main() {
 
 	// 连接数据库
 	dbInfo := &database.DBInfo{
+		DBType:   config.Conf.DBType,
 		FilePath: config.Conf.SQLite.FilePath,
 		Server:   config.Conf.Mysql.Server,
 		Password: config.Conf.Mysql.Password,
