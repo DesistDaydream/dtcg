@@ -119,11 +119,12 @@ func genNeedUpdateProducts(cards *dbmodels.CardsPrice) *NeedHandleProducts {
 				if p.CardVersionID == card.CardVersionID {
 					// 由于 go 语言中，for 每次迭代的值都是存储到同一个内存空间中的，所以想要引用 for 中 value 的内存空间，需要再手动创建一个
 					cardCopy := card
+					copyProduct := p
 
 					lock.Lock() // append 切片在并发中不安全，加个锁
 					needHandleProducts.products = append(needHandleProducts.products, Product{
 						card:           &cardCopy,
-						product:        &p,
+						product:        &copyProduct,
 						defaultProduct: nil,
 						productID:      p.ProductID,
 						condition:      p.Condition,
