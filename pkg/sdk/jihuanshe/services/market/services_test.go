@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/config"
@@ -149,41 +150,45 @@ func TestProductsClientDel(t *testing.T) {
 }
 
 // 获取提现信息
-// func TestSellersClientWithdraw(t *testing.T) {
-// 	var totalBuyerPrcie float64
-// 	page := 1
+func TestSellersClientWithdraw(t *testing.T) {
+	var totalBuyerPrcie float64
+	page := 1
 
-// 	for {
-// 		withdraws, err := client.Withdraw(strconv.Itoa(page))
-// 		if err != nil {
-// 			logrus.Error(err)
-// 		}
+	for {
+		withdraws, err := client.SellersWithdrawLogGet(page)
+		if err != nil {
+			logrus.Error(err)
+			return
+		}
 
-// 		for _, withdraw := range withdraws.Data {
-// 			money, _ := strconv.ParseFloat(withdraw.Money, 64)
-// 			totalBuyerPrcie = totalBuyerPrcie + money
-// 		}
+		for _, withdraw := range withdraws.Data {
+			money, _ := strconv.ParseFloat(withdraw.Money, 64)
+			totalBuyerPrcie = totalBuyerPrcie + money
 
-// 		logrus.Infof("买入订单共 %v 页，已处理完第 %v 页", withdraws.LastPage, withdraws.CurrentPage)
-// 		if withdraws.CurrentPage == withdraws.LastPage {
-// 			logrus.Debugf("%v/%v 已处理完成，退出循环", withdraws.CurrentPage, withdraws.LastPage)
-// 			break
-// 		}
+			logrus.WithFields(logrus.Fields{
+				"日期": withdraw.CreatedAt,
+				"金额": withdraw.Money,
+			}).Infoln("提现记录")
+		}
 
-// 		page = withdraws.CurrentPage + 1
-// 	}
+		logrus.Infof("买入订单共 %v 页，已处理完第 %v 页", withdraws.LastPage, withdraws.CurrentPage)
+		if withdraws.CurrentPage == withdraws.LastPage {
+			logrus.Debugf("%v/%v 已处理完成，退出循环", withdraws.CurrentPage, withdraws.LastPage)
+			break
+		}
 
-// 	logrus.Infof("当前已提现总额：%v", totalBuyerPrcie)
-// }
+		page = withdraws.CurrentPage + 1
+	}
+
+	logrus.Infof("当前已提现总额：%v", totalBuyerPrcie)
+}
 
 // 获取用户订单列表（买入）
 func TestOrdersClientGetBuyerOrders(t *testing.T) {
-	initConfig()
-	client := NewMarketClient(coreClient)
-
 	resp, err := client.OrderList(1)
 	if err != nil {
 		logrus.Errorln(err)
+		return
 	}
 	for _, data := range resp.Data {
 		logrus.Infoln(data.OrderID)
