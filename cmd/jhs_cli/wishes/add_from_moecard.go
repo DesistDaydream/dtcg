@@ -14,7 +14,7 @@ func addFromMoecardCmd() *cobra.Command {
 从 Moecard 的 云卡组 获取卡牌列表，添加到我想收清单中
 `
 	addFromWishListCmd := &cobra.Command{
-		Use:   "moecoard",
+		Use:   "moecard",
 		Short: "从 Moecard 的 云卡组 获取卡牌列表，添加到我想收清单中",
 		Long:  long,
 		Run:   addFromMoecard,
