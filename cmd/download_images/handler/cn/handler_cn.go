@@ -160,5 +160,10 @@ func (i *ImageHandler) GenFileName(urlStr string) string {
 	reg := regexp.MustCompile(expr)
 	newFileName := reg.ReplaceAllString(fileName, "")
 
-	return newFileName
+	// 将文件名中的时间戳去掉
+	timestampExpr := "[0-9]{13}"
+	timestampReg := regexp.MustCompile(timestampExpr)
+	newFileName2 := timestampReg.ReplaceAllString(newFileName, "")
+
+	return newFileName2
 }

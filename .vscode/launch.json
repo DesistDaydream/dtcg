@@ -12,10 +12,10 @@
       "mode": "auto",
       "cwd": "${workspaceRoot}",
       "program": "cmd/download_images/main.go",
-      "args": [
-        "-l",
-        "jp_hk",
-      ]
+      // "args": [
+      //   "-l",
+      //   "jp_hk",
+      // ]
     },
     {
       "name": "dtcg",
