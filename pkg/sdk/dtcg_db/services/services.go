@@ -17,10 +17,10 @@ func NewServices(user *models.User, isLogin bool, retry int) *Services {
 	var token string
 	if isLogin {
 		if core.CheckToken(user.MoecardToken) {
-			logrus.Infoln("Moecard TOKEN 可用，不用重新获取")
+			logrus.Infof("%v 的 Moecard TOKEN 可用，不用重新获取", user.Username)
 			token = user.MoecardToken
 		} else {
-			logrus.Warnln("Moecard TOKEN 不可用，开始重新获取")
+			logrus.Warnf("%v 的Moecard TOKEN 不可用，开始重新获取", user.Username)
 			token = core.Login(user.ID, user.MoecardUsername, user.MoecardPassword)
 		}
 	} else {
