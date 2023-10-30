@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
-	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -41,7 +40,7 @@ type JihuansheClient struct {
 	Token  string
 	Opts   *JihuansheOpts
 
-	CardsPrice *models.CardsPrice
+	// CardsPrice *models.CardsPrice
 }
 
 // 实例化 HTTP 客户端
@@ -77,18 +76,12 @@ func NewJihuansheClient(opts *JihuansheOpts) *JihuansheClient {
 	// ######## 配置 http.Client 的信息结束 ########
 
 	dbInfo := &database.DBInfo{
-		FilePath: opts.dbPath,
+		DBType:   "mysql",
+		FilePath: opts.FilePath,
 		Server:   opts.MySQLServer,
 		Password: opts.MySQLPassword,
 	}
 	database.InitDB(dbInfo)
-
-	cardsPrice, err := database.ListCardsPrice()
-	if err != nil {
-		logrus.Fatalf("获取卡片价格信息失败: %v", err)
-	}
-
-	logrus.Debugf("已获取 %v 条卡片信息", cardsPrice.Count)
 
 	// 第一次启动程序时获取 Token，若无法获取 Token 则程序无法启动
 	// token, err := GetToken(opts)
@@ -100,9 +93,8 @@ func NewJihuansheClient(opts *JihuansheOpts) *JihuansheClient {
 			Timeout:   opts.timeout,
 			Transport: transport,
 		},
-		Token:      "",
-		Opts:       opts,
-		CardsPrice: cardsPrice,
+		Token: "",
+		Opts:  opts,
 	}
 }
 
@@ -188,7 +180,7 @@ type JihuansheOpts struct {
 
 	// 可以用 SQLite 或 MySQL 获取卡片详情
 	// SQLite 信息
-	dbPath string
+	FilePath string
 	// MySQL 信息
 	MySQLServer   string
 	MySQLPassword string
@@ -208,7 +200,7 @@ func (o *JihuansheOpts) AddFlag() {
 	pflag.IntVar(&o.concurrency, "concurrent", 5, "并发数。")
 	pflag.DurationVar(&o.timeout, "time-out", time.Millisecond*1600, "等待 HTTP 响应的超时时间")
 	pflag.BoolVar(&o.insecure, "insecure", true, "是否禁用 TLS 验证。")
-	pflag.StringVar(&o.dbPath, "dbpath", "internal/database/my_dtcg.db", "是否进行测试。")
+	pflag.StringVar(&o.FilePath, "filepath", "internal/database/my_dtcg.db", "连接 SQLite 的路径。")
 	pflag.StringVar(&o.MySQLServer, "server", "", "数据库连接地址")
 	pflag.StringVar(&o.MySQLPassword, "password", "", "数据库连接密码")
 	pflag.BoolVar(&o.test, "test", false, "是否进行测试。")

@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/core"
 	"github.com/DesistDaydream/dtcg/pkg/sdk/jihuanshe/services/products"
@@ -49,6 +50,13 @@ func (s ScrapePrice) Help() string {
 // Scrape 从客户端采集数据，并将其作为 Metric 通过 channel(通道) 发送。主要就是采集 E37 集群信息的具体行为。
 // 该方法用于为 ScrapeAvgPrice 结构体实现 Scraper 接口
 func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric) (err error) {
+	cardsPrice, err := database.ListCardsPrice()
+	if err != nil {
+		logrus.Fatalf("获取卡片价格信息失败: %v", err)
+	}
+
+	logrus.Debugf("已获取 %v 条卡片信息", cardsPrice.Count)
+
 	var wg sync.WaitGroup
 	defer wg.Wait()
 
@@ -57,7 +65,7 @@ func (s ScrapePrice) Scrape(client *JihuansheClient, ch chan<- prometheus.Metric
 
 	c := products.NewProductsClient(core.NewClient(""))
 
-	for _, cardPrice := range client.CardsPrice.Data {
+	for _, cardPrice := range cardsPrice.Data {
 		concurrenceyControl <- true
 		wg.Add(1)
 		go func(cardPrice models.CardPrice) {
