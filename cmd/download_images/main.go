@@ -10,7 +10,7 @@ import (
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/cn"
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/en"
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/jp"
-	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/jp_cn"
+	"github.com/DesistDaydream/dtcg/cmd/download_images/handler/moecard"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 )
@@ -55,8 +55,8 @@ func main() {
 		imageHandler = en.NewImageHandler(flags.DirPrefix)
 	case "jp":
 		imageHandler = jp.NewImageHandler(flags.DirPrefix)
-	case "jp_cn":
-		imageHandler = jp_cn.NewImageHandler(flags.DirPrefix)
+	case "moecard":
+		imageHandler = moecard.NewImageHandler(flags.DirPrefix)
 	default:
 		logrus.Fatalln("不支持的语言")
 	}

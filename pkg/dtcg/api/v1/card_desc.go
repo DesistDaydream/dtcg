@@ -11,9 +11,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// 获取所有卡牌的描述
+// 列出所有卡牌的描述，分页
 func GetCardsDesc(c *gin.Context) {
-
 	// 绑定 url query
 	var req models.CommonReqQuery
 

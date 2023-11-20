@@ -15,6 +15,7 @@ import (
 func GetCardsPrice(c *gin.Context) {
 	// 绑定 url query
 	var reqQuery models.CommonReqQuery
+
 	if err := c.ShouldBindQuery(&reqQuery); err != nil {
 		logrus.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

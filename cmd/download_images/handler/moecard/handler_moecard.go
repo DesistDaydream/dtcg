@@ -1,4 +1,4 @@
-package jp_cn
+package moecard
 
 import (
 	"fmt"
@@ -16,14 +16,17 @@ import (
 var client *cdb.CdbClient
 
 type ImageHandler struct {
-	Lang      string
-	DirPrefix string
+	Lang        string
+	DirPrefix   string
+	LangKeyword string
 }
 
 func NewImageHandler(dirPrefix string) handler.ImageHandler {
 	return &ImageHandler{
-		Lang:      "",
-		DirPrefix: dirPrefix,
+		Lang:        "",
+		DirPrefix:   dirPrefix,
+		LangKeyword: "ja",
+		// LangKeyword: "chs",
 	}
 }
 
@@ -40,7 +43,7 @@ func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 
 	for _, serie := range series.Data {
 		for _, pack := range serie.SeriesPack {
-			if pack.Language == "ja" {
+			if pack.Language == i.LangKeyword {
 				logrus.WithFields(logrus.Fields{
 					"前缀": pack.PackPrefix,
 					"名称": pack.PackName,
@@ -69,24 +72,24 @@ func (i *ImageHandler) GetCardSets() []*handler.CardSetInfo {
 }
 
 // 下载卡图
-func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.CardSetInfo) {
+func (i *ImageHandler) DownloadCardImage(needDownloadCardSets []*handler.CardSetInfo) {
 	// 循环遍历卡包列表，获取卡包中的卡片
-	for _, cardPackage := range needDownloadCardPackages {
+	for _, cardSet := range needDownloadCardSets {
 		// 生成目录
-		dir := handler.GenerateDir(i.DirPrefix, i.Lang, cardPackage.Name)
+		dir := handler.GenerateDir(i.DirPrefix, i.Lang, cardSet.Name)
 		// 创建目录
 		err := handler.CreateDir(dir)
 		if err != nil {
-			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardPackage.Name, err)
+			logrus.Fatalf("为【%v】卡包创建目录失败: %v", cardSet.Name, err)
 		}
 
-		cardSet, _ := strconv.Atoi(cardPackage.ID)
+		name, _ := strconv.Atoi(cardSet.ID)
 		// 获取下载图片的 URL
-		urls, err := i.GetImagesURL(cardSet)
+		urls, err := i.GetImagesURL(name)
 		if err != nil {
 			panic(err)
 		}
-		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardPackage.Name, len(urls))
+		logrus.Infof("准备下载【%v】卡包中的图片，该包中共有 %v 张图片", cardSet.Name, len(urls))
 
 		// 统计需要下载的图片总量
 		handler.Total = handler.Total + len(urls)
@@ -120,18 +123,18 @@ func (i *ImageHandler) GetImagesURL(cardSet int) ([]cardImgInfo, error) {
 	var urls []cardImgInfo
 
 	// 根据过滤条件获取卡片详情
-	resp, err := client.PostCardSearch(cardSet, "300", "ja", "")
+	resp, err := client.PostCardSearch(cardSet, "300", i.LangKeyword, "")
 	if err != nil {
 		return nil, err
 	}
 
-	for _, l := range resp.Data.List {
-		image := fmt.Sprintf("https://dtcg-pics.moecard.cn/img/%s~thumb.jpg", l.Images[0].ImgPath)
+	for _, card := range resp.Data.List {
+		image := fmt.Sprintf("https://dtcg-pics.moecard.cn/img/%s~thumb.jpg", card.Images[0].ImgPath)
 
 		// logrus.Debugln(mon.ImageCover)
 		urls = append(urls, cardImgInfo{
 			url:      image,
-			fileName: fmt.Sprintf("jp_%v%v.jpg", l.Serial, l.Rarity),
+			fileName: fmt.Sprintf("%v", card.Images[0].ImgPath),
 		})
 	}
 
