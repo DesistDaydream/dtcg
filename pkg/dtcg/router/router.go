@@ -35,7 +35,7 @@ func InitRouter() *gin.Engine {
 	api := r.Group("/api/v1")
 	api.Use(CommonSet)
 
-	api.POST("/set/desc", v1.PostCardSets)
+	api.GET("/set/desc", v1.GetCardSets)
 	api.GET("/card/desc", v1.GetCardsDesc)
 	api.POST("/card/desc", v1.PostCardsDesc)
 	api.GET("/card/price", v1.GetCardsPrice)

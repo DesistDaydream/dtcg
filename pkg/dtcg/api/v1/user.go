@@ -2,7 +2,7 @@ package v1
 
 import (
 	"fmt"
-	"net/http"
+	"strconv"
 
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
@@ -12,19 +12,10 @@ import (
 )
 
 func ListUser(c *gin.Context) {
-	var reqQuery models.CommonReqQuery
-	if err := c.ShouldBindQuery(&reqQuery); err != nil {
-		logrus.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
+	pageNum, _ := strconv.Atoi(c.DefaultQuery("page_num", "1"))
 
-	if reqQuery.PageSize == 0 || reqQuery.PageNum == 0 {
-		reqQuery.PageSize = 10
-		reqQuery.PageNum = 1
-	}
-
-	resp, err := database.ListUser(reqQuery.PageSize, reqQuery.PageNum)
+	resp, err := database.ListUser(pageSize, pageNum)
 	if err != nil {
 		logrus.Errorf("列出用户信息失败，原因: %v", err)
 		utils.ErrorWithDataResp(c, fmt.Errorf("列出用户信息失败，原因: %v", err), 400, nil, true)
