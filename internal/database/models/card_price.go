@@ -4,15 +4,15 @@ import "time"
 
 // 数据库模型。卡牌价格信息
 type CardsPrice struct {
-	Count       int64       `json:"count"`
-	PageSize    int         `json:"page_size"`
-	PageCurrent int         `json:"page_current"`
-	PageTotal   int         `json:"page_total"`
-	Data        []CardPrice `json:"data"`
+	Count     int64       `json:"count"`
+	PageSize  int         `json:"page_size"`
+	PageNum   int         `json:"page_num"`
+	PageTotal int         `json:"page_total"`
+	Data      []CardPrice `json:"data"`
 }
 
 type CardPrice struct {
-	ID             int       `gorm:"primaryKey" json:"id"`
+	ID             int       `json:"id" gorm:"primaryKey"`
 	CardIDFromDB   int       `json:"card_id_from_db"`
 	SetID          int       `json:"set_id"`
 	SetPrefix      string    `json:"set_prefix"`

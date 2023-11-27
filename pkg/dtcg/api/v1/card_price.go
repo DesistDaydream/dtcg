@@ -2,6 +2,7 @@ package v1
 
 import (
 	"net/http"
+	"strconv"
 
 	dbmodels "github.com/DesistDaydream/dtcg/internal/database/models"
 
@@ -14,20 +15,15 @@ import (
 // 列出所有卡牌价格详情，分页
 func GetCardsPrice(c *gin.Context) {
 	// 绑定 url query
-	var reqQuery models.CommonReqQuery
+	// var reqQuery models.CommonReqQuery
 
-	if err := c.ShouldBindQuery(&reqQuery); err != nil {
-		logrus.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	// if err := c.ShouldBindQuery(&reqQuery); err != nil {
+	// 	logrus.Error(err)
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
 
-	if reqQuery.PageSize == 0 || reqQuery.PageNum == 0 {
-		reqQuery.PageSize = 10
-		reqQuery.PageNum = 1
-	}
-
-	resp, err := database.GetCardsPrice(reqQuery.PageSize, reqQuery.PageNum)
+	resp, err := database.GetCardsPriceWithPaginationLib(c)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}
@@ -37,18 +33,8 @@ func GetCardsPrice(c *gin.Context) {
 
 // 根据条件列出卡牌价格详情，分页
 func PostCardsPrice(c *gin.Context) {
-	// 绑定 url query
-	var reqQuery models.CommonReqQuery
-	if err := c.ShouldBindQuery(&reqQuery); err != nil {
-		logrus.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	if reqQuery.PageSize == 0 || reqQuery.PageNum == 0 {
-		reqQuery.PageSize = 10
-		reqQuery.PageNum = 1
-	}
+	pageNum, _ := strconv.Atoi(c.DefaultQuery("page_num", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 
 	// 绑定请求体
 	var reqBody dbmodels.CardPriceQuery
@@ -60,7 +46,7 @@ func PostCardsPrice(c *gin.Context) {
 		return
 	}
 
-	resp, err := database.GetCardPriceByCondition(reqQuery.PageSize, reqQuery.PageNum, &reqBody)
+	resp, err := database.GetCardPriceByCondition(pageSize, pageNum, &reqBody)
 	if err != nil {
 		logrus.Errorf("%v", err)
 	}

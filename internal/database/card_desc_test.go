@@ -31,7 +31,7 @@ func TestGetCardDescByCondition(t *testing.T) {
 		logrus.Errorln(err)
 	}
 
-	logrus.Infof("共 %v 条数据，当前第 %v 页，共 %v 页，每页最多 %v 条数据", got.Count, got.PageCurrent, got.PageSize, got.PageTotal)
+	logrus.Infof("共 %v 条数据，当前第 %v 页，共 %v 页，每页最多 %v 条数据", got.Count, got.PageNum, got.PageSize, got.PageTotal)
 
 	for _, g := range got.Data {
 		logrus.WithFields(logrus.Fields{

@@ -2,15 +2,15 @@ package models
 
 // 数据库模型。卡牌描述信息
 type CardsDesc struct {
-	Count       int64      `json:"count"`
-	PageSize    int        `json:"page_size"`
-	PageCurrent int        `json:"page_current"`
-	PageTotal   int        `json:"page_total"`
-	Data        []CardDesc `json:"data"`
+	Count     int64      `json:"count"`
+	PageSize  int        `json:"page_size"`
+	PageNum   int        `json:"page_num"`
+	PageTotal int        `json:"page_total"`
+	Data      []CardDesc `json:"data"`
 }
 
 type CardDesc struct {
-	ID             int    `gorm:"primaryKey" json:"id"` // ID
+	ID             int    `json:"id" gorm:"primaryKey"` // ID
 	CardIDFromDB   int    `json:"card_id_from_db"`
 	SetID          int    `json:"set_id"`
 	SetName        string `json:"set_name"`

@@ -37,11 +37,11 @@ func ListCardDesc() (*models.CardsDesc, error) {
 	}
 
 	return &models.CardsDesc{
-		Count:       result.RowsAffected,
-		PageSize:    -1,
-		PageCurrent: 1,
-		PageTotal:   1,
-		Data:        cd,
+		Count:     result.RowsAffected,
+		PageSize:  -1,
+		PageNum:   1,
+		PageTotal: 1,
+		Data:      cd,
 	}, nil
 }
 
@@ -60,11 +60,11 @@ func GetCardsDesc(pageSize int, pageNum int) (*models.CardsDesc, error) {
 	}
 
 	return &models.CardsDesc{
-		Count:       CardCount,
-		PageSize:    pageSize,
-		PageCurrent: pageNum,
-		PageTotal:   (int(CardCount) / pageSize) + 1,
-		Data:        cd,
+		Count:     CardCount,
+		PageSize:  pageSize,
+		PageNum:   pageNum,
+		PageTotal: (int(CardCount) / pageSize) + 1,
+		Data:      cd,
 	}, nil
 }
 
@@ -158,11 +158,11 @@ func GetCardDescByCondition(pageSize int, pageNum int, queryCardDesc *models.Car
 	}
 
 	return &models.CardsDesc{
-		Count:       CardCount,
-		PageSize:    pageSize,
-		PageCurrent: pageNum,
-		PageTotal:   (int(CardCount) / pageSize) + 1,
-		Data:        cd,
+		Count:     CardCount,
+		PageSize:  pageSize,
+		PageNum:   pageNum,
+		PageTotal: (int(CardCount) / pageSize) + 1,
+		Data:      cd,
 	}, nil
 }
 

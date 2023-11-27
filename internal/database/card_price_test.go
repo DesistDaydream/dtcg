@@ -1,10 +1,13 @@
 package database
 
 import (
+	"fmt"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/DesistDaydream/dtcg/config"
 	"github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,6 +19,7 @@ func initDB() {
 
 	// 初始化数据库
 	dbInfo := &DBInfo{
+		DBType:   c.DBType,
 		FilePath: c.SQLite.FilePath,
 		Server:   c.Mysql.Server,
 		Password: c.Mysql.Password,
@@ -35,6 +39,16 @@ func TestGetCardPrice(t *testing.T) {
 	initDB()
 
 	got, err := GetCardPrice("2210")
+	if err != nil {
+		logrus.Fatalln(err)
+	}
+
+	logrus.Info(got)
+}
+
+func TestGetCardsPrice(t *testing.T) {
+	initDB()
+	got, err := GetCardsPrice(5, 1)
 	if err != nil {
 		logrus.Fatalln(err)
 	}
@@ -122,4 +136,22 @@ func TestGetCardPriceWithImageByCondition(t *testing.T) {
 			"图片":            v.Image,
 		}).Infof("查询结果")
 	}
+}
+
+func TestGetCardsPriceWithPaginationLib(t *testing.T) {
+	initDB()
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	c.Request = httptest.NewRequest("GET", "/api/v1/card/price?page_size=3&page_num=1", nil)
+
+	got, err := GetCardsPriceWithPaginationLib(c)
+
+	if err != nil {
+		logrus.Errorln(err)
+		return
+	}
+
+	fmt.Println(got)
+
 }

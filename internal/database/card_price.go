@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/internal/database/models"
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -50,11 +51,11 @@ func ListCardsPrice() (*models.CardsPrice, error) {
 	}
 
 	return &models.CardsPrice{
-		Count:       result.RowsAffected,
-		PageSize:    -1,
-		PageCurrent: 1,
-		PageTotal:   1,
-		Data:        cp,
+		Count:     result.RowsAffected,
+		PageSize:  -1,
+		PageNum:   1,
+		PageTotal: 1,
+		Data:      cp,
 	}, nil
 }
 
@@ -74,11 +75,29 @@ func GetCardsPrice(pageSize int, pageNum int) (*models.CardsPrice, error) {
 	}
 
 	return &models.CardsPrice{
-		Count:       CardCount,
-		PageSize:    pageSize,
-		PageCurrent: pageNum,
-		PageTotal:   (int(CardCount) / pageSize) + 1,
-		Data:        cp,
+		Count:     CardCount,
+		PageSize:  pageSize,
+		PageNum:   pageNum,
+		PageTotal: (int(CardCount) / pageSize) + 1,
+		Data:      cp,
+	}, nil
+}
+
+// 列出所有卡牌价格详情，使用分页库的逻辑实现分页
+func GetCardsPriceWithPaginationLib(c *gin.Context) (*models.CardsPrice, error) {
+	// 实例化，并传递类型参数为 models.CardPrice 以约束 Pagination.Data
+	pagination := NewPagination[models.CardPrice](models.CardPrice{}, c)
+	err := pagination.Query()
+	if err != nil {
+		return nil, err
+	}
+
+	return &models.CardsPrice{
+		Count:     pagination.Count,
+		PageSize:  pagination.PageSize,
+		PageNum:   pagination.PageNum,
+		PageTotal: pagination.PageTotal,
+		Data:      pagination.Data, // 由于 New 时约束了类型，所以不用断言可以直接赋值。
 	}, nil
 }
 
@@ -91,11 +110,11 @@ func GetCardPriceWhereSetPrefix(setPrefix string) (*models.CardsPrice, error) {
 	}
 
 	return &models.CardsPrice{
-		Count:       result.RowsAffected,
-		PageSize:    -1,
-		PageCurrent: 1,
-		PageTotal:   1,
-		Data:        cp,
+		Count:     result.RowsAffected,
+		PageSize:  -1,
+		PageNum:   1,
+		PageTotal: 1,
+		Data:      cp,
 	}, nil
 }
 
@@ -174,11 +193,11 @@ func GetCardPriceByCondition(pageSize int, pageNum int, cardPriceQuery *models.C
 	}
 
 	return &models.CardsPrice{
-		Count:       CardCount,
-		PageSize:    pageSize,
-		PageCurrent: pageNum,
-		PageTotal:   (int(CardCount) / pageSize) + 1,
-		Data:        cp,
+		Count:     CardCount,
+		PageSize:  pageSize,
+		PageNum:   pageNum,
+		PageTotal: (int(CardCount) / pageSize) + 1,
+		Data:      cp,
 	}, nil
 }
 
