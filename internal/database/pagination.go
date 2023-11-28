@@ -21,7 +21,7 @@ type Pagination[T any] struct {
 
 func NewPagination[T any](model T, c *gin.Context) *Pagination[T] {
 	// TODO: 把 c 传进来这样好么？这代码是在数据库相关的目录中，好像不应该与 gin 强关联吧？
-	// 而且写测试用例的时候也会造 http 数据，比较繁琐。
+	// 而且写测试用例的时候也需要模拟 http 数据，比较繁琐。
 	pageNum, _ := strconv.Atoi(c.DefaultQuery("page_num", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
 
