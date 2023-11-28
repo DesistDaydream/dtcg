@@ -85,7 +85,7 @@ func GetCardsPrice(pageSize int, pageNum int) (*models.CardsPrice, error) {
 
 // 列出所有卡牌价格详情，使用分页库的逻辑实现分页
 func GetCardsPriceWithPaginationLib(c *gin.Context) (*models.CardsPrice, error) {
-	// 实例化，并传递类型参数为 models.CardPrice 以约束 Pagination.Data
+	// 实例化，并传递类型参数为 models.CardPrice 以约束 Pagination.Data 的类型
 	pagination := NewPagination[models.CardPrice](models.CardPrice{}, c)
 	err := pagination.Query()
 	if err != nil {

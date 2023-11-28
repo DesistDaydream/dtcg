@@ -7,114 +7,72 @@ import (
 	"github.com/DesistDaydream/dtcg/internal/database"
 	"github.com/DesistDaydream/dtcg/pkg/dtcg/api/v1/models"
 	"github.com/DesistDaydream/dtcg/pkg/handler"
+
+	moecardmodels "github.com/DesistDaydream/dtcg/pkg/sdk/dtcg_db/services/community/models"
 )
 
-// TODO: 如何用泛型改写？
-// type fanxing interface {
-// 	m2.Egg | m2.Main
-// }
+type price struct {
+	allMinPrice float64
+	allAvgPrice float64
+}
 
-// func genData[T fanxing](resp models.PostDeckPriceResponse, card T) {
+func calculatePrice(p *price, resp *models.PostDeckPriceResp, card *moecardmodels.CardInfo) error {
+	cardPrice, err := database.GetCardPrice(fmt.Sprint(card.Cards.CardID))
+	if err != nil {
+		return fmt.Errorf("获取价格失败")
+	}
 
-// }
+	minPrice := cardPrice.MinPrice * float64(card.Number)
+	avgPrice := cardPrice.AvgPrice * float64(card.Number)
 
-// func genData(card *communityModels.CardInfo, resp *v1Models.PostDeckPriceResponse) error {
-// 	cardPrice, err := database.GetCardPrice(fmt.Sprint(card.Cards.CardID))
-// 	if err != nil {
-// 		return fmt.Errorf("获取价格失败")
-// 	}
+	resp.Data = append(resp.Data, models.PostDeckPriceRespData{
+		CardIDFromDB:   cardPrice.CardIDFromDB,
+		Count:          int(card.Number),
+		Serial:         cardPrice.Serial,
+		ScName:         cardPrice.ScName,
+		Rarity:         cardPrice.Rarity,
+		AlternativeArt: cardPrice.AlternativeArt,
+		MinPrice:       fmt.Sprintf("%.2f", minPrice),
+		AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
+		MinUnitPrice:   fmt.Sprintf("%.2f", cardPrice.MinPrice),
+		AvgUnitPrice:   fmt.Sprintf("%.2f", cardPrice.AvgPrice),
+		Image:          cardPrice.ImageUrl,
+	})
 
-// 	minPrice := cardPrice.MinPrice * float64(card.Number)
-// 	avgPrice := cardPrice.AvgPrice * float64(card.Number)
+	p.allMinPrice = p.allMinPrice + minPrice
+	p.allAvgPrice = p.allAvgPrice + avgPrice
 
-// 	resp.Data = append(resp.Data, v1Models.MutCardPrice{
-// 		Count:          int(card.Number),
-// 		Serial:         cardPrice.Serial,
-// 		ScName:         cardPrice.ScName,
-// 		AlternativeArt: cardPrice.AlternativeArt,
-// 		MinPrice:       minPrice,
-// 		AvgPrice:       avgPrice,
-// 	})
-
-// 	resp.MinPrice = resp.MinPrice + minPrice
-// 	resp.AvgPrice = resp.AvgPrice + avgPrice
-
-// 	return nil
-// }
+	return nil
+}
 
 // 根据 DTCG_DB 导出的 JSON 格式卡组信息获取卡组价格
 func GetDeckPriceWithJSON(req *models.PostDeckPriceWithJSONReqBody) (*models.PostDeckPriceResp, error) {
 	var (
-		resp        models.PostDeckPriceResp
-		allMinPrice float64
-		allAvgPrice float64
+		resp models.PostDeckPriceResp
+		p    price
 	)
 
-	// client := community.NewCommunityClient(core.NewClient("", 10))
-	// decks, err := client.PostDeckConvert(req.Deck)
 	decks, err := handler.H.MoecardServices.Community.PostDeckConvert(req.Deck)
 	if err != nil {
 		return nil, fmt.Errorf("从 dtcg db 网站获取卡组详情失败: %v", err)
 	}
 
-	// TODO: 假设 Eggs 和 Main 是两种类型的话，怎么用泛型？
 	for _, card := range decks.Data.DeckInfo.Eggs {
-		cardPrice, err := database.GetCardPrice(fmt.Sprint(card.Cards.CardID))
+		err := calculatePrice(&p, &resp, &card)
 		if err != nil {
-			return nil, fmt.Errorf("获取价格失败")
+			return nil, err
 		}
-
-		minPrice := cardPrice.MinPrice * float64(card.Number)
-		avgPrice := cardPrice.AvgPrice * float64(card.Number)
-
-		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
-			CardIDFromDB:   cardPrice.CardIDFromDB,
-			Count:          int(card.Number),
-			Serial:         cardPrice.Serial,
-			ScName:         cardPrice.ScName,
-			Rarity:         cardPrice.Rarity,
-			AlternativeArt: cardPrice.AlternativeArt,
-			MinPrice:       fmt.Sprintf("%.2f", minPrice),
-			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
-			MinUnitPrice:   fmt.Sprintf("%.2f", cardPrice.MinPrice),
-			AvgUnitPrice:   fmt.Sprintf("%.2f", cardPrice.AvgPrice),
-			Image:          cardPrice.ImageUrl,
-		})
-
-		allMinPrice = allMinPrice + minPrice
-		allAvgPrice = allAvgPrice + avgPrice
 	}
 
-	// TODO: 假设 Eggs 和 Main 是两种类型的话，怎么用泛型？
 	for _, card := range decks.Data.DeckInfo.Main {
-		cardPrice, err := database.GetCardPrice(fmt.Sprint(card.Cards.CardID))
+		err := calculatePrice(&p, &resp, &card)
 		if err != nil {
-			return nil, fmt.Errorf("获取价格失败")
+			return nil, err
 		}
-
-		minPrice := cardPrice.MinPrice * float64(card.Number)
-		avgPrice := cardPrice.AvgPrice * float64(card.Number)
-
-		resp.Data = append(resp.Data, models.PostDeckPriceRespData{
-			CardIDFromDB:   cardPrice.CardIDFromDB,
-			Count:          int(card.Number),
-			Serial:         cardPrice.Serial,
-			ScName:         cardPrice.ScName,
-			Rarity:         cardPrice.Rarity,
-			AlternativeArt: cardPrice.AlternativeArt,
-			MinPrice:       fmt.Sprintf("%.2f", minPrice),
-			AvgPrice:       fmt.Sprintf("%.2f", avgPrice),
-			MinUnitPrice:   fmt.Sprintf("%.2f", cardPrice.MinPrice),
-			AvgUnitPrice:   fmt.Sprintf("%.2f", cardPrice.AvgPrice),
-			Image:          cardPrice.ImageUrl,
-		})
-
-		allMinPrice = allMinPrice + minPrice
-		allAvgPrice = allAvgPrice + avgPrice
 	}
 
-	resp.MinPrice = fmt.Sprintf("%.2f", allMinPrice)
-	resp.AvgPrice = fmt.Sprintf("%.2f", allAvgPrice)
+	resp.MinPrice = fmt.Sprintf("%.2f", p.allMinPrice)
+	resp.AvgPrice = fmt.Sprintf("%.2f", p.allAvgPrice)
 
 	return &resp, nil
 }
