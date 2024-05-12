@@ -16,13 +16,15 @@ import (
 )
 
 type Flags struct {
-	Lang      string
-	DirPrefix string
+	Lang           string
+	DirPrefix      string
+	CardUpdateTime string
 }
 
 func AddFlags(f *Flags) {
 	pflag.StringVarP(&f.Lang, "lang", "l", "cn", "图片的语言")
 	pflag.StringVarP(&f.DirPrefix, "dir-prefix", "d", "/mnt/d/Projects/dtcg/images", "保存目录的前缀")
+	pflag.StringVar(&f.CardUpdateTime, "card-update-time", "2024-04-25", "卡牌更新时间。主要针对中文宣传卡，只有指定的时间之后的卡图才会下载。因为中文官网所有宣传卡都放在一起没有分类")
 }
 
 func main() {
@@ -50,7 +52,7 @@ func main() {
 
 	switch flags.Lang {
 	case "cn":
-		imageHandler = cn.NewImageHandler(flags.DirPrefix)
+		imageHandler = cn.NewImageHandler(flags.DirPrefix, flags.CardUpdateTime)
 	case "en":
 		imageHandler = en.NewImageHandler(flags.DirPrefix)
 	case "jp":

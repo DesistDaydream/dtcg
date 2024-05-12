@@ -16,14 +16,16 @@ import (
 )
 
 type ImageHandler struct {
-	Lang      string
-	DirPrefix string
+	Lang           string
+	DirPrefix      string
+	CardUpdateTime string
 }
 
-func NewImageHandler(dirPrefix string) handler.ImageHandler {
+func NewImageHandler(dirPrefix string, cardUpdateTime string) handler.ImageHandler {
 	return &ImageHandler{
-		Lang:      "",
-		DirPrefix: dirPrefix,
+		Lang:           "",
+		DirPrefix:      dirPrefix,
+		CardUpdateTime: cardUpdateTime,
 	}
 }
 
@@ -114,9 +116,9 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 			err := handler.DownloadImage(url, filePath)
 			if err != nil {
 				handler.FailCount++
-				logrus.Errorf("下载图片失败: %v", err)
+				logrus.Debugf("下载图片失败: %v", err)
 			} else {
-				logrus.Debugf("下载到【%v】完成", filePath)
+				logrus.Debugf("下载图片到【%v】成功", filePath)
 				handler.SuccessCount++
 			}
 		}
@@ -134,6 +136,10 @@ func (i *ImageHandler) GetImagesURL(c *models.FilterConditionReq) ([]string, err
 	}
 
 	for _, cardDesc := range cardDescs.Page.CardsDesc {
+		// 国内官网 P 卡不分类，不要下太多卡，只获取某个时间点之后的卡的 URL
+		if cardDesc.CardGroup == "宣传卡" && cardDesc.UpdateTime < fmt.Sprintf("%v 00:00:00", i.CardUpdateTime) {
+			continue
+		}
 		// logrus.Debugln(mon.ImageCover)
 		urls = append(urls, cardDesc.ImageCover)
 	}
