@@ -1,10 +1,12 @@
 package cn
 
 import (
+	"fmt"
 	"net/url"
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/DesistDaydream/dtcg/cmd/download_images/handler"
@@ -63,7 +65,7 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.FilterConditionReq{
 		Page:             "",
-		Limit:            "300",
+		Limit:            "600",
 		Name:             "",
 		State:            "0",
 		CardGroup:        "",
@@ -156,14 +158,21 @@ func (i *ImageHandler) GenFileName(urlStr string) string {
 	}
 
 	// 将文件名中的中文字符替换为空
-	expr := "[\u4e00-\u9fa5 | \u00a0]"
-	reg := regexp.MustCompile(expr)
+	reg := regexp.MustCompile(`[\p{Han}]+`)
 	newFileName := reg.ReplaceAllString(fileName, "")
 
-	// 将文件名中的时间戳去掉
-	timestampExpr := "[0-9]{13}"
-	timestampReg := regexp.MustCompile(timestampExpr)
-	newFileName2 := timestampReg.ReplaceAllString(newFileName, "")
+	// 将文件名开头的时间戳去掉；将文件名开头的 ch_ 去掉
+	timeStampRe := regexp.MustCompile(`^\d{10,}|^ch_`)
+	newFileName = timeStampRe.ReplaceAllString(newFileName, "")
 
-	return newFileName2
+	// 将文件名中的 _01, _02, etc. 替换为 _P1, _P2, etc.
+	// 同时将所有非 .png 的后缀都替换成 .png
+	numSuffixRe := regexp.MustCompile(`_(\d+)\.\w+`)
+	newFileName = numSuffixRe.ReplaceAllStringFunc(newFileName, func(m string) string {
+		parts := numSuffixRe.FindStringSubmatch(m)
+		num, _ := strconv.Atoi(parts[1])    // 转换数字部分
+		return fmt.Sprintf("_P%d.png", num) // 生成新的字符串，统一后缀为 .png
+	})
+
+	return newFileName
 }
