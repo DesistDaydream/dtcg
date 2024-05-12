@@ -67,7 +67,7 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 	// 设定过滤条件以获取指定卡片的详情
 	c := &models.FilterConditionReq{
 		Page:             "",
-		Limit:            "600",
+		Limit:            "200",
 		Name:             "",
 		State:            "0",
 		CardGroup:        "",
@@ -127,21 +127,36 @@ func (i *ImageHandler) DownloadCardImage(needDownloadCardPackages []*handler.Car
 
 // 从卡片详情中获取下载图片所需的 URL
 func (i *ImageHandler) GetImagesURL(c *models.FilterConditionReq) ([]string, error) {
-	var urls []string
+	var (
+		urls []string
+		page int = 1
+	)
 
-	// 根据过滤条件获取卡片详情
-	cardDescs, err := services.GetCardsDesc(c)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, cardDesc := range cardDescs.Page.CardsDesc {
-		// 国内官网 P 卡不分类，不要下太多卡，只获取某个时间点之后的卡的 URL
-		if cardDesc.CardGroup == "宣传卡" && cardDesc.UpdateTime < fmt.Sprintf("%v 00:00:00", i.CardUpdateTime) {
-			continue
+	for {
+		// 根据过滤条件获取卡片详情
+		cardDescs, err := services.GetCardsDesc(c)
+		if err != nil {
+			return nil, err
 		}
-		// logrus.Debugln(mon.ImageCover)
-		urls = append(urls, cardDesc.ImageCover)
+		logrus.Infoln(len(cardDescs.Page.CardsDesc))
+
+		for _, cardDesc := range cardDescs.Page.CardsDesc {
+			// 国内官网 P 卡不分类，不要下太多卡，只获取某个时间点之后的卡的 URL
+			if cardDesc.CardGroup == "宣传卡" && cardDesc.UpdateTime < fmt.Sprintf("%v 00:00:00", i.CardUpdateTime) {
+				continue
+			}
+			// logrus.Debugln(mon.ImageCover)
+			urls = append(urls, cardDesc.ImageCover)
+		}
+
+		logrus.Debugf("第 %v 页，共 %v 页", page, cardDescs.Page.TotalPage)
+		// 这 TM 官网第 1 页的 currPage 居然是 0 ？？！！哪个 XX 写的代码
+		// 好像所有查询的最后一页都是空的？待确认
+		if cardDescs.Page.CurrPage+1 == cardDescs.Page.TotalPage {
+			break
+		}
+		page++
+		c.Page = strconv.Itoa(page)
 	}
 
 	return urls, nil
