@@ -1,4 +1,4 @@
-package subset
+package utils
 
 import (
 	"fmt"
