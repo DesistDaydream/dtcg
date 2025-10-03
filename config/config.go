@@ -8,13 +8,14 @@ import (
 )
 
 type Config struct {
-	Listen         string  `yaml:"listen"`
-	TokenExpiresAt string  `yaml:"tokenExpiresAt"` // 生成的 Token 过期时间
-	DBType         string  `yaml:"dbType"`
-	Mysql          MySQL   `yaml:"mysql"`
-	SQLite         SQLite  `yaml:"sqlite"`
-	Moecard        Moecard `yaml:"moecard"`
-	JHS            JHS     `yaml:"jhs"`
+	Listen         string     `yaml:"listen"`
+	TokenExpiresAt string     `yaml:"tokenExpiresAt"` // 生成的 Token 过期时间
+	DBType         string     `yaml:"dbType"`
+	Mysql          MySQL      `yaml:"mysql"`
+	SQLite         SQLite     `yaml:"sqlite"`
+	ClickHouse     ClickHouse `yaml:"clickhouse"`
+	Moecard        Moecard    `yaml:"moecard"`
+	JHS            JHS        `yaml:"jhs"`
 }
 
 type MySQL struct {
@@ -24,6 +25,12 @@ type MySQL struct {
 
 type SQLite struct {
 	FilePath string `yaml:"filePath"`
+}
+
+type ClickHouse struct {
+	Server   string `yaml:"server"`
+	Password string `yaml:"password"`
+	Database string `yaml:"database"`
 }
 
 type Moecard struct {
